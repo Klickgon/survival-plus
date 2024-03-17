@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "survival-plus",
+	"version": "${version}",
+	"name": "Survival Plus",
+	"description": "Survival gamemode expansion mod",
+	"authors": [
+		"Klickgon"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/survival-plus/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"survivalplus.modid.SurvivalPlus"
+		],
+		"client": [
+			"survivalplus.modid.SurvivalPlusClient"
+		],
+		"fabric-datagen": [
+			"survivalplus.modid.SurvivalPlusDataGenerator"
+		]
+	},
+	"mixins": [
+		"survival-plus.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.7",
+		"minecraft": "~1.20.2",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
