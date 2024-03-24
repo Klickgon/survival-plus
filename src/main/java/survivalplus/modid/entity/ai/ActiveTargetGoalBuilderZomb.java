@@ -36,7 +36,7 @@ extends TrackTargetGoalMindless {
     protected LivingEntity targetEntity;
     protected TargetPredicate targetPredicate;
 
-    private int DirtJumpCooldown = 0;
+    private int DirtJumpCooldown = 20;
 
     public ActiveTargetGoalBuilderZomb(MobEntity mob, Class<T> targetClass, boolean checkVisibility) {
         this((BuilderZombieEntity) mob, targetClass, 10, checkVisibility, false, null);
@@ -93,16 +93,16 @@ extends TrackTargetGoalMindless {
 
                 World world = mob.getWorld();
 
-                    if(DirtJumpCooldown > 20 && world.getBlockState(mob.getBlockPos()).isOf(Blocks.AIR)){
+                    if(DirtJumpCooldown <= 0 && world.getBlockState(mob.getBlockPos()).isOf(Blocks.AIR)){
                         if(mob.getWorld().getBlockState(mob.getBlockPos().up(2)).isOf(Blocks.AIR)){
                         this.mob.getJumpControl().setActive();
                         BlockPos BlockUnder = mob.getBlockPos();
                         mob.getWorld().setBlockState(BlockUnder, Blocks.DIRT.getDefaultState(), Block.NOTIFY_ALL);
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-                        DirtJumpCooldown = 0;
+                        DirtJumpCooldown = 20;
                         }
                     }
-                    else DirtJumpCooldown++;
+                    else DirtJumpCooldown--;
                 }
 
             }

@@ -45,7 +45,11 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.predicate.entity.EntityPredicates;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -97,22 +101,7 @@ public class BuilderZombieEntity
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.WHITE_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.BLACK_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.BROWN_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.BLUE_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.CYAN_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.GRAY_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.GREEN_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.LIME_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.MAGENTA_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.ORANGE_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.PINK_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.PURPLE_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.RED_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.YELLOW_BED, (HostileEntity)this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.LIGHT_BLUE_BED, (HostileEntity) this, 1.0, 3));
-        this.goalSelector.add(4, new DestroyBedGoal(Blocks.LIGHT_GRAY_BED, (HostileEntity) this, 1.0, 3));
+        this.goalSelector.add(4, new DestroyBedGoal((HostileEntity)this, 1.0, 3));
         this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));
@@ -256,15 +245,15 @@ public class BuilderZombieEntity
             if (target != null) {
                 int XDiff = Math.abs(this.getBlockX() - target.getBlockX());
                 int ZDiff = Math.abs(this.getBlockZ() - target.getBlockZ());
-                if (DirtPlaceCooldown >= 2 && (XDiff > 3 && ZDiff > 3)) {
+                if (XDiff > 3 && ZDiff > 3) {
                     BlockPos BlockUnder = getBlockPos().down(1);
                     BlockPos BlockUnder2 = getBlockPos().down(2);
                     if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
-                        this.getWorld().setBlockState(BlockUnder, Blocks.DIRT.getDefaultState(), Block.NOTIFY_ALL);
+                        this.getWorld().setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-                        DirtPlaceCooldown = 0;
+
                     }
-                } else DirtPlaceCooldown++;
+                }
             }
         }
 
@@ -287,10 +276,6 @@ public class BuilderZombieEntity
 
 
     protected void convertInWater() {
-        this.convertTo(EntityType.DROWNED);
-        if (!this.isSilent()) {
-            this.getWorld().syncWorldEvent(null, WorldEvents.ZOMBIE_CONVERTS_TO_DROWNED, this.getBlockPos(), 0);
-        }
     }
 
 

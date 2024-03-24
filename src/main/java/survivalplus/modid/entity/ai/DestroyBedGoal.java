@@ -1,25 +1,16 @@
 package survivalplus.modid.entity.ai;
 
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
 import net.minecraft.entity.ai.goal.StepAndDestroyBlockGoal;
 import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.PathAwareEntity;
-import net.minecraft.entity.mob.ZombieEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.particle.ItemStackParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -29,13 +20,12 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
 
     private final HostileEntity DestroyMob;
     private int counter;
-    private final Block targetBed;
+    private final TagKey<Block> BedGroup = BlockTags.BEDS;
 
     private static final int MAX_COOLDOWN = 20;
 
-    public DestroyBedGoal(Block targetBed, HostileEntity mob, double speed, int maxYDifference) {
+    public DestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 1024, maxYDifference);
-        this.targetBed = targetBed;
         this.DestroyMob = mob;
     }
 
@@ -78,9 +68,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
         World world = this.DestroyMob.getWorld();
         BlockPos blockPos = this.DestroyMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
-        Random random = this.DestroyMob.getRandom();
             if (this.hasReached() && blockPos2 != null) {
-            double d;
             Vec3d vec3d;
             if (this.counter > 0) {
                 vec3d = this.DestroyMob.getVelocity();
@@ -106,11 +94,11 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     @Nullable
     private BlockPos tweakToProperPos(BlockPos pos, BlockView world) {
         BlockPos[] blockPoss;
-        if (world.getBlockState(pos).isOf(this.targetBed)) {
+        if (world.getBlockState(pos).isIn(this.BedGroup)) {
             return pos;
         }
         for (BlockPos blockPos : blockPoss = new BlockPos[]{pos.down(), pos.west(), pos.east(), pos.north(), pos.south(), pos.down().down()}) {
-            if (!world.getBlockState(blockPos).isOf(this.targetBed)) continue;
+            if (!world.getBlockState(blockPos).isIn(this.BedGroup)) continue;
             return blockPos;
         }
         return null;
@@ -123,7 +111,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos).isOf(this.targetBed) && chunk.getBlockState(pos.up()).isAir() && chunk.getBlockState(pos.up(2)).isAir();
+            return chunk.getBlockState(pos).isIn(this.BedGroup) && chunk.getBlockState(pos.up()).isAir() && chunk.getBlockState(pos.up(2)).isAir();
         }
         return false;
     }

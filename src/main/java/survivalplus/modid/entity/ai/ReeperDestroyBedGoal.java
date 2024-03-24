@@ -12,6 +12,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -31,13 +33,13 @@ import survivalplus.modid.entity.custom.ReeperEntity;
 import java.util.EnumSet;
 
 public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
-    private final Block targetBed;
+    private final TagKey<Block> BedGroup = BlockTags.BEDS;
     private final ReeperEntity reeper;
 
 
-    public ReeperDestroyBedGoal(Block targetBed, ReeperEntity reeper, double speed) {
+
+    public ReeperDestroyBedGoal(ReeperEntity reeper, double speed) {
         super(reeper, speed, 1024);
-        this.targetBed = targetBed;
         this.reeper = reeper;
     }
 
@@ -84,7 +86,7 @@ public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos).isOf(this.targetBed) && chunk.getBlockState(pos.up()).isAir() && chunk.getBlockState(pos.up(2)).isAir();
+            return chunk.getBlockState(pos).isIn(this.BedGroup) && chunk.getBlockState(pos.up()).isAir() && chunk.getBlockState(pos.up(2)).isAir();
         }
         return false;
     }
