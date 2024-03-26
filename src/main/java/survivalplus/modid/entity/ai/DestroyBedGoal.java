@@ -25,7 +25,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     private static final int MAX_COOLDOWN = 20;
 
     public DestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
-        super(mob, speed, 1024, maxYDifference);
+        super(mob, speed, 512, maxYDifference);
         this.DestroyMob = mob;
     }
 
@@ -58,9 +58,6 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
         this.counter = 0;
     }
 
-    public void tickStepping(WorldAccess world, BlockPos pos) {
-    }
-
 
     @Override
     public void tick() {
@@ -77,9 +74,6 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
             if (this.counter % 2 == 0) {
                 vec3d = this.DestroyMob.getVelocity();
                 this.DestroyMob.setVelocity(vec3d.x, -0.3, vec3d.z);
-                if (this.counter % 6 == 0) {
-                    this.tickStepping(world, this.targetPos);
-                }
             }
             if (this.counter > 60) {
                 world.removeBlock(blockPos2, false);

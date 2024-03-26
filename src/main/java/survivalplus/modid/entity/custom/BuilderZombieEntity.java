@@ -69,6 +69,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import survivalplus.modid.entity.ai.ActiveTargetGoalBuilderZomb;
 import survivalplus.modid.entity.ai.DestroyBedGoal;
+import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
 
 public class BuilderZombieEntity
         extends ZombieEntity {
@@ -95,6 +96,7 @@ public class BuilderZombieEntity
 
     public BuilderZombieEntity(EntityType<? extends net.minecraft.entity.mob.ZombieEntity> entityType, World world) {
         super((EntityType<? extends ZombieEntity>)entityType, world);
+        this.navigation = new BuilderZombieNavigation(this, this.getWorld());
     }
 
 
@@ -240,32 +242,33 @@ public class BuilderZombieEntity
                     this.setOnFireFor(8);
                 }
             }
-            World world = this.getWorld();
+
             PlayerEntity target = (PlayerEntity) getTarget();
-            if (target != null) {
+            if (DirtPlaceCooldown <= 0 && target != null) {
+                World world = this.getWorld();
+                BlockPos BlockUnder = getBlockPos().down(1);
+                BlockPos BlockUnder2 = getBlockPos().down(2);
                 int XDiff = Math.abs(this.getBlockX() - target.getBlockX());
                 int ZDiff = Math.abs(this.getBlockZ() - target.getBlockZ());
-                if (XDiff > 3 && ZDiff > 3) {
-                    BlockPos BlockUnder = getBlockPos().down(1);
-                    BlockPos BlockUnder2 = getBlockPos().down(2);
+                if (XDiff >= 2 || ZDiff >= 2) {
                     if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
-                        this.getWorld().setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
+                        world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-
+                        DirtPlaceCooldown = 1;
                     }
+
                 }
             }
+            else DirtPlaceCooldown--;
         }
-
         super.tickMovement();
     }
 
-    public boolean canPlaceDirt (World world, BlockPos BlockUnder, BlockPos BlockUnder2){
-        BlockState dirt = Blocks.DIRT.getDefaultState();
-        boolean bool1 = dirt.canPlaceAt(this.getWorld(), BlockUnder);
-        boolean bool2 = world.getBlockState(BlockUnder).isAir() || world.getBlockState(BlockUnder).isOf(Blocks.WATER) || world.getBlockState(BlockUnder).isOf(Blocks.LAVA);
-        boolean bool3 = world.getBlockState(BlockUnder2).isAir() || world.getBlockState(BlockUnder2).isOf(Blocks.WATER) || world.getBlockState(BlockUnder2).isOf(Blocks.LAVA);
-        return !this.jumping && bool1 && bool2 && bool3;
+    private boolean canPlaceDirt (World world, BlockPos BlockUnder, BlockPos BlockUnder2){
+        if(world.getBlockState(BlockUnder).isAir()){
+            return world.getBlockState(BlockUnder2).isAir();
+        }
+        return world.getBlockState(BlockUnder).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(BlockUnder).isAir();
     }
 
     private void setTicksUntilWaterConversion(int ticksUntilWaterConversion) {
@@ -470,8 +473,13 @@ public class BuilderZombieEntity
                 this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
             }
         }
+        this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Blocks.DIRT, DirtBlockCount()));
         this.applyAttributeModifiers(f);
         return entityData;
+    }
+
+    private int DirtBlockCount(){
+        return (int) (1 + Math.floor((12 * (Math.random()))));
     }
 
     public static boolean shouldBeBaby(Random random) {

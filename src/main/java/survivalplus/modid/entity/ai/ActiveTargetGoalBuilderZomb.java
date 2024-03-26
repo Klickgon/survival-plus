@@ -11,6 +11,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.TrackTargetGoal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -27,7 +28,7 @@ import static net.minecraft.command.argument.BlockPosArgumentType.getBlockPos;
 
 
 public class ActiveTargetGoalBuilderZomb<T extends LivingEntity>
-extends TrackTargetGoalMindless {
+extends TrackTargetGoal {
     private static final int DEFAULT_RECIPROCAL_CHANCE = 10;
     protected final Class<T> targetClass;
 
@@ -89,17 +90,17 @@ extends TrackTargetGoalMindless {
             int targetPosY = targetEntity.getBlockPos().getY();
             int mobTargetDiff = mobPosY - targetPosY;
 
-            if(mobTargetDiff < 2 && mobTargetDiff > -8){
+            if(mobTargetDiff < 0 && mobTargetDiff > -8){
 
                 World world = mob.getWorld();
 
-                    if(DirtJumpCooldown <= 0 && world.getBlockState(mob.getBlockPos()).isOf(Blocks.AIR)){
+                    if(DirtJumpCooldown <= 0 && world.getBlockState(mob.getBlockPos()).isIn(BlockTags.REPLACEABLE)){
                         if(mob.getWorld().getBlockState(mob.getBlockPos().up(2)).isOf(Blocks.AIR)){
                         this.mob.getJumpControl().setActive();
                         BlockPos BlockUnder = mob.getBlockPos();
-                        mob.getWorld().setBlockState(BlockUnder, Blocks.DIRT.getDefaultState(), Block.NOTIFY_ALL);
+                        mob.getWorld().setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-                        DirtJumpCooldown = 20;
+                        DirtJumpCooldown = 10;
                         }
                     }
                     else DirtJumpCooldown--;
@@ -113,7 +114,7 @@ extends TrackTargetGoalMindless {
         this.targetEntity = targetEntity;
     }
 
-    public LivingEntity getTargetEntity(){
+    public @Nullable LivingEntity getTargetEntity(){
         return this.targetEntity;
     }
 }

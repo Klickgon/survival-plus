@@ -13,18 +13,15 @@ public class ReeperIgniteGoal extends Goal {
     private final ReeperEntity reeper;
     @Nullable
     private LivingEntity target;
-    private boolean hadTarget;
+
 
     public ReeperIgniteGoal(ReeperEntity reeper) {
         this.reeper = reeper;
         this.setControls(EnumSet.of(Control.MOVE));
-        this.hadTarget = false;
     }
 
     public boolean canStart() {
         LivingEntity livingEntity = this.reeper.getTarget();
-
-        if(livingEntity != null) this.hadTarget = true;
         return this.reeper.getFuseSpeed() > 0 || livingEntity != null && this.reeper.squaredDistanceTo(livingEntity) < 9.0;
     }
 
@@ -42,13 +39,12 @@ public class ReeperIgniteGoal extends Goal {
     }
 
     public void tick() {
-        if (this.target == null && !this.hadTarget) {
+        if (this.reeper.squaredDistanceTo(this.target) > 49.0 && this.target == null) {
             this.reeper.setFuseSpeed(-1);
-        } else if (this.reeper.squaredDistanceTo(this.target) > 49.0) {
-            this.reeper.setFuseSpeed(-1);
-        } else {
-            this.reeper.setFuseSpeed(1);
+            return;
         }
+        this.reeper.setFuseSpeed(1);
+
     }
 }
 
