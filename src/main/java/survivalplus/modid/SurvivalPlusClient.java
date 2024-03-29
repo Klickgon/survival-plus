@@ -7,11 +7,7 @@ import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.util.Identifier;
 import survivalplus.modid.entity.ModEntities;
-import survivalplus.modid.entity.client.BuilderZombieRenderer;
-import survivalplus.modid.entity.client.BuilderZombieModel;
-import survivalplus.modid.entity.client.ModModelLayers;
-import survivalplus.modid.entity.client.ReeperModel;
-import survivalplus.modid.entity.client.ReeperRenderer;
+import survivalplus.modid.entity.client.*;
 
 
 public class SurvivalPlusClient implements ClientModInitializer {
@@ -23,5 +19,8 @@ public class SurvivalPlusClient implements ClientModInitializer {
 
         EntityRendererRegistry.register(ModEntities.BUILDERZOMBIE, BuilderZombieRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.BUILDERZOMBIE, BuilderZombieModel::getTexturedModelData);
+
+        EntityRendererRegistry.register(ModEntities.MINERZOMBIE, MinerZombieRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(ModModelLayers.MINERZOMBIE, MinerZombieModel::getTexturedModelData);
     }
 }

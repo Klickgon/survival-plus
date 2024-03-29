@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.custom.BuilderZombieEntity;
+import survivalplus.modid.entity.custom.MinerZombieEntity;
 import survivalplus.modid.entity.custom.ReeperEntity;
 
 public class SurvivalPlus implements ModInitializer {
@@ -25,5 +26,6 @@ public class SurvivalPlus implements ModInitializer {
 	public void onInitialize() {
 	FabricDefaultAttributeRegistry.register(ModEntities.REEPER, ReeperEntity.createReeperAttributes());
 	FabricDefaultAttributeRegistry.register(ModEntities.BUILDERZOMBIE, BuilderZombieEntity.createZombieAttributes());
+		FabricDefaultAttributeRegistry.register(ModEntities.MINERZOMBIE, MinerZombieEntity.createZombieAttributes());
 	}
 }
