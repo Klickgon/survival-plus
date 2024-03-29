@@ -3,6 +3,7 @@ package survivalplus.modid.entity.custom;
 import java.util.Collection;
 import java.util.EnumSet;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.render.entity.feature.SkinOverlayOwner;
 import net.minecraft.entity.AreaEffectCloudEntity;
@@ -29,19 +30,26 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.entity.ai.ReeperDestroyBedGoal;
 import survivalplus.modid.entity.ai.ReeperIgniteGoal;
+import survivalplus.modid.entity.ai.pathing.ReeperNavigation;
 
 public class ReeperEntity
         extends HostileEntity
@@ -53,9 +61,9 @@ public class ReeperEntity
     private int currentFuseTime;
     private int fuseTime = 30;
     private int explosionRadius = 3;
+    private BlockPos targetBedPos;
 
-    public boolean hadTarget = false;
-    public boolean lostTarget = false;
+    private boolean hadTarget = false;
 
     public ReeperEntity(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
@@ -135,16 +143,14 @@ public class ReeperEntity
     @Override
     public void tick() {
         if (this.isAlive()) {
+
             if(!this.hadTarget && this.getTarget() != null) this.hadTarget = true;
-
-            if(this.hadTarget && this.getTarget() == null) this.lostTarget = true;
-
             int i;
             this.lastFuseTime = this.currentFuseTime;
             if (this.isIgnited()) {
                 this.setFuseSpeed(1);
             }
-            if (this.lostTarget) {
+            if (this.hadTarget && this.getTarget() == null) {
                 this.setFuseSpeed(1);
             }
             if ((i = this.getFuseSpeed()) > 0 && this.currentFuseTime == 0) {
@@ -162,6 +168,7 @@ public class ReeperEntity
         }
         super.tick();
     }
+
 
     @Override
     public void setTarget(@Nullable LivingEntity target) {

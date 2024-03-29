@@ -25,24 +25,27 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     private static final int MAX_COOLDOWN = 20;
 
     public DestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
-        super(mob, speed, 512, maxYDifference);
+        super(mob, speed, 256, maxYDifference);
         this.DestroyMob = mob;
+        this.cooldown = 600;
     }
 
     @Override
     public boolean canStart() {
-        if (!this.DestroyMob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
-            return false;
-        }
         if (this.cooldown > 0) {
             --this.cooldown;
             return false;
         }
+
+        if (!this.DestroyMob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
+            return false;
+        }
+
         if (this.findTargetPos()) {
             this.cooldown = StepAndDestroyBlockGoal.toGoalTicks(20);
             return true;
         }
-        this.cooldown = this.getInterval(this.mob);
+        this.cooldown = 600;
         return false;
     }
 

@@ -96,6 +96,7 @@ extends TrackTargetGoal {
 
                     if(DirtJumpCooldown <= 0 && world.getBlockState(mob.getBlockPos()).isIn(BlockTags.REPLACEABLE)){
                         if(mob.getWorld().getBlockState(mob.getBlockPos().up(2)).isOf(Blocks.AIR)){
+
                         this.mob.getJumpControl().setActive();
                         BlockPos BlockUnder = mob.getBlockPos();
                         mob.getWorld().setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
