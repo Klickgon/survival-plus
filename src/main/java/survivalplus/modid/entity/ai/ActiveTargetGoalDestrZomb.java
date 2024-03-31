@@ -110,15 +110,14 @@ extends TrackTargetGoal {
                     if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
                         world.breakBlock(this.facingBlock, false);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    } else if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
-                        if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
-                            world.breakBlock(this.facingBlock.down(), false);
-                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                        }
-                        else if(world.getBlockState(this.facingBlock.down()).isReplaceable()){
-                            world.breakBlock(this.facingBlock.down(2), false);
-                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                        }
+                    }
+                    else if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
+                        world.breakBlock(this.facingBlock.down(), false);
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                    }
+                    else if(world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blocktag)){
+                        world.breakBlock(this.facingBlock.down(2), false);
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     }
                 }
 
@@ -126,7 +125,8 @@ extends TrackTargetGoal {
                     if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blocktag)) {
                         world.breakBlock(this.mob.getBlockPos().up(2), false);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    } else if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
+                    }
+                    else if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
                             world.breakBlock(this.facingBlock, false);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     }
