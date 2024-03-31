@@ -1,26 +1,18 @@
 package survivalplus.modid.entity.ai.pathing;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.MobNavigation;
-import net.minecraft.entity.ai.pathing.Path;
-import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
 
 public class DestroyZombieNavigation extends MobNavigation {
 
     private int recalcCooldown = 0;
-    private TagKey<Block> blocktag;
+    private final TagKey<Block> blocktag;
 
     public DestroyZombieNavigation(MobEntity mobEntity, World world, TagKey<Block> blocktag) {
         super(mobEntity, world);
@@ -34,7 +26,7 @@ public class DestroyZombieNavigation extends MobNavigation {
             LivingEntity target = this.entity.getTarget();
             if (target != null) {
                 this.currentPath = null;
-                this.currentPath = this.findPathTo((Entity) target, (int) this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
+                this.currentPath = this.findPathTo(target, (int) this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
                 this.recalcCooldown = 40;
             }
         }

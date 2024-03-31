@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import survivalplus.modid.entity.ai.ActiveTargetGoalBuilderZomb;
 import survivalplus.modid.entity.ai.ActiveTargetGoalDestrZomb;
+import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
@@ -79,7 +80,7 @@ public class MinerZombieEntity
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new DestroyBedGoal((HostileEntity)this, 1.0, 3));
+        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 3, BlockTags.PICKAXE_MINEABLE));
         this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));

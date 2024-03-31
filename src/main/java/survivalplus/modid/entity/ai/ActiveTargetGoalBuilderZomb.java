@@ -3,11 +3,9 @@
  */
 package survivalplus.modid.entity.ai;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
-import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.TrackTargetGoal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -23,8 +21,6 @@ import survivalplus.modid.entity.custom.BuilderZombieEntity;
 
 import java.util.EnumSet;
 import java.util.function.Predicate;
-
-import static net.minecraft.command.argument.BlockPosArgumentType.getBlockPos;
 
 
 public class ActiveTargetGoalBuilderZomb<T extends LivingEntity>
