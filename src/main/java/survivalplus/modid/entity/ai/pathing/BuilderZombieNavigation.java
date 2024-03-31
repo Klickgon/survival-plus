@@ -17,6 +17,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class BuilderZombieNavigation extends MobNavigation {
 
+    private int recalcCooldown = 0;
+
     public BuilderZombieNavigation(MobEntity mobEntity, World world) {
         super(mobEntity, world);
     }
@@ -29,17 +31,16 @@ public class BuilderZombieNavigation extends MobNavigation {
 
     @Override
     public void recalculatePath() {
-        if (this.world.getTime() - this.lastRecalculateTime > 20L) {
+        if (this.recalcCooldown <= 0) {
             LivingEntity target = this.entity.getTarget();
             if (target != null) {
                 this.currentPath = null;
                 this.currentPath = this.findPathTo((Entity) target, (int) this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
-                this.lastRecalculateTime = this.world.getTime();
-                this.inRecalculationCooldown = false;
+                this.recalcCooldown = 40;
             }
-        } else {
-            this.inRecalculationCooldown = true;
         }
+        else this.recalcCooldown--;
+
     }
 
     @Override

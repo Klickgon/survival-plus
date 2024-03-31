@@ -38,8 +38,10 @@ import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import survivalplus.modid.entity.ai.ActiveTargetGoalBuilderZomb;
+import survivalplus.modid.entity.ai.ActiveTargetGoalDestrZomb;
 import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
+import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
@@ -70,6 +72,7 @@ public class MinerZombieEntity
 
     public MinerZombieEntity(EntityType<? extends ZombieEntity> entityType, World world) {
         super((EntityType<? extends ZombieEntity>)entityType, world);
+        this.navigation = new DestroyZombieNavigation((ZombieEntity) this, this.getWorld(), BlockTags.PICKAXE_MINEABLE);
     }
 
 
@@ -88,7 +91,7 @@ public class MinerZombieEntity
         this.goalSelector.add(6, new MoveThroughVillageGoal(this, 1.0, true, 4, this::canBreakDoors));
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(1, new RevengeGoal(this, new Class[0]).setGroupRevenge(ZombifiedPiglinEntity.class));
-        this.targetSelector.add(2, new ActiveTargetGoal<PlayerEntity>((MobEntity)this, PlayerEntity.class, false));
+        this.targetSelector.add(2, new ActiveTargetGoalDestrZomb<PlayerEntity>((MobEntity)this, PlayerEntity.class, false, BlockTags.PICKAXE_MINEABLE));
         this.targetSelector.add(3, new ActiveTargetGoal<MerchantEntity>((MobEntity)this, MerchantEntity.class, false));
         this.targetSelector.add(3, new ActiveTargetGoal<IronGolemEntity>((MobEntity)this, IronGolemEntity.class, true));
         this.targetSelector.add(5, new ActiveTargetGoal<TurtleEntity>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
@@ -424,10 +427,6 @@ public class MinerZombieEntity
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_PICKAXE));
         this.applyAttributeModifiers(f);
         return entityData;
-    }
-
-    private int DirtBlockCount(){
-        return (int) (1 + Math.floor((12 * (Math.random()))));
     }
 
     public static boolean shouldBeBaby(Random random) {

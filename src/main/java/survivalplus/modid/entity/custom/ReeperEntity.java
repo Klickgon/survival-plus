@@ -64,6 +64,7 @@ public class ReeperEntity
     private BlockPos targetBedPos;
 
     private boolean hadTarget = false;
+    private boolean lostTarget = false;
 
     public ReeperEntity(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
@@ -145,12 +146,13 @@ public class ReeperEntity
         if (this.isAlive()) {
 
             if(!this.hadTarget && this.getTarget() != null) this.hadTarget = true;
+            if(this.hadTarget && this.getTarget() == null) this.lostTarget = true;
             int i;
             this.lastFuseTime = this.currentFuseTime;
             if (this.isIgnited()) {
                 this.setFuseSpeed(1);
             }
-            if (this.hadTarget && this.getTarget() == null) {
+            if (this.lostTarget) {
                 this.setFuseSpeed(1);
             }
             if ((i = this.getFuseSpeed()) > 0 && this.currentFuseTime == 0) {
