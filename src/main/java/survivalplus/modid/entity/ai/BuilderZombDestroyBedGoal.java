@@ -1,8 +1,10 @@
 package survivalplus.modid.entity.ai;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
 import net.minecraft.entity.ai.goal.StepAndDestroyBlockGoal;
+import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
@@ -11,23 +13,33 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.*;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
+import survivalplus.modid.entity.ai.pathing.pathmaker.BuilderPathNodeMaker;
+import survivalplus.modid.entity.custom.BuilderZombieEntity;
 
-public class DestroyBedGoal extends MoveToTargetPosGoal {
+public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
 
-    private final HostileEntity DestroyMob;
+    private final BuilderZombieEntity DestroyMob;
     private int counter;
     private final TagKey<Block> BedGroup = BlockTags.BEDS;
 
-    private static final int MAX_COOLDOWN = 20;
+    private int DirtJumpCooldown = 10;
+    private final int maxYDifference;
+    private final int range;
 
-    public DestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
-        super(mob, speed, 128, maxYDifference);
+    public BuilderZombDestroyBedGoal(BuilderZombieEntity mob, double speed, int maxYDifference) {
+        super((HostileEntity)mob, speed, 256, maxYDifference);
+        this.range = 256;
+        this.maxYDifference = maxYDifference;
         this.DestroyMob = mob;
-        this.cooldown = 200;
+        this.cooldown = 80;
     }
 
     @Override
@@ -36,17 +48,14 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        this.cooldown = 600;
-
+        this.cooldown = 80;
         if (!this.DestroyMob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
-
         if (this.findTargetPos()) {
-            this.cooldown = StepAndDestroyBlockGoal.toGoalTicks(20);
+
             return true;
         }
-
         return false;
     }
 
@@ -59,6 +68,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void start() {
         super.start();
+        this.DestroyMob.targetBedPos = this.targetPos;
         this.counter = 0;
     }
 
@@ -67,6 +77,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     public void tick() {
         super.tick();
         World world = this.DestroyMob.getWorld();
+
         BlockPos blockPos = this.DestroyMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
             if (this.hasReached() && blockPos2 != null) {
@@ -86,6 +97,29 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
                 }
             }
             ++this.counter;
+        }
+
+
+        if(this.DestroyMob.targetBedPos != null) {
+
+            int mobPosY = DestroyMob.getBlockPos().getY();
+            int targetPosY = targetPos.getY();
+            int mobTargetDiff = mobPosY - targetPosY;
+            this.DestroyMob.setHasTargetBed(targetPos != null);
+
+            if (mobTargetDiff < 0) {
+
+                if (DirtJumpCooldown <= 0 && world.getBlockState(DestroyMob.getBlockPos()).isIn(BlockTags.REPLACEABLE)) {
+                    if (DestroyMob.getWorld().getBlockState(DestroyMob.getBlockPos().up(2)).isOf(Blocks.AIR) && DestroyMob.isOnGround()) {
+
+                        this.DestroyMob.getJumpControl().setActive();
+                        BlockPos BlockUnder = DestroyMob.getBlockPos();
+                        DestroyMob.getWorld().setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
+                        world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
+                        DirtJumpCooldown = 30;
+                    }
+                } else DirtJumpCooldown--;
+            }
         }
     }
 
@@ -117,5 +151,35 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public double getDesiredDistanceToTarget() {
         return 1.14;
+    }
+
+
+    @Override
+    protected boolean findTargetPos() {
+        int i = this.range;
+        int j = this.maxYDifference;
+        BlockPos blockPos = this.mob.getBlockPos();
+        BlockPos.Mutable mutable = new BlockPos.Mutable();
+        int k = this.lowestY;
+        while (k <= j) {
+            for (int l = 0; l < i; ++l) {
+                int m = 0;
+                while (m <= l) {
+                    int n;
+                    int n2 = n = m < l && m > -l ? l : 0;
+                    while (n <= l) {
+                        mutable.set(blockPos, m, k - 1, n);
+                        if (this.isTargetPos(this.mob.getWorld(), mutable)) {
+                            this.targetPos = mutable;
+                            return true;
+                        }
+                        n = n > 0 ? -n : 1 - n;
+                    }
+                    m = m > 0 ? -m : 1 - m;
+                }
+            }
+            k = k > 0 ? -k : 1 - k;
+        }
+        return false;
     }
 }

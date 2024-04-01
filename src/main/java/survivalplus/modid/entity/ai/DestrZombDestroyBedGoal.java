@@ -35,7 +35,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference, TagKey<Block> blocktag) {
         super(mob, speed, 256, maxYDifference);
         this.DestroyMob = mob;
-        this.cooldown = 600;
+        this.cooldown = 0;
         this.blocktag = blocktag;
     }
 
@@ -51,10 +51,9 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         }
 
         if (this.findTargetPos()) {
-            this.cooldown = StepAndDestroyBlockGoal.toGoalTicks(20);
+            this.cooldown = 200;
             return true;
         }
-        this.cooldown = 600;
         return false;
     }
 

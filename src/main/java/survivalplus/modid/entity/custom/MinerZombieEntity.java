@@ -37,11 +37,8 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
-import survivalplus.modid.entity.ai.ActiveTargetGoalBuilderZomb;
 import survivalplus.modid.entity.ai.ActiveTargetGoalDestrZomb;
 import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
-import survivalplus.modid.entity.ai.DestroyBedGoal;
-import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
 
 import java.time.LocalDate;
@@ -72,7 +69,7 @@ public class MinerZombieEntity
     private int ticksUntilWaterConversion;
 
     public MinerZombieEntity(EntityType<? extends ZombieEntity> entityType, World world) {
-        super((EntityType<? extends ZombieEntity>)entityType, world);
+        super(entityType, world);
         this.navigation = new DestroyZombieNavigation((ZombieEntity) this, this.getWorld(), BlockTags.PICKAXE_MINEABLE);
     }
 

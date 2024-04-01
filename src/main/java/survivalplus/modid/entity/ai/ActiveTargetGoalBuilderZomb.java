@@ -7,6 +7,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.TrackTargetGoal;
+import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.tag.BlockTags;
@@ -17,6 +18,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
+import survivalplus.modid.entity.ai.pathing.pathmaker.BuilderPathNodeMaker;
 import survivalplus.modid.entity.custom.BuilderZombieEntity;
 
 import java.util.EnumSet;
@@ -33,18 +36,18 @@ extends TrackTargetGoal {
     protected LivingEntity targetEntity;
     protected TargetPredicate targetPredicate;
 
-    private int DirtJumpCooldown = 20;
+    private int DirtJumpCooldown = 10;
 
-    public ActiveTargetGoalBuilderZomb(MobEntity mob, Class<T> targetClass, boolean checkVisibility) {
-        this((BuilderZombieEntity) mob, targetClass, 10, checkVisibility, false, null);
+    public ActiveTargetGoalBuilderZomb(BuilderZombieEntity mob, Class<T> targetClass, boolean checkVisibility) {
+        this(mob, targetClass, 10, checkVisibility, false, null);
     }
 
-    public ActiveTargetGoalBuilderZomb(MobEntity mob, Class<T> targetClass, boolean checkVisibility, Predicate<LivingEntity> targetPredicate) {
-        this((BuilderZombieEntity) mob, targetClass, 10, checkVisibility, false, targetPredicate);
+    public ActiveTargetGoalBuilderZomb(BuilderZombieEntity mob, Class<T> targetClass, boolean checkVisibility, Predicate<LivingEntity> targetPredicate) {
+        this(mob, targetClass, 10, checkVisibility, false, targetPredicate);
     }
 
-    public ActiveTargetGoalBuilderZomb(MobEntity mob, Class<T> targetClass, boolean checkVisibility, boolean checkCanNavigate) {
-        this((BuilderZombieEntity) mob, targetClass, 10, checkVisibility, checkCanNavigate, null);
+    public ActiveTargetGoalBuilderZomb(BuilderZombieEntity mob, Class<T> targetClass, boolean checkVisibility, boolean checkCanNavigate) {
+        this(mob, targetClass, 10, checkVisibility, checkCanNavigate, null);
     }
 
     public ActiveTargetGoalBuilderZomb(BuilderZombieEntity mob, Class<T> targetClass, int reciprocalChance, boolean checkVisibility, boolean checkCanNavigate, @Nullable Predicate<LivingEntity> targetPredicate) {
@@ -77,6 +80,12 @@ extends TrackTargetGoal {
     public void start() {
         this.mob.setTarget(this.targetEntity);
         super.start();
+    }
+
+    @Override
+    public void stop() {
+        this.mob.setTarget(null);
+        this.target = null;
     }
 
     @Override

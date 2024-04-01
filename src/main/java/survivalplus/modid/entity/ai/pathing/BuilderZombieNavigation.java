@@ -14,6 +14,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.entity.ai.pathing.pathmaker.BuilderPathNodeMaker;
 
 public class BuilderZombieNavigation extends MobNavigation {
 
@@ -23,11 +24,13 @@ public class BuilderZombieNavigation extends MobNavigation {
         super(mobEntity, world);
     }
 
-    @Override
-    protected double adjustTargetY(Vec3d pos) {
-        BlockPos blockPos = BlockPos.ofFloored(pos);
-        return LandPathNodeMaker.getFeetY(this.world, blockPos);
+    protected PathNodeNavigator createPathNodeNavigator(int range) {
+        this.nodeMaker = new BuilderPathNodeMaker();
+        this.nodeMaker.setCanEnterOpenDoors(true);
+        return new PathNodeNavigator(this.nodeMaker, range);
     }
+
+
 
     @Override
     public void recalculatePath() {
@@ -65,6 +68,8 @@ public class BuilderZombieNavigation extends MobNavigation {
         return true;
     }
 
+
+    @Override
     protected boolean canWalkOnPath(PathNodeType pathType) {
         if (pathType == PathNodeType.WATER) {
             return false;

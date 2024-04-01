@@ -24,7 +24,7 @@ public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
     public ReeperDestroyBedGoal(ReeperEntity reeper, double speed) {
         super(reeper, speed, 256);
         this.reeper = reeper;
-        this.cooldown = 600;
+        this.cooldown = 0;
     }
 
     public boolean canStart() {
@@ -32,13 +32,14 @@ public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        this.cooldown = 600;
-
         if (!this.reeper.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
-
-        return this.findTargetPos();
+        if (this.findTargetPos()) {
+            this.cooldown = 200;
+            return true;
+        }
+        return false;
     }
 
     @Override

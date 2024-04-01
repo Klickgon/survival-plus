@@ -1,26 +1,8 @@
 package survivalplus.modid.entity.custom;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoField;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
-
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityData;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityGroup;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.SpawnRestriction;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.NavigationConditions;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.MobNavigation;
@@ -33,7 +15,6 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.*;
-import net.minecraft.entity.passive.ChickenEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.TurtleEntity;
@@ -44,12 +25,8 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -57,19 +34,17 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.SpawnHelper;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldEvents;
+import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import survivalplus.modid.entity.ai.ActiveTargetGoalBuilderZomb;
-import survivalplus.modid.entity.ai.DestroyBedGoal;
+import survivalplus.modid.entity.ai.BuilderZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 public class BuilderZombieEntity
         extends ZombieEntity {
@@ -94,16 +69,23 @@ public class BuilderZombieEntity
     private int ticksUntilWaterConversion;
     private int DirtPlaceCooldown = 0;
 
+    private boolean hasTargetBed = false;
+
+    public BlockPos targetBedPos;
+
     public BuilderZombieEntity(EntityType<? extends net.minecraft.entity.mob.ZombieEntity> entityType, World world) {
         super((EntityType<? extends ZombieEntity>)entityType, world);
         this.navigation = new BuilderZombieNavigation(this, this.getWorld());
     }
 
+    public void setHasTargetBed(boolean b){
+        this.hasTargetBed = b;
+    }
 
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new DestroyBedGoal((HostileEntity)this, 1.0, 3));
+        this.goalSelector.add(4, new BuilderZombDestroyBedGoal(this, 1.0, 3));
         this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));
@@ -115,7 +97,7 @@ public class BuilderZombieEntity
         this.goalSelector.add(6, new MoveThroughVillageGoal(this, 1.0, true, 4, this::canBreakDoors));
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(1, new RevengeGoal(this, new Class[0]).setGroupRevenge(ZombifiedPiglinEntity.class));
-        this.targetSelector.add(2, new ActiveTargetGoalBuilderZomb<>((MobEntity)this, PlayerEntity.class, false));
+        this.targetSelector.add(2, new ActiveTargetGoalBuilderZomb<>(this, PlayerEntity.class, false));
         this.targetSelector.add(3, new ActiveTargetGoal<MerchantEntity>((MobEntity)this, MerchantEntity.class, false));
         this.targetSelector.add(3, new ActiveTargetGoal<IronGolemEntity>((MobEntity)this, IronGolemEntity.class, true));
         this.targetSelector.add(5, new ActiveTargetGoal<TurtleEntity>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
@@ -243,11 +225,12 @@ public class BuilderZombieEntity
                 }
             }
 
-            PlayerEntity target = (PlayerEntity) getTarget();
-            if (DirtPlaceCooldown <= 0 && target != null) {
+            LivingEntity target = getTarget();
+            if (DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed)) {
                 World world = this.getWorld();
                 BlockPos BlockUnder = getBlockPos().down(1);
                 BlockPos BlockUnder2 = getBlockPos().down(2);
+                if(target != null){
                 int XDiff = Math.abs(this.getBlockX() - target.getBlockX());
                 int ZDiff = Math.abs(this.getBlockZ() - target.getBlockZ());
                 if (XDiff >= 2 || ZDiff >= 2) {
@@ -256,7 +239,18 @@ public class BuilderZombieEntity
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
                         DirtPlaceCooldown = 1;
                     }
-
+                }
+                }
+                else {
+                    int XDiff = Math.abs(this.getBlockX() - targetBedPos.getX());
+                    int ZDiff = Math.abs(this.getBlockZ() - targetBedPos.getZ());
+                    if (XDiff >= 2 || ZDiff >= 2) {
+                        if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
+                        world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
+                        world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
+                        DirtPlaceCooldown = 1;
+                    }
+                }
                 }
             }
             else DirtPlaceCooldown--;

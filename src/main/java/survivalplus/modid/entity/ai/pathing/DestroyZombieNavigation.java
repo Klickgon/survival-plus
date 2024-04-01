@@ -5,6 +5,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -36,9 +37,9 @@ public class DestroyZombieNavigation extends MobNavigation {
 
     @Override
     public boolean isValidPosition(BlockPos pos) {
-        boolean bl1 = this.entity.getWorld().getBlockState(this.entity.getBlockPos()).isIn(this.blocktag);
-        boolean bl2 = this.entity.getWorld().getBlockState(this.entity.getBlockPos().up()).isIn(this.blocktag);
-        return this.entity.isOnGround() || this.entity.isInFluid() || this.entity.hasVehicle() || (bl1 && bl2);
+        boolean WithinBlocktag1 = this.entity.getWorld().getBlockState(this.entity.getBlockPos()).isIn(this.blocktag);
+        boolean WithinBlocktag2 = this.entity.getWorld().getBlockState(this.entity.getBlockPos().up()).isIn(this.blocktag);
+        return this.entity.isOnGround() || this.entity.isInFluid() || this.entity.hasVehicle() || (WithinBlocktag1 && WithinBlocktag2);
     }
 
 }
