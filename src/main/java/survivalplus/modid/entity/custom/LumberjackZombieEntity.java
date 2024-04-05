@@ -37,55 +37,45 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
-import survivalplus.modid.entity.ai.ActiveTargetGoalBuilderZomb;
-import survivalplus.modid.entity.ai.BuilderZombDestroyBedGoal;
-import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
+import survivalplus.modid.entity.ai.ActiveTargetGoalDestrZomb;
+import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
+import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public class BuilderZombieEntity
+public class LumberjackZombieEntity
         extends ZombieEntity {
     private static final UUID BABY_SPEED_ID = UUID.fromString("B9766B59-9566-4402-BC1F-2EE2A276D836");
     private static final EntityAttributeModifier BABY_SPEED_BONUS = new EntityAttributeModifier(BABY_SPEED_ID, "Baby speed boost", 0.5, EntityAttributeModifier.Operation.MULTIPLY_BASE);
-    private static final TrackedData<Boolean> BABY = DataTracker.registerData(survivalplus.modid.entity.custom.BuilderZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    /**
-     * Unused tracked data, left over from 1.10 when zombies, zombie villagers and husks were all the same type of entity.
-     */
-    private static final TrackedData<Integer> ZOMBIE_TYPE = DataTracker.registerData(survivalplus.modid.entity.custom.BuilderZombieEntity.class, TrackedDataHandlerRegistry.INTEGER);
-    private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(survivalplus.modid.entity.custom.BuilderZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> BABY = DataTracker.registerData(LumberjackZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Integer> ZOMBIE_TYPE = DataTracker.registerData(LumberjackZombieEntity.class, TrackedDataHandlerRegistry.INTEGER);
+    private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(LumberjackZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     public static final float field_30519 = 0.05f;
     public static final int field_30515 = 50;
     public static final int field_30516 = 40;
     public static final int field_30517 = 7;
     protected static final float field_41028 = 0.81f;
     private static final float field_30518 = 0.1f;
-    private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.HARD;
+    private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.EASY;
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
     private boolean canBreakDoors;
+    public BlockPos targetBedPos;
     private int inWaterTime;
     private int ticksUntilWaterConversion;
-    private int DirtPlaceCooldown = 0;
 
-    private boolean hasTargetBed = false;
-
-    public BlockPos targetBedPos;
-
-    public BuilderZombieEntity(EntityType<? extends net.minecraft.entity.mob.ZombieEntity> entityType, World world) {
-        super((EntityType<? extends ZombieEntity>)entityType, world);
-        this.navigation = new BuilderZombieNavigation(this, this.getWorld());
+    public LumberjackZombieEntity(EntityType<? extends ZombieEntity> entityType, World world) {
+        super(entityType, world);
+        this.navigation = new DestroyZombieNavigation((ZombieEntity) this, this.getWorld(), BlockTags.AXE_MINEABLE);
     }
 
-    public void setHasTargetBed(boolean b){
-        this.hasTargetBed = b;
-    }
 
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new BuilderZombDestroyBedGoal(this, 1.0, 16));
+        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 16, BlockTags.AXE_MINEABLE));
         this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));
@@ -97,7 +87,7 @@ public class BuilderZombieEntity
         this.goalSelector.add(6, new MoveThroughVillageGoal(this, 1.0, true, 4, this::canBreakDoors));
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(1, new RevengeGoal(this, new Class[0]).setGroupRevenge(ZombifiedPiglinEntity.class));
-        this.targetSelector.add(2, new ActiveTargetGoalBuilderZomb<>(this, PlayerEntity.class, false));
+        this.targetSelector.add(2, new ActiveTargetGoalDestrZomb<PlayerEntity>((MobEntity)this, PlayerEntity.class, false, BlockTags.AXE_MINEABLE));
         this.targetSelector.add(3, new ActiveTargetGoal<MerchantEntity>((MobEntity)this, MerchantEntity.class, false));
         this.targetSelector.add(3, new ActiveTargetGoal<IronGolemEntity>((MobEntity)this, IronGolemEntity.class, true));
         this.targetSelector.add(5, new ActiveTargetGoal<TurtleEntity>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
@@ -178,7 +168,7 @@ public class BuilderZombieEntity
     }
 
     protected boolean canConvertInWater() {
-        return true;
+        return false;
     }
 
     @Override
@@ -224,45 +214,8 @@ public class BuilderZombieEntity
                     this.setOnFireFor(8);
                 }
             }
-
-            LivingEntity target = getTarget();
-            if (DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed)) {
-                World world = this.getWorld();
-                BlockPos BlockUnder = getBlockPos().down(1);
-                BlockPos BlockUnder2 = getBlockPos().down(2);
-                if(target != null){
-                int XDiff = Math.abs(this.getBlockX() - target.getBlockX());
-                int ZDiff = Math.abs(this.getBlockZ() - target.getBlockZ());
-                if (XDiff >= 2 || ZDiff >= 2) {
-                    if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
-                        world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
-                        world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-                        DirtPlaceCooldown = 1;
-                    }
-                }
-                }
-                else {
-                    int XDiff = Math.abs(this.getBlockX() - targetBedPos.getX());
-                    int ZDiff = Math.abs(this.getBlockZ() - targetBedPos.getZ());
-                    if (XDiff >= 2 || ZDiff >= 2) {
-                        if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
-                        world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
-                        world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-                        DirtPlaceCooldown = 1;
-                    }
-                }
-                }
-            }
-            else DirtPlaceCooldown--;
         }
         super.tickMovement();
-    }
-
-    private boolean canPlaceDirt (World world, BlockPos BlockUnder, BlockPos BlockUnder2){
-        if(world.getBlockState(BlockUnder).isAir()){
-            return world.getBlockState(BlockUnder2).isAir();
-        }
-        return world.getBlockState(BlockUnder).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(BlockUnder).isAir();
     }
 
     private void setTicksUntilWaterConversion(int ticksUntilWaterConversion) {
@@ -276,8 +229,8 @@ public class BuilderZombieEntity
     }
 
 
-    public void convertTo(EntityType<? extends net.minecraft.entity.mob.ZombieEntity> entityType) {
-        survivalplus.modid.entity.custom.BuilderZombieEntity zombieEntity = (BuilderZombieEntity) this.convertTo(entityType, true);
+    public void convertTo(EntityType<? extends ZombieEntity> entityType) {
+        LumberjackZombieEntity zombieEntity = (LumberjackZombieEntity) this.convertTo(entityType, true);
         if (zombieEntity != null) {
             zombieEntity.applyAttributeModifiers(zombieEntity.getWorld().getLocalDifficulty(zombieEntity.getBlockPos()).getClampedLocalDifficulty());
             zombieEntity.setCanBreakDoors(zombieEntity.shouldBreakDoors() && this.canBreakDoors());
@@ -285,7 +238,7 @@ public class BuilderZombieEntity
     }
 
     protected boolean burnsInDaylight() {
-        return false;
+        return true;
     }
 
     @Override
@@ -305,7 +258,7 @@ public class BuilderZombieEntity
             int i = MathHelper.floor(this.getX());
             int j = MathHelper.floor(this.getY());
             int k = MathHelper.floor(this.getZ());
-            net.minecraft.entity.mob.ZombieEntity zombieEntity = new net.minecraft.entity.mob.ZombieEntity(this.getWorld());
+            ZombieEntity zombieEntity = new ZombieEntity(this.getWorld());
             for (int l = 0; l < 50; ++l) {
                 int m = i + MathHelper.nextInt(this.random, 7, 40) * MathHelper.nextInt(this.random, -1, 1);
                 int n = j + MathHelper.nextInt(this.random, 7, 40) * MathHelper.nextInt(this.random, -1, 1);
@@ -369,9 +322,7 @@ public class BuilderZombieEntity
     }
 
 
-    protected void initEquipment() {
-                this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.DIRT, 1));
-        }
+    protected void initEquipment() {}
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
@@ -403,7 +354,7 @@ public class BuilderZombieEntity
             }
             ZombieVillagerEntity zombieVillagerEntity = villagerEntity.convertTo(EntityType.ZOMBIE_VILLAGER, false);
             if (zombieVillagerEntity != null) {
-                zombieVillagerEntity.initialize(world, world.getLocalDifficulty(zombieVillagerEntity.getBlockPos()), SpawnReason.CONVERSION, new net.minecraft.entity.mob.ZombieEntity.ZombieData(false, true), null);
+                zombieVillagerEntity.initialize(world, world.getLocalDifficulty(zombieVillagerEntity.getBlockPos()), SpawnReason.CONVERSION, new ZombieEntity.ZombieData(false, true), null);
                 zombieVillagerEntity.setVillagerData(villagerEntity.getVillagerData());
                 zombieVillagerEntity.setGossipData(villagerEntity.getGossip().serialize(NbtOps.INSTANCE));
                 zombieVillagerEntity.setOfferData(villagerEntity.getOffers().toNbt());
@@ -446,10 +397,10 @@ public class BuilderZombieEntity
         float f = difficulty.getClampedLocalDifficulty();
         this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
         if (entityData == null) {
-            entityData = new survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData(survivalplus.modid.entity.custom.BuilderZombieEntity.shouldBeBaby(random), true);
+            entityData = new LumberjackZombieEntity.ZombieData(LumberjackZombieEntity.shouldBeBaby(random), true);
         }
-        if (entityData instanceof survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData) {
-            survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData zombieData = (survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData)entityData;
+        if (entityData instanceof LumberjackZombieEntity.ZombieData) {
+            LumberjackZombieEntity.ZombieData zombieData = (LumberjackZombieEntity.ZombieData)entityData;
             this.setCanBreakDoors(this.shouldBreakDoors() && random.nextFloat() < f * 0.1f);
             this.initEquipment();
         }
@@ -462,22 +413,14 @@ public class BuilderZombieEntity
                 this.equipStack(EquipmentSlot.HEAD, new ItemStack(random.nextFloat() < 0.1f ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
                 this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
             }
-            else{
-                this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET, 1));
-                this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
-            }
         }
-        this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Blocks.DIRT, DirtBlockCount()));
+        this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_AXE));
         this.applyAttributeModifiers(f);
         return entityData;
     }
 
-    private int DirtBlockCount(){
-        return (int) (1 + Math.floor((12 * (Math.random()))));
-    }
-
     public static boolean shouldBeBaby(Random random) {
-        return random.nextFloat() < 0.05f;
+        return false;
     }
 
     protected void applyAttributeModifiers(float chanceMultiplier) {
@@ -529,7 +472,7 @@ public class BuilderZombieEntity
 
         @Override
         public void tickStepping(WorldAccess world, BlockPos pos) {
-            world.playSound(null, pos, SoundEvents.ENTITY_ZOMBIE_DESTROY_EGG, SoundCategory.HOSTILE, 0.5f, 0.9f + survivalplus.modid.entity.custom.BuilderZombieEntity.this.random.nextFloat() * 0.2f);
+            world.playSound(null, pos, SoundEvents.ENTITY_ZOMBIE_DESTROY_EGG, SoundCategory.HOSTILE, 0.5f, 0.9f + LumberjackZombieEntity.this.random.nextFloat() * 0.2f);
         }
 
         @Override

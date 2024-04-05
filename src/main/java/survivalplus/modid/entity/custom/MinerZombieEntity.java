@@ -78,7 +78,7 @@ public class MinerZombieEntity
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 3, BlockTags.PICKAXE_MINEABLE));
+        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 16, BlockTags.PICKAXE_MINEABLE));
         this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));
@@ -171,7 +171,7 @@ public class MinerZombieEntity
     }
 
     protected boolean canConvertInWater() {
-        return true;
+        return false;
     }
 
     @Override
@@ -325,9 +325,7 @@ public class MinerZombieEntity
     }
 
 
-    protected void initEquipment() {
-                this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.DIRT, 1));
-        }
+    protected void initEquipment() {}
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
@@ -429,7 +427,7 @@ public class MinerZombieEntity
     }
 
     public static boolean shouldBeBaby(Random random) {
-        return random.nextFloat() < 0.05f;
+        return false;
     }
 
     protected void applyAttributeModifiers(float chanceMultiplier) {

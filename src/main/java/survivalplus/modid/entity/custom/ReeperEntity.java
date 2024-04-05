@@ -64,7 +64,7 @@ public class ReeperEntity
         this.goalSelector.add(3, new FleeEntityGoal<OcelotEntity>(this, OcelotEntity.class, 6.0f, 1.0, 1.2));
         this.goalSelector.add(3, new FleeEntityGoal<CatEntity>(this, CatEntity.class, 6.0f, 1.0, 1.2));
         this.goalSelector.add(4, new MeleeAttackGoal(this, 1.0, false));
-        this.goalSelector.add(3, new ReeperDestroyBedGoal((ReeperEntity)this, 1.0));
+        this.goalSelector.add(3, new ReeperDestroyBedGoal((ReeperEntity)this, 1.0, 16));
         this.goalSelector.add(5, new WanderAroundFarGoal(this, 0.8));
         this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(6, new LookAroundGoal(this));

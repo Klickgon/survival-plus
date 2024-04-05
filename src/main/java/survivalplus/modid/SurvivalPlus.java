@@ -25,7 +25,11 @@ public class SurvivalPlus implements ModInitializer {
 	@Override
 	public void onInitialize() {
 	FabricDefaultAttributeRegistry.register(ModEntities.REEPER, ReeperEntity.createReeperAttributes());
+
 	FabricDefaultAttributeRegistry.register(ModEntities.BUILDERZOMBIE, BuilderZombieEntity.createZombieAttributes());
-		FabricDefaultAttributeRegistry.register(ModEntities.MINERZOMBIE, MinerZombieEntity.createZombieAttributes());
+
+	FabricDefaultAttributeRegistry.register(ModEntities.MINERZOMBIE, MinerZombieEntity.createZombieAttributes());
+
+	FabricDefaultAttributeRegistry.register(ModEntities.LUMBERJACKZOMBIE, MinerZombieEntity.createZombieAttributes());
 	}
 }

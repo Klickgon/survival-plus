@@ -100,7 +100,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         }
 
         if(this.destroyBlockCooldownCounter <= 0){
-                float rotation = this.DestroyMob.getBodyYaw();
+                float rotation = this.DestroyMob.getHeadYaw();
                 BlockPos currentPos = this.DestroyMob.getBlockPos();
                 int cposX = currentPos.getX();
                 int cposY = currentPos.getY();

@@ -10,6 +10,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.custom.BuilderZombieEntity;
+import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
 import survivalplus.modid.entity.custom.ReeperEntity;
 
@@ -18,12 +19,19 @@ public class ModEntities {
             new Identifier(SurvivalPlus.MOD_ID,"reeper"),
             FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, ReeperEntity::new)
                     .dimensions(EntityDimensions.fixed(0.6f, 1.7f)).build());
+
     public static final EntityType<BuilderZombieEntity> BUILDERZOMBIE = Registry.register(Registries.ENTITY_TYPE,
             new Identifier(SurvivalPlus.MOD_ID,"builderzombie"),
             FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, BuilderZombieEntity::new)
                     .dimensions(EntityDimensions.fixed(0.6f, 1.7f)).build());
+
     public static final EntityType<MinerZombieEntity> MINERZOMBIE = Registry.register(Registries.ENTITY_TYPE,
             new Identifier(SurvivalPlus.MOD_ID,"minerzombie"),
             FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, MinerZombieEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.6f, 1.7f)).build());
+
+    public static final EntityType<LumberjackZombieEntity> LUMBERJACKZOMBIE = Registry.register(Registries.ENTITY_TYPE,
+            new Identifier(SurvivalPlus.MOD_ID,"lumberjackzombie"),
+            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, LumberjackZombieEntity::new)
                     .dimensions(EntityDimensions.fixed(0.6f, 1.7f)).build());
 }

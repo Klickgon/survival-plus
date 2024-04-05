@@ -22,5 +22,8 @@ public class SurvivalPlusClient implements ClientModInitializer {
 
         EntityRendererRegistry.register(ModEntities.MINERZOMBIE, MinerZombieRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.MINERZOMBIE, MinerZombieModel::getTexturedModelData);
+
+        EntityRendererRegistry.register(ModEntities.LUMBERJACKZOMBIE, LumberjackZombieRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(ModModelLayers.LUMBERJACKZOMBIE, LumberjackZombieModel::getTexturedModelData);
     }
 }

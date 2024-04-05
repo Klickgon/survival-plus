@@ -80,7 +80,7 @@ extends TrackTargetGoal {
         if(this.destroyBlockCooldownCounter <= 0){
             if(this.targetEntity != null){
                 World world = this.mob.getWorld();
-                float rotation = this.mob.getBodyYaw();
+                float rotation = this.mob.getHeadYaw();
                 BlockPos currentPos = this.mob.getBlockPos();
                 int cposX = currentPos.getX();
                 int cposY = currentPos.getY();
