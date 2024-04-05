@@ -25,7 +25,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     private static final int MAX_COOLDOWN = 20;
 
     public DestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
-        super(mob, speed, 128, maxYDifference);
+        super(mob, speed, 32, maxYDifference);
         this.DestroyMob = mob;
         this.cooldown = 200;
     }

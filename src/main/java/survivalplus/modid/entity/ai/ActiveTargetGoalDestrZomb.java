@@ -47,7 +47,7 @@ extends TrackTargetGoal {
         this.targetClass = targetClass;
         this.reciprocalChance = ActiveTargetGoalDestrZomb.toGoalTicks(reciprocalChance);
         this.setControls(EnumSet.of(Control.TARGET));
-        this.targetPredicate = TargetPredicate.createAttackable().setBaseMaxDistance(this.getFollowRange()).setPredicate(targetPredicate);
+        this.targetPredicate = TargetPredicate.createAttackable().setBaseMaxDistance(this.getFollowRange()).setPredicate(targetPredicate).ignoreVisibility();
     }
 
     @Override
@@ -86,12 +86,14 @@ extends TrackTargetGoal {
                 int cposY = currentPos.getY();
                 int cposZ = currentPos.getZ();
                 int targetposY = this.targetEntity.getBlockY();
-                if (rotation > -135 && rotation <= -45) this.facingBlock = new BlockPos(cposX + 1, cposY + 1, cposZ);
-                else if(rotation > 45 && rotation <= 135) this.facingBlock = new BlockPos(cposX - 1, cposY + 1, cposZ);
-                else if(rotation > 135 || rotation <= -135)  this.facingBlock = new BlockPos(cposX, cposY + 1, cposZ - 1);
-                else if (rotation > -45 || rotation <= 45)this.facingBlock = new BlockPos(cposX, cposY + 1, cposZ + 1);
+                int DiffY = targetposY - cposY; // Positive: Target is higher, Negative: Zombie is Higher
+                if (rotation > -135 && rotation <= -45)     this.facingBlock = new BlockPos(cposX + 1, cposY + 1, cposZ);
+                else if(rotation > 45 && rotation <= 135)   this.facingBlock = new BlockPos(cposX - 1, cposY + 1, cposZ);
+                else if(rotation > 135 || rotation <= -135) this.facingBlock = new BlockPos(cposX, cposY + 1, cposZ - 1);
+                else if (rotation > -45 || rotation <= 45)  this.facingBlock = new BlockPos(cposX, cposY + 1, cposZ + 1);
 
-                if(targetposY == cposY) {
+
+                if(DiffY <= 0 && DiffY > -2) {
                     if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
                         world.breakBlock(this.facingBlock, false);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;
@@ -101,12 +103,8 @@ extends TrackTargetGoal {
                     }
                 }
 
-                if(targetposY < cposY) {
-                    if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
-                        world.breakBlock(this.facingBlock, false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                    else if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
+                if(DiffY < -2) {
+                    if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
                         world.breakBlock(this.facingBlock.down(), false);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     }
@@ -114,9 +112,14 @@ extends TrackTargetGoal {
                         world.breakBlock(this.facingBlock.down(2), false);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     }
+                    else if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
+                        world.breakBlock(this.facingBlock, false);
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                    }
+
                 }
 
-                if(targetposY > cposY) {
+                if(DiffY > 0) {
                     if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blocktag)) {
                         world.breakBlock(this.mob.getBlockPos().up(2), false);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;

@@ -35,8 +35,8 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
     private final int range;
 
     public BuilderZombDestroyBedGoal(BuilderZombieEntity mob, double speed, int maxYDifference) {
-        super((HostileEntity)mob, speed, 256, maxYDifference);
-        this.range = 256;
+        super((HostileEntity)mob, speed, 32, maxYDifference);
+        this.range = 32;
         this.maxYDifference = maxYDifference;
         this.DestroyMob = mob;
         this.cooldown = 80;
@@ -53,7 +53,6 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
             return false;
         }
         if (this.findTargetPos()) {
-
             return true;
         }
         return false;

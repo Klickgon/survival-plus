@@ -1,16 +1,8 @@
 package survivalplus.modid.entity.custom;
 
-import java.util.Collection;
-import java.util.EnumSet;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.render.entity.feature.SkinOverlayOwner;
-import net.minecraft.entity.AreaEffectCloudEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LightningEntity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
+import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -21,7 +13,6 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.GoatEntity;
 import net.minecraft.entity.passive.OcelotEntity;
@@ -30,7 +21,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -38,18 +28,15 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.entity.ai.ReeperDestroyBedGoal;
 import survivalplus.modid.entity.ai.ReeperIgniteGoal;
-import survivalplus.modid.entity.ai.pathing.ReeperNavigation;
+
+import java.util.Collection;
+import java.util.function.Predicate;
 
 public class ReeperEntity
         extends HostileEntity
@@ -61,7 +48,7 @@ public class ReeperEntity
     private int currentFuseTime;
     private int fuseTime = 30;
     private int explosionRadius = 3;
-    private BlockPos targetBedPos;
+    public BlockPos targetBedPos;
 
     private boolean hadTarget = false;
     private boolean lostTarget = false;
@@ -81,7 +68,7 @@ public class ReeperEntity
         this.goalSelector.add(5, new WanderAroundFarGoal(this, 0.8));
         this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(6, new LookAroundGoal(this));
-        this.targetSelector.add(1, new ActiveTargetGoal<PlayerEntity>((MobEntity)this, PlayerEntity.class, false));
+        this.targetSelector.add(1, new ActiveTargetGoal<PlayerEntity>((MobEntity)this, PlayerEntity.class, false, (Predicate<LivingEntity>) TargetPredicate.createAttackable().ignoreVisibility()));
         this.targetSelector.add(2, new RevengeGoal(this, new Class[0]));
     }
 

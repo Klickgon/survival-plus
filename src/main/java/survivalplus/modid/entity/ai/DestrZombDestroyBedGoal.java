@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
 import net.minecraft.entity.ai.goal.StepAndDestroyBlockGoal;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundCategory;
@@ -18,6 +19,8 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.entity.custom.BuilderZombieEntity;
+import survivalplus.modid.entity.custom.MinerZombieEntity;
 
 public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
@@ -27,13 +30,13 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     private static final int destroyBlockCooldown = 10;
 
-    private TagKey<Block> blocktag;
+    private final TagKey<Block> blocktag;
     private BlockPos facingBlock;
 
     private int destroyBlockCooldownCounter = 10;
 
     public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference, TagKey<Block> blocktag) {
-        super(mob, speed, 256, maxYDifference);
+        super(mob, speed, 64, maxYDifference);
         this.DestroyMob = mob;
         this.cooldown = 0;
         this.blocktag = blocktag;
@@ -66,6 +69,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void start() {
         super.start();
+        if(this.DestroyMob.getClass() == MinerZombieEntity.class) ((MinerZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
         this.counter = 0;
     }
 
@@ -102,50 +106,52 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
                 int cposY = currentPos.getY();
                 int cposZ = currentPos.getZ();
                 int targetposY = this.targetPos.getY();
-                if (rotation > -135 && rotation <= -45) this.facingBlock = new BlockPos(cposX + 1, cposY + 1, cposZ);
-                else if(rotation > 45 && rotation <= 135) this.facingBlock = new BlockPos(cposX - 1, cposY + 1, cposZ);
-                else if(rotation > 135 || rotation <= -135)  this.facingBlock = new BlockPos(cposX, cposY + 1, cposZ - 1);
-                else if (rotation > -45 || rotation <= 45)this.facingBlock = new BlockPos(cposX, cposY + 1, cposZ + 1);
+                int DiffY = targetposY - cposY; // Positive: Target is higher, Negative: Zombie is Higher
+                if (rotation > -135 && rotation <= -45)     this.facingBlock = new BlockPos(cposX + 1, cposY + 1, cposZ);
+                else if(rotation > 45 && rotation <= 135)   this.facingBlock = new BlockPos(cposX - 1, cposY + 1, cposZ);
+                else if(rotation > 135 || rotation <= -135) this.facingBlock = new BlockPos(cposX, cposY + 1, cposZ - 1);
+                else if (rotation > -45 || rotation <= 45)  this.facingBlock = new BlockPos(cposX, cposY + 1, cposZ + 1);
 
-                if(targetposY == cposY) {
-                    if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
-                        world.breakBlock(this.facingBlock, false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    } else if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
-                        world.breakBlock(this.facingBlock.down(), false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
+            if(DiffY <= 0 && DiffY > -2) {
+                if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
+                    world.breakBlock(this.facingBlock, false);
+                    this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                } else if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
+                    world.breakBlock(this.facingBlock.down(), false);
+                    this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                }
+            }
+
+            if(DiffY < -2) {
+                if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
+                    world.breakBlock(this.facingBlock.down(), false);
+                    this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                }
+                else if(world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blocktag)){
+                    world.breakBlock(this.facingBlock.down(2), false);
+                    this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                }
+                else if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
+                    world.breakBlock(this.facingBlock, false);
+                    this.destroyBlockCooldownCounter = destroyBlockCooldown;
                 }
 
-                if(targetposY < cposY) {
-                    if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
-                        world.breakBlock(this.facingBlock, false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                    else if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
-                        world.breakBlock(this.facingBlock.down(), false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                    else if(world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blocktag)){
-                        world.breakBlock(this.facingBlock.down(2), false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                }
+            }
 
-                if(targetposY > cposY) {
-                    if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blocktag)) {
-                        world.breakBlock(this.mob.getBlockPos().up(2), false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                    else if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
-                        world.breakBlock(this.facingBlock, false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                    else if(world.getBlockState(this.facingBlock).isReplaceable()){
-                        world.breakBlock(this.facingBlock.up(), false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
+            if(DiffY > 0) {
+                if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blocktag)) {
+                    world.breakBlock(this.mob.getBlockPos().up(2), false);
+                    this.destroyBlockCooldownCounter = destroyBlockCooldown;
                 }
+                else if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
+                    world.breakBlock(this.facingBlock, false);
+                    this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                }
+                else if(world.getBlockState(this.facingBlock).isReplaceable()){
+                    world.breakBlock(this.facingBlock.up(), false);
+                    this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                }
+            }
         }
         else this.destroyBlockCooldownCounter--;
     }
@@ -166,6 +172,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     public void onDestroyBlock(World world, BlockPos pos) {
         world.playSound(null, pos, SoundEvents.BLOCK_WOOL_BREAK, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
     }
+
     @Override
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);

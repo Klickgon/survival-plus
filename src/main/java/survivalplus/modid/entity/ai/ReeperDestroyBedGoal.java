@@ -22,7 +22,7 @@ public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
 
 
     public ReeperDestroyBedGoal(ReeperEntity reeper, double speed) {
-        super(reeper, speed, 256);
+        super(reeper, speed, 32);
         this.reeper = reeper;
         this.cooldown = 0;
     }
@@ -51,6 +51,7 @@ public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void start() {
         super.start();
+        this.reeper.targetBedPos = this.targetPos;
     }
 
 

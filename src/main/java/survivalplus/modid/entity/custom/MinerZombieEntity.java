@@ -65,6 +65,7 @@ public class MinerZombieEntity
     private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.HARD;
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
     private boolean canBreakDoors;
+    public BlockPos targetBedPos;
     private int inWaterTime;
     private int ticksUntilWaterConversion;
 

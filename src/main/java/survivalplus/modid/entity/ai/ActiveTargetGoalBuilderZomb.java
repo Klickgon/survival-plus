@@ -55,7 +55,7 @@ extends TrackTargetGoal {
         this.targetClass = targetClass;
         this.reciprocalChance = ActiveTargetGoalBuilderZomb.toGoalTicks(reciprocalChance);
         this.setControls(EnumSet.of(Control.TARGET));
-        this.targetPredicate = TargetPredicate.createAttackable().setBaseMaxDistance(this.getFollowRange()).setPredicate(targetPredicate);
+        this.targetPredicate = TargetPredicate.createAttackable().setBaseMaxDistance(this.getFollowRange()).setPredicate(targetPredicate).ignoreVisibility();
     }
 
     @Override
