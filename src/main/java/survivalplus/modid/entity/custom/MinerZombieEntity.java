@@ -40,6 +40,7 @@ import org.joml.Vector3f;
 import survivalplus.modid.entity.ai.ActiveTargetGoalDestrZomb;
 import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
+import survivalplus.modid.util.ModTags;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
@@ -78,7 +79,7 @@ public class MinerZombieEntity
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 16, BlockTags.PICKAXE_MINEABLE));
+        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 16, ModTags.Blocks.MINERZOMBIE_MINABLE));
         this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));
@@ -90,7 +91,7 @@ public class MinerZombieEntity
         this.goalSelector.add(6, new MoveThroughVillageGoal(this, 1.0, true, 4, this::canBreakDoors));
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(1, new RevengeGoal(this, new Class[0]).setGroupRevenge(ZombifiedPiglinEntity.class));
-        this.targetSelector.add(2, new ActiveTargetGoalDestrZomb<PlayerEntity>((MobEntity)this, PlayerEntity.class, false, BlockTags.PICKAXE_MINEABLE));
+        this.targetSelector.add(2, new ActiveTargetGoalDestrZomb<PlayerEntity>((MobEntity)this, PlayerEntity.class, false, ModTags.Blocks.MINERZOMBIE_MINABLE));
         this.targetSelector.add(3, new ActiveTargetGoal<MerchantEntity>((MobEntity)this, MerchantEntity.class, false));
         this.targetSelector.add(3, new ActiveTargetGoal<IronGolemEntity>((MobEntity)this, IronGolemEntity.class, true));
         this.targetSelector.add(5, new ActiveTargetGoal<TurtleEntity>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
