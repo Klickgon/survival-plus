@@ -20,6 +20,8 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.BuilderZombieEntity;
+import survivalplus.modid.entity.custom.DiggingZombieEntity;
+import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
 
 public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
@@ -70,6 +72,8 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     public void start() {
         super.start();
         if(this.DestroyMob.getClass() == MinerZombieEntity.class) ((MinerZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
+        if(this.DestroyMob.getClass() == LumberjackZombieEntity.class) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
+        if(this.DestroyMob.getClass() == DiggingZombieEntity.class) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
         this.counter = 0;
     }
 

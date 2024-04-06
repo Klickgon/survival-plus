@@ -13,9 +13,7 @@ import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import survivalplus.modid.entity.ModEntities;
-import survivalplus.modid.entity.custom.BuilderZombieEntity;
-import survivalplus.modid.entity.custom.MinerZombieEntity;
-import survivalplus.modid.entity.custom.ReeperEntity;
+import survivalplus.modid.entity.custom.*;
 
 public class SurvivalPlus implements ModInitializer {
 	public static final String MOD_ID = "survival-plus";
@@ -30,6 +28,8 @@ public class SurvivalPlus implements ModInitializer {
 
 	FabricDefaultAttributeRegistry.register(ModEntities.MINERZOMBIE, MinerZombieEntity.createZombieAttributes());
 
-	FabricDefaultAttributeRegistry.register(ModEntities.LUMBERJACKZOMBIE, MinerZombieEntity.createZombieAttributes());
+	FabricDefaultAttributeRegistry.register(ModEntities.LUMBERJACKZOMBIE, LumberjackZombieEntity.createZombieAttributes());
+
+	FabricDefaultAttributeRegistry.register(ModEntities.DIGGINGZOMBIE, DiggingZombieEntity.createZombieAttributes());
 	}
 }
