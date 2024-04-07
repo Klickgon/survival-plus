@@ -12,9 +12,9 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 
 @Environment(value=EnvType.CLIENT)
-public class BuilderZombieModel<T extends ZombieEntity>
+public class ModZombieModel<T extends ZombieEntity>
 extends AbstractZombieModel<T> {
-    public BuilderZombieModel(ModelPart modelPart) {
+    public ModZombieModel(ModelPart modelPart) {
         super(modelPart);
     }
 

@@ -12,9 +12,9 @@ import net.minecraft.util.Identifier;
 import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.custom.BuilderZombieEntity;
 
-public class BuilderZombieRenderer extends MobEntityRenderer<BuilderZombieEntity, BuilderZombieModel<BuilderZombieEntity>> {
+public class BuilderZombieRenderer extends MobEntityRenderer<BuilderZombieEntity, ModZombieModel<BuilderZombieEntity>> {
     public BuilderZombieRenderer(EntityRendererFactory.Context context) {
-        super(context, new BuilderZombieModel<>(context.getPart(ModModelLayers.BUILDERZOMBIE)), 0.5f);
+        super(context, new ModZombieModel<>(context.getPart(ModModelLayers.BUILDERZOMBIE)), 0.5f);
         this.addFeature(new ArmorFeatureRenderer<>(this, new ZombieEntityModel<>(context.getPart(EntityModelLayers.ZOMBIE_INNER_ARMOR)), new ZombieEntityModel<>(context.getPart(EntityModelLayers.ZOMBIE_OUTER_ARMOR)), context.getModelManager()));
         this.addFeature(new HeadFeatureRenderer<>(this, context.getModelLoader(), 1.0f, 1.0f, 1.0f, context.getHeldItemRenderer()));
         this.addFeature(new ElytraFeatureRenderer<>(this, context.getModelLoader()));

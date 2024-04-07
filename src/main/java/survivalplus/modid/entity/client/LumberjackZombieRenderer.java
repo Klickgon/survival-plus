@@ -13,9 +13,9 @@ import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
 
-public class LumberjackZombieRenderer extends MobEntityRenderer<LumberjackZombieEntity, LumberjackZombieModel<LumberjackZombieEntity>> {
+public class LumberjackZombieRenderer extends MobEntityRenderer<LumberjackZombieEntity, ModZombieModel<LumberjackZombieEntity>> {
     public LumberjackZombieRenderer(EntityRendererFactory.Context context) {
-        super(context, new LumberjackZombieModel<>(context.getPart(ModModelLayers.LUMBERJACKZOMBIE)), 0.5f);
+        super(context, new ModZombieModel<>(context.getPart(ModModelLayers.LUMBERJACKZOMBIE)), 0.5f);
         this.addFeature(new ArmorFeatureRenderer<>(this, new ZombieEntityModel<>(context.getPart(EntityModelLayers.ZOMBIE_INNER_ARMOR)), new ZombieEntityModel<>(context.getPart(EntityModelLayers.ZOMBIE_OUTER_ARMOR)), context.getModelManager()));
         this.addFeature(new HeadFeatureRenderer<>(this, context.getModelLoader(), 1.0f, 1.0f, 1.0f, context.getHeldItemRenderer()));
         this.addFeature(new ElytraFeatureRenderer<>(this, context.getModelLoader()));
