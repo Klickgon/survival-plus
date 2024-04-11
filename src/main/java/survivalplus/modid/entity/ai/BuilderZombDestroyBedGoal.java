@@ -35,7 +35,7 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
     private final int range;
 
     public BuilderZombDestroyBedGoal(BuilderZombieEntity mob, double speed, int maxYDifference) {
-        super((HostileEntity)mob, speed, 32, maxYDifference);
+        super((HostileEntity)mob, speed, 16, maxYDifference);
         this.range = 32;
         this.maxYDifference = maxYDifference;
         this.DestroyMob = mob;
@@ -61,6 +61,7 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void stop() {
         super.stop();
+        this.DestroyMob.targetBedPos = null;
         this.DestroyMob.fallDistance = 1.0f;
     }
 
@@ -79,23 +80,9 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
 
         BlockPos blockPos = this.DestroyMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
-            if (this.hasReached() && blockPos2 != null) {
-            Vec3d vec3d;
-            if (this.counter > 0) {
-                vec3d = this.DestroyMob.getVelocity();
-                this.DestroyMob.setVelocity(vec3d.x, 0.3, vec3d.z);
-            }
-            if (this.counter % 2 == 0) {
-                vec3d = this.DestroyMob.getVelocity();
-                this.DestroyMob.setVelocity(vec3d.x, -0.3, vec3d.z);
-            }
-            if (this.counter > 60) {
-                world.removeBlock(blockPos2, false);
-                if (!world.isClient) {
-                    this.onDestroyBlock(world, blockPos2);
-                }
-            }
-            ++this.counter;
+        if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 2)) {
+            world.removeBlock(blockPos2, false);
+            this.onDestroyBlock(world, blockPos2);
         }
 
 

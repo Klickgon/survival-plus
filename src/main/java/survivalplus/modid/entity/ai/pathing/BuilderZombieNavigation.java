@@ -5,15 +5,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.*;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
-import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.ai.pathing.pathmaker.BuilderPathNodeMaker;
 
 public class BuilderZombieNavigation extends MobNavigation {

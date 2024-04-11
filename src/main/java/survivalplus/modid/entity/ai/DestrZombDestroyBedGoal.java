@@ -38,7 +38,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     private int destroyBlockCooldownCounter = 10;
 
     public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference, TagKey<Block> blocktag) {
-        super(mob, speed, 64, maxYDifference);
+        super(mob, speed, 16, maxYDifference);
         this.DestroyMob = mob;
         this.cooldown = 0;
         this.blocktag = blocktag;
@@ -65,6 +65,9 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void stop() {
         super.stop();
+        if(this.DestroyMob.getClass() == MinerZombieEntity.class) ((MinerZombieEntity) this.DestroyMob).targetBedPos = null;
+        if(this.DestroyMob.getClass() == LumberjackZombieEntity.class) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = null;
+        if(this.DestroyMob.getClass() == DiggingZombieEntity.class) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = null;
         this.DestroyMob.fallDistance = 1.0f;
     }
 
@@ -84,23 +87,9 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         World world = this.DestroyMob.getWorld();
         BlockPos blockPos = this.DestroyMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
-            if (this.hasReached() && blockPos2 != null) {
-            Vec3d vec3d;
-            if (this.counter > 0) {
-                vec3d = this.DestroyMob.getVelocity();
-                this.DestroyMob.setVelocity(vec3d.x, 0.3, vec3d.z);
-            }
-            if (this.counter % 2 == 0) {
-                vec3d = this.DestroyMob.getVelocity();
-                this.DestroyMob.setVelocity(vec3d.x, -0.3, vec3d.z);
-            }
-            if (this.counter > 60) {
-                world.removeBlock(blockPos2, false);
-                if (!world.isClient) {
-                    this.onDestroyBlock(world, blockPos2);
-                }
-            }
-            ++this.counter;
+        if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 2)) {
+            world.removeBlock(blockPos2, false);
+            this.onDestroyBlock(world, blockPos2);
         }
 
         if(this.destroyBlockCooldownCounter <= 0){

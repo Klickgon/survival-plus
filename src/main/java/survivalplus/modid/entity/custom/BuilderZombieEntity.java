@@ -85,7 +85,7 @@ public class BuilderZombieEntity
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new BuilderZombDestroyBedGoal(this, 1.0, 16));
+        this.goalSelector.add(4, new BuilderZombDestroyBedGoal(this, 1.0, 8));
         this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));
@@ -241,7 +241,7 @@ public class BuilderZombieEntity
                     }
                 }
                 }
-                else {
+                if(this.targetBedPos != null) {
                     int XDiff = Math.abs(this.getBlockX() - targetBedPos.getX());
                     int ZDiff = Math.abs(this.getBlockZ() - targetBedPos.getZ());
                     if (XDiff >= 2 || ZDiff >= 2) {
@@ -260,7 +260,7 @@ public class BuilderZombieEntity
 
     private boolean canPlaceDirt (World world, BlockPos BlockUnder, BlockPos BlockUnder2){
         if(world.getBlockState(BlockUnder).isAir()){
-            return world.getBlockState(BlockUnder2).isAir();
+            return world.getBlockState(BlockUnder2).isAir() ;
         }
         return world.getBlockState(BlockUnder).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(BlockUnder).isAir();
     }

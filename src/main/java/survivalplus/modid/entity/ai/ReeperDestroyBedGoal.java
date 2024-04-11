@@ -22,7 +22,7 @@ public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
 
 
     public ReeperDestroyBedGoal(ReeperEntity reeper, double speed, int maxYDifference){
-        super(reeper, speed, 32, maxYDifference);
+        super(reeper, speed, 16, maxYDifference);
         this.reeper = reeper;
         this.cooldown = 0;
     }

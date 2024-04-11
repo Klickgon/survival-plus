@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.ai.pathing.PathNodeType;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,6 +64,12 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
             if (d - prevFeetY > this.getStepHeight()) {
                 return null;
             }
+
+            BlockPos pos = new BlockPos(x, y, z);
+            if (this.entity.getWorld().getBlockState(pos).isIn(BlockTags.REPLACEABLE)) {
+                return this.getNodeWith(x, y, z, PathNodeType.WALKABLE, 0.0f);
+            }
+
             PathNodeType pathNodeType = this.getNodeType(this.entity, x, y, z);
             float f = this.entity.getPathfindingPenalty(pathNodeType);
             double e = (double) this.entity.getWidth() / 2.0;
@@ -90,12 +97,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
                     return pathNode;
                 }
             }
-            if (pathNodeType == PathNodeType.OPEN) {
-                BlockPos pathNodeBelowBlockPos = this.entity.getBlockPos().down();
-                if (this.getNodeType(this.entity, pathNodeBelowBlockPos) == PathNodeType.OPEN) {
-                    return this.getNodeWith(x, y, z, PathNodeType.WALKABLE, 0.0f);
-                }
-            }
+
             if (isBlocked(pathNodeType) && pathNode == null) {
                 pathNode = this.getNode(x, y, z);
                 pathNode.visited = true;

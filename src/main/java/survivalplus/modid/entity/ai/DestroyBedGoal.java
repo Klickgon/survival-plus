@@ -69,23 +69,9 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
         World world = this.DestroyMob.getWorld();
         BlockPos blockPos = this.DestroyMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
-            if (this.hasReached() && blockPos2 != null) {
-            Vec3d vec3d;
-            if (this.counter > 0) {
-                vec3d = this.DestroyMob.getVelocity();
-                this.DestroyMob.setVelocity(vec3d.x, 0.3, vec3d.z);
-            }
-            if (this.counter % 2 == 0) {
-                vec3d = this.DestroyMob.getVelocity();
-                this.DestroyMob.setVelocity(vec3d.x, -0.3, vec3d.z);
-            }
-            if (this.counter > 60) {
-                world.removeBlock(blockPos2, false);
-                if (!world.isClient) {
-                    this.onDestroyBlock(world, blockPos2);
-                }
-            }
-            ++this.counter;
+        if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 2)) {
+            world.removeBlock(blockPos2, false);
+            this.onDestroyBlock(world, blockPos2);
         }
     }
 
