@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "ServerWorldChanger",
+    "SleepFailureChanger",
     "WorldChanger"
   ],
   "injectors": {
