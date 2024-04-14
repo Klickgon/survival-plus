@@ -16,7 +16,7 @@ public class WorldChanger implements IWorldChanger {
 
     @Inject(method = "isDay", at = @At(value = "HEAD"), cancellable = true)
     public void sleepWhenever(CallbackInfoReturnable<Boolean> cir){
-        if(this.sleepcooldown <= 0) {
+        if(this.sleepcooldown <= 0) { // Replaces the Day Check with a Cooldown Check for the Sleep failure
             cir.setReturnValue(false);
         }
         else {

@@ -1,3 +1,4 @@
 {
-    "block.survivalplus.bed.sleepcooldown": "You can't sleep just now, you already slept recently"
+    "block.survival-plus.bed.sleepcooldown": "You can't sleep just now, you already slept recently",
+    "enchantment.survival-plus.flame_two": "Flame"
 }

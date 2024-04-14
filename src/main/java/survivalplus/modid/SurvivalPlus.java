@@ -3,15 +3,9 @@ package survivalplus.modid;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import survivalplus.modid.entchantments.ModEnchantments;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.custom.*;
 
@@ -31,5 +25,7 @@ public class SurvivalPlus implements ModInitializer {
 	FabricDefaultAttributeRegistry.register(ModEntities.LUMBERJACKZOMBIE, LumberjackZombieEntity.createZombieAttributes());
 
 	FabricDefaultAttributeRegistry.register(ModEntities.DIGGINGZOMBIE, DiggingZombieEntity.createZombieAttributes());
+
+	ModEnchantments.registerModEnchantment();
 	}
 }

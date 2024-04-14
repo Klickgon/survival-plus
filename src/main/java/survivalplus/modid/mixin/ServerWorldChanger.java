@@ -31,7 +31,7 @@ public abstract class ServerWorldChanger extends World {
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
     public long ticksleep(long timeOfDay) {
-        return this.properties.getTimeOfDay() + 10000L; // Changes the time skip of sleeping from a set time to 10000 ticks later from pre slumber time
+        return this.properties.getTimeOfDay() + 10000L; // Changes the sleeping skip from a set time point to 10000 ticks after sleep start
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))

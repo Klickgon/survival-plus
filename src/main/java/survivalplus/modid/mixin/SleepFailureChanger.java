@@ -23,7 +23,7 @@ public abstract class SleepFailureChanger {
 
     @Inject(method = "getMessage", at = @At(value = "HEAD"), cancellable = true)
     protected void messageRedirect(CallbackInfoReturnable<Text> cir){
-        if(this.equals(NOT_POSSIBLE_NOW))cir.setReturnValue(Text.translatable("block.survivalplus.bed.sleepcooldown"));
+        if(this.equals(NOT_POSSIBLE_NOW)) cir.setReturnValue(Text.translatable("block.survival-plus.bed.sleepcooldown"));
         // Changes the text translatable tag of the NOT_POSSIBLE_NOW SleepFailureReason from "you can only sleep during the day"
         // to "you already slept recently" (you won't believe how hard it was to figure out)
     }

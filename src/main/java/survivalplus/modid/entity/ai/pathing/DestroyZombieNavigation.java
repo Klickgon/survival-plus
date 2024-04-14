@@ -38,7 +38,7 @@ public class DestroyZombieNavigation extends MobNavigation {
             if (target != null) {
                 this.currentPath = null;
                 this.currentPath = this.findPathTo(target, (int) this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
-                this.recalcCooldown = 40;
+                this.recalcCooldown = 20;
             }
         }
         else this.recalcCooldown--;

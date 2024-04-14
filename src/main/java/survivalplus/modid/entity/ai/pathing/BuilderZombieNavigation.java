@@ -34,7 +34,7 @@ public class BuilderZombieNavigation extends MobNavigation {
             if (target != null) {
                 this.currentPath = null;
                 this.currentPath = this.findPathTo((Entity) target, (int) this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
-                this.recalcCooldown = 40;
+                this.recalcCooldown = 20;
             }
         }
         else this.recalcCooldown--;
