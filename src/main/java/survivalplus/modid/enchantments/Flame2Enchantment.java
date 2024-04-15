@@ -1,4 +1,4 @@
-package survivalplus.modid.entchantments;
+package survivalplus.modid.enchantments;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantment;

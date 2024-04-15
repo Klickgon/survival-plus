@@ -37,7 +37,7 @@ public abstract class ServerWorldChanger extends World {
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
     protected void resetSleepcooldown(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         IWorldChanger world = (IWorldChanger) (Object) this;
-        world.setSleepCooldown(2000); // Sets the sleep cooldown in "World"
+        world.setSleepCooldown(3000); // Sets the sleep cooldown in "World"
     }
 
     @Inject(method = "tick", at = @At("HEAD"))

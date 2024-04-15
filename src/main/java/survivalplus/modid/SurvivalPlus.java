@@ -5,7 +5,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import survivalplus.modid.entchantments.ModEnchantments;
+import survivalplus.modid.enchantments.ModEnchantments;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.custom.*;
 
@@ -25,6 +25,8 @@ public class SurvivalPlus implements ModInitializer {
 	FabricDefaultAttributeRegistry.register(ModEntities.LUMBERJACKZOMBIE, LumberjackZombieEntity.createZombieAttributes());
 
 	FabricDefaultAttributeRegistry.register(ModEntities.DIGGINGZOMBIE, DiggingZombieEntity.createZombieAttributes());
+
+	FabricDefaultAttributeRegistry.register(ModEntities.SCORCHEDSKELETON, ScorchedSkeletonEntity.createAbstractSkeletonAttributes());
 
 	ModEnchantments.registerModEnchantment();
 	}

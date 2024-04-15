@@ -3,7 +3,6 @@ package survivalplus.modid;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import survivalplus.modid.entchantments.ModEnchantments;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.client.*;
 
@@ -28,5 +27,7 @@ public class SurvivalPlusClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.DIGGINGZOMBIE, DiggingZombieRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.DIGGINGZOMBIE, ModZombieModel::getTexturedModelData);
 
+        EntityRendererRegistry.register(ModEntities.SCORCHEDSKELETON, ScorchedSkeletonRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(ModModelLayers.SCORCHEDSKELETON, ScorchedSkeletonModel::getTexturedModelData);
     }
 }

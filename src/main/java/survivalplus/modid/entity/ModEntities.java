@@ -36,4 +36,9 @@ public class ModEntities {
             new Identifier(SurvivalPlus.MOD_ID,"diggingzombie"),
             FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, DiggingZombieEntity::new)
                     .dimensions(EntityDimensions.fixed(0.6f, 1.7f)).build());
+
+    public static final EntityType<ScorchedSkeletonEntity> SCORCHEDSKELETON = Registry.register(Registries.ENTITY_TYPE,
+            new Identifier(SurvivalPlus.MOD_ID,"scorchedskeleton"),
+            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, ScorchedSkeletonEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.6f, 1.7f)).build());
 }
