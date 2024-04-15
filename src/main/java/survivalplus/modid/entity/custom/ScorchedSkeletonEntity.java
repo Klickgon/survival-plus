@@ -29,20 +29,20 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.enchantments.ModEnchantments;
+import survivalplus.modid.entity.ai.DestroyBedGoal;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 
 public class ScorchedSkeletonEntity
 extends SkeletonEntity {
-    private static final int TOTAL_CONVERSION_TIME = 300;
     private static final TrackedData<Boolean> CONVERTING = DataTracker.registerData(ScorchedSkeletonEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     public static final String STRAY_CONVERSION_TIME_KEY = "StrayConversionTime";
-    private int inPowderSnowTime;
     private int conversionTime;
 
     public ScorchedSkeletonEntity(EntityType<? extends ScorchedSkeletonEntity> entityType, World world) {
         super((EntityType<? extends SkeletonEntity>)entityType, world);
+
     }
 
     @Override
@@ -50,6 +50,7 @@ extends SkeletonEntity {
         this.goalSelector.add(2, new AvoidSunlightGoal(this));
         this.goalSelector.add(3, new EscapeSunlightGoal(this, 1.0));
         this.goalSelector.add(3, new FleeEntityGoal<WolfEntity>(this, WolfEntity.class, 6.0f, 1.0, 1.2));
+        this.goalSelector.add(4, new DestroyBedGoal(this, 1.0, 8));
         this.goalSelector.add(5, new WanderAroundFarGoal(this, 1.0));
         this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(6, new LookAroundGoal(this));
@@ -73,6 +74,7 @@ extends SkeletonEntity {
         this.initEquipment(random, difficulty);
         this.updateEnchantments(random, difficulty);
         this.updateAttackType();
+        this.isFireImmune();
         this.setCanPickUpLoot(random.nextFloat() < 0.55f * difficulty.getClampedLocalDifficulty());
         if (this.getEquippedStack(EquipmentSlot.HEAD).isEmpty()) {
             LocalDate localDate = LocalDate.now();
@@ -86,6 +88,7 @@ extends SkeletonEntity {
 
             this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
         }
+        this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
         return entityData;
     }
 

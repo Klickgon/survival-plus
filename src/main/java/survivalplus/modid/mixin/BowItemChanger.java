@@ -14,9 +14,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import survivalplus.modid.enchantments.ModEnchantments;
+import survivalplus.modid.util.IPPEChanger;
 
 @Mixin(BowItem.class)
 public class BowItemChanger {
+
 
     @Inject(method = "onStoppedUsing", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;damage(ILnet/minecraft/entity/LivingEntity;Ljava/util/function/Consumer;)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     public void flameInjection(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci, PlayerEntity playerEntity, boolean bl, ItemStack itemStack, int i, float f, boolean bl2, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity, int j, int k){
@@ -24,4 +26,11 @@ public class BowItemChanger {
             persistentProjectileEntity.setOnFireFor(100);
         }
     }
+
+    @Inject(method = "onStoppedUsing", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/PersistentProjectileEntity;setVelocity(Lnet/minecraft/entity/Entity;FFFFF)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
+    public void OriginBowInjection(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci, PlayerEntity playerEntity, boolean bl, ItemStack itemStack, int i, float f, boolean bl2, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity){
+        IPPEChanger ppc = (IPPEChanger) (Object) persistentProjectileEntity;
+        ppc.setOriginBow(stack); // sets the ItemStack of the Origin Bow so the Arrow can check what Enchantments the Bow it was shot from had
+    }
+
 }
