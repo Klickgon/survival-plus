@@ -11,7 +11,6 @@ public class Flame2Enchantment extends FlameEnchantment {
         super(weight, slotTypes);
     }
 
-
     @Override
     public int getMinLevel() {
         return 2;

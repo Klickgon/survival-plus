@@ -30,7 +30,7 @@ public class BowItemChanger {
     @Inject(method = "onStoppedUsing", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/PersistentProjectileEntity;setVelocity(Lnet/minecraft/entity/Entity;FFFFF)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     public void OriginBowInjection(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci, PlayerEntity playerEntity, boolean bl, ItemStack itemStack, int i, float f, boolean bl2, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity){
         IPPEChanger ppc = (IPPEChanger) (Object) persistentProjectileEntity;
-        ppc.setOriginBow(stack); // sets the ItemStack of the Origin Bow so the Arrow can check what Enchantments the Bow it was shot from had
+        ppc.setFlame2(stack); // sets the boolean for the Persistent Projectile, according to the given stack having the Flame 2 enchantment
     }
 
 }

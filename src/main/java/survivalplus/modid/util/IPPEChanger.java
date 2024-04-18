@@ -4,5 +4,5 @@ import net.minecraft.item.ItemStack;
 
 public interface IPPEChanger {
 
-    void setOriginBow(ItemStack stack);
+    void setFlame2(ItemStack stack);
 }

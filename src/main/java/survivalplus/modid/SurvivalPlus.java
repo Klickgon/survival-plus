@@ -29,5 +29,8 @@ public class SurvivalPlus implements ModInitializer {
 	FabricDefaultAttributeRegistry.register(ModEntities.SCORCHEDSKELETON, ScorchedSkeletonEntity.createAbstractSkeletonAttributes());
 
 	ModEnchantments.registerModEnchantment();
+
+	ModEntities.registerModEntities();
+	ModEntities.registerSpawnRestrictions();
 	}
 }
