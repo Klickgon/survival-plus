@@ -43,7 +43,7 @@ public abstract class PersistentProjectileChanger extends ProjectileEntity imple
 
     @Inject(method = "applyEnchantmentEffects", at = @At(value = "TAIL"))
     public void flameInjection2(LivingEntity entity, float damageModifier, CallbackInfo ci){
-        // For none Player Entities, checks if equipped bow has Flame2. If yes, set Arrow on Fire and set field fromFlame2 to true, so it can set the impact point on fire
+        // For non-Player Entities, checks if equipped bow has Flame2. If yes, set Arrow on Fire and set field fromFlame2 to true, so it can set the impact point on fire
         if(EnchantmentHelper.getEquipmentLevel(ModEnchantments.FLAME_TWO, entity) > 0) {
             this.setOnFireFor(100);
             this.fromFlame2 = true;

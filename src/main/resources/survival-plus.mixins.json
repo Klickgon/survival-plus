@@ -3,7 +3,6 @@
   "package": "survivalplus.modid.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "BiomeFeatureChanger",
     "BowItemChanger",
     "PersistentProjectileChanger",
     "ServerWorldChanger",
