@@ -1,7 +1,7 @@
 package survivalplus.modid.entity.custom;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.NavigationConditions;
 import net.minecraft.entity.ai.goal.*;
@@ -20,6 +20,7 @@ import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.TurtleEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -29,14 +30,12 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 import survivalplus.modid.entity.ai.ActiveTargetGoalDestrZomb;
 import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
@@ -53,12 +52,6 @@ public class LumberjackZombieEntity
     private static final TrackedData<Boolean> BABY = DataTracker.registerData(LumberjackZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Integer> ZOMBIE_TYPE = DataTracker.registerData(LumberjackZombieEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(LumberjackZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    public static final float field_30519 = 0.05f;
-    public static final int field_30515 = 50;
-    public static final int field_30516 = 40;
-    public static final int field_30517 = 7;
-    protected static final float field_41028 = 0.81f;
-    private static final float field_30518 = 0.1f;
     private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.EASY;
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
     private boolean canBreakDoors;
@@ -128,10 +121,6 @@ public class LumberjackZombieEntity
             this.goalSelector.remove(this.breakDoorsGoal);
             this.canBreakDoors = false;
         }
-    }
-
-    protected boolean shouldBreakDoors() {
-        return true;
     }
 
     @Override
@@ -237,10 +226,6 @@ public class LumberjackZombieEntity
         }
     }
 
-    protected boolean burnsInDaylight() {
-        return true;
-    }
-
     @Override
     public boolean damage(DamageSource source, float amount) {
         if (!super.damage(source, amount)) {
@@ -282,49 +267,53 @@ public class LumberjackZombieEntity
 
     @Override
     public boolean tryAttack(Entity target) {
-        boolean bl = super.tryAttack(target);
+        boolean bl;
+        int i;
+        float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+        float g = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_KNOCKBACK);
+        if (target instanceof LivingEntity) {
+            f += EnchantmentHelper.getAttackDamage(this.getMainHandStack(), ((LivingEntity)target).getGroup());
+            g += (float)EnchantmentHelper.getKnockback(this);
+        }
+        if ((i = EnchantmentHelper.getFireAspect(this)) > 0) {
+            target.setOnFireFor(i * 4);
+        }
+        bl = target.damage(this.getDamageSources().mobAttack(this), f * 0.60f);
         if (bl) {
-            float f = this.getWorld().getLocalDifficulty(this.getBlockPos()).getLocalDifficulty();
-            if (this.getMainHandStack().isEmpty() && this.isOnFire() && this.random.nextFloat() < f * 0.3f) {
-                target.setOnFireFor(2 * (int)f);
+            if (g > 0.0f && target instanceof LivingEntity) {
+                ((LivingEntity)target).takeKnockback(g * 0.5f, MathHelper.sin(this.getYaw() * ((float)Math.PI / 180)), -MathHelper.cos(this.getYaw() * ((float)Math.PI / 180)));
+                this.setVelocity(this.getVelocity().multiply(0.6, 1.0, 0.6));
+            }
+            if (target instanceof PlayerEntity) {
+                PlayerEntity playerEntity = (PlayerEntity)target;
+                this.disablePlayerShield(playerEntity, this.getMainHandStack(), playerEntity.isUsingItem() ? playerEntity.getActiveItem() : ItemStack.EMPTY);
+            }
+            this.applyDamageEffects(this, target);
+            this.onAttacking(target);
+        }
+        if (bl) {
+            float d = this.getWorld().getLocalDifficulty(this.getBlockPos()).getLocalDifficulty();
+            if (this.getMainHandStack().isEmpty() && this.isOnFire() && this.random.nextFloat() < d * 0.3f) {
+                target.setOnFireFor(2 * (int)d);
             }
         }
         return bl;
+    }
+
+    private void disablePlayerShield(PlayerEntity player, ItemStack mobStack, ItemStack playerStack) {
+        if (!mobStack.isEmpty() && !playerStack.isEmpty() && mobStack.getItem() instanceof AxeItem && playerStack.isOf(Items.SHIELD)) {
+            float f = 0.25f + (float)EnchantmentHelper.getEfficiency(this) * 0.05f;
+            if (this.random.nextFloat() < f) {
+                player.getItemCooldownManager().set(Items.SHIELD, 100);
+                this.getWorld().sendEntityStatus(player, EntityStatuses.BREAK_SHIELD);
+            }
+        }
     }
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int FullDaysRequired = 7;
         long currentAmountOfFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
         return currentAmountOfFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
-    }
-
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return SoundEvents.ENTITY_ZOMBIE_AMBIENT;
-    }
-
-    @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_ZOMBIE_HURT;
-    }
-
-    @Override
-    protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_ZOMBIE_DEATH;
-    }
-
-    protected SoundEvent getStepSound() {
-        return SoundEvents.ENTITY_ZOMBIE_STEP;
-    }
-
-    @Override
-    protected void playStepSound(BlockPos pos, BlockState state) {
-        this.playSound(this.getStepSound(), 0.15f, 1.0f);
-    }
-
-    @Override
-    public EntityGroup getGroup() {
-        return EntityGroup.UNDEAD;
     }
 
 
@@ -441,20 +430,6 @@ public class LumberjackZombieEntity
             this.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).addPersistentModifier(new EntityAttributeModifier("Leader zombie bonus", this.random.nextDouble() * 3.0 + 1.0, EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
             this.setCanBreakDoors(this.shouldBreakDoors());
         }
-    }
-
-    protected void initAttributes() {
-        this.getAttributeInstance(EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(this.random.nextDouble() * (double)0.1f);
-    }
-
-    @Override
-    protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-        return new Vector3f(0.0f, dimensions.height + 0.0625f * scaleFactor, 0.0f);
-    }
-
-    @Override
-    protected float getUnscaledRidingOffset(Entity vehicle) {
-        return -0.7f;
     }
 
     @Override

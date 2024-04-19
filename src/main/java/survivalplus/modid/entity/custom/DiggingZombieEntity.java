@@ -1,6 +1,5 @@
 package survivalplus.modid.entity.custom;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.NavigationConditions;
@@ -29,14 +28,12 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 import survivalplus.modid.entity.ai.ActiveTargetGoalDestrZomb;
 import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
@@ -53,12 +50,6 @@ public class DiggingZombieEntity
     private static final TrackedData<Boolean> BABY = DataTracker.registerData(DiggingZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Integer> ZOMBIE_TYPE = DataTracker.registerData(DiggingZombieEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(DiggingZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    public static final float field_30519 = 0.05f;
-    public static final int field_30515 = 50;
-    public static final int field_30516 = 40;
-    public static final int field_30517 = 7;
-    protected static final float field_41028 = 0.81f;
-    private static final float field_30518 = 0.1f;
     private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.HARD;
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
     private boolean canBreakDoors;
@@ -128,10 +119,6 @@ public class DiggingZombieEntity
             this.goalSelector.remove(this.breakDoorsGoal);
             this.canBreakDoors = false;
         }
-    }
-
-    protected boolean shouldBreakDoors() {
-        return true;
     }
 
     @Override
@@ -237,10 +224,6 @@ public class DiggingZombieEntity
         }
     }
 
-    protected boolean burnsInDaylight() {
-        return true;
-    }
-
     @Override
     public boolean damage(DamageSource source, float amount) {
         if (!super.damage(source, amount)) {
@@ -296,35 +279,6 @@ public class DiggingZombieEntity
         int FullDaysRequired = 4;
         long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
         return currentAmountofFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
-    }
-
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return SoundEvents.ENTITY_ZOMBIE_AMBIENT;
-    }
-
-    @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_ZOMBIE_HURT;
-    }
-
-    @Override
-    protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_ZOMBIE_DEATH;
-    }
-
-    protected SoundEvent getStepSound() {
-        return SoundEvents.ENTITY_ZOMBIE_STEP;
-    }
-
-    @Override
-    protected void playStepSound(BlockPos pos, BlockState state) {
-        this.playSound(this.getStepSound(), 0.15f, 1.0f);
-    }
-
-    @Override
-    public EntityGroup getGroup() {
-        return EntityGroup.UNDEAD;
     }
 
 
@@ -441,20 +395,6 @@ public class DiggingZombieEntity
             this.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).addPersistentModifier(new EntityAttributeModifier("Leader zombie bonus", this.random.nextDouble() * 3.0 + 1.0, EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
             this.setCanBreakDoors(this.shouldBreakDoors());
         }
-    }
-
-    protected void initAttributes() {
-        this.getAttributeInstance(EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(this.random.nextDouble() * (double)0.1f);
-    }
-
-    @Override
-    protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-        return new Vector3f(0.0f, dimensions.height + 0.0625f * scaleFactor, 0.0f);
-    }
-
-    @Override
-    protected float getUnscaledRidingOffset(Entity vehicle) {
-        return -0.7f;
     }
 
     @Override
