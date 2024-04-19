@@ -1,13 +1,12 @@
 package survivalplus.modid.entity.ai;
 
 
-import java.util.EnumSet;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.Goal.Control;
-import net.minecraft.entity.mob.CreeperEntity;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.ReeperEntity;
+
+import java.util.EnumSet;
 
 public class ReeperIgniteGoal extends Goal {
     private final ReeperEntity reeper;
@@ -43,10 +42,9 @@ public class ReeperIgniteGoal extends Goal {
     public void tick() {
         if(this.target != null) {
             if (this.reeper.squaredDistanceTo(this.target) > 49.0) {
-                this.reeper.setFuseSpeed(-1);
                 return;
             }
-            this.reeper.setFuseSpeed(1);
+            this.reeper.wasWithinDistance = true;
         }
     }
 }

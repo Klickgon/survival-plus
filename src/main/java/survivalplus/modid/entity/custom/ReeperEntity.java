@@ -2,7 +2,6 @@ package survivalplus.modid.entity.custom;
 
 import net.minecraft.client.render.entity.feature.SkinOverlayOwner;
 import net.minecraft.entity.*;
-import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -29,6 +28,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
@@ -51,6 +52,7 @@ public class ReeperEntity
 
     private boolean hadTarget = false;
     private boolean lostTarget = false;
+    public boolean wasWithinDistance = false;
 
     public ReeperEntity(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
@@ -138,7 +140,7 @@ public class ReeperEntity
             if (this.isIgnited()) {
                 this.setFuseSpeed(1);
             }
-            if (this.lostTarget) {
+            if (this.lostTarget || this.wasWithinDistance) {
                 this.setFuseSpeed(1);
             }
             if ((i = this.getFuseSpeed()) > 0 && this.currentFuseTime == 0) {
@@ -213,6 +215,12 @@ public class ReeperEntity
     public void onStruckByLightning(ServerWorld world, LightningEntity lightning) {
         super.onStruckByLightning(world, lightning);
         this.dataTracker.set(CHARGED, true);
+    }
+
+    public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
+        int FullDaysRequired = 15;
+        long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
+        return currentAmountofFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     @Override

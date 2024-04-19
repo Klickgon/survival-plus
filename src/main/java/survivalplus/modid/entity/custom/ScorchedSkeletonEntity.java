@@ -13,6 +13,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.SkeletonEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
@@ -23,6 +24,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
@@ -90,6 +92,12 @@ extends SkeletonEntity {
         }
         this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
         return entityData;
+    }
+
+    public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
+        int FullDaysRequired = 17;
+        long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
+        return currentAmountofFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     @Override

@@ -292,6 +292,12 @@ public class LumberjackZombieEntity
         return bl;
     }
 
+    public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
+        int FullDaysRequired = 7;
+        long currentAmountOfFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
+        return currentAmountOfFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
+    }
+
     @Override
     protected SoundEvent getAmbientSound() {
         return SoundEvents.ENTITY_ZOMBIE_AMBIENT;
