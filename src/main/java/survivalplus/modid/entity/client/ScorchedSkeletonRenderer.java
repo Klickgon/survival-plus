@@ -26,6 +26,7 @@ extends BipedEntityRenderer<AbstractSkeletonEntity, ScorchedSkeletonModel<Abstra
     public ScorchedSkeletonRenderer(EntityRendererFactory.Context ctx, EntityModelLayer layer, EntityModelLayer legArmorLayer, EntityModelLayer bodyArmorLayer) {
         super(ctx, new ScorchedSkeletonModel(ctx.getPart(layer)), 0.5f);
         this.addFeature(new ArmorFeatureRenderer(this, new ScorchedSkeletonModel(ctx.getPart(legArmorLayer)), new ScorchedSkeletonModel(ctx.getPart(bodyArmorLayer)), ctx.getModelManager()));
+        this.addFeature(new BrunsFeatureRenderer<>(this));
     }
 
     @Override
