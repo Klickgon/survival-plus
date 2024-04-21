@@ -95,7 +95,7 @@ extends SkeletonEntity {
     }
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
-        int FullDaysRequired = 17;
+        int FullDaysRequired = 51;
         long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
         return currentAmountofFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
     }

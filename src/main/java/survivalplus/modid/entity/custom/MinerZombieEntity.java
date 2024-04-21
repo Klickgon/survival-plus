@@ -284,7 +284,7 @@ public class MinerZombieEntity
     }
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
-        int FullDaysRequired = 10;
+        int FullDaysRequired = 27;
         long currentAmountOfFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
         return currentAmountOfFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
     }

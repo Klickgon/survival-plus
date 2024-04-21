@@ -2,9 +2,13 @@ package survivalplus.modid.entity.ai.pathing;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.pathing.*;
+import net.minecraft.entity.ai.pathing.MobNavigation;
+import net.minecraft.entity.ai.pathing.Path;
+import net.minecraft.entity.ai.pathing.PathNodeNavigator;
+import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.World;
@@ -26,7 +30,6 @@ public class BuilderZombieNavigation extends MobNavigation {
     }
 
 
-
     @Override
     public void recalculatePath() {
         if (this.recalcCooldown <= 0) {
@@ -34,7 +37,7 @@ public class BuilderZombieNavigation extends MobNavigation {
             if (target != null) {
                 this.currentPath = null;
                 this.currentPath = this.findPathTo((Entity) target, (int) this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
-                this.recalcCooldown = 20;
+                this.recalcCooldown = 10;
             }
         }
         else this.recalcCooldown--;
@@ -48,9 +51,9 @@ public class BuilderZombieNavigation extends MobNavigation {
         if (worldChunk == null) {
             return null;
         }
-        if (worldChunk.getBlockState(target).isSolid()) {
+        if (!worldChunk.getBlockState(target).isIn(BlockTags.REPLACEABLE)) {
             blockPos = target.up();
-            while (blockPos.getY() < this.world.getTopY() && worldChunk.getBlockState(blockPos).isSolid()) {
+            while (blockPos.getY() < this.world.getTopY() && !worldChunk.getBlockState(blockPos).isIn(BlockTags.REPLACEABLE)) {
                 blockPos = blockPos.up();
             }
             return super.findPathTo(blockPos, distance);
@@ -59,19 +62,15 @@ public class BuilderZombieNavigation extends MobNavigation {
     }
 
     @Override
-    public boolean isValidPosition(BlockPos pos) {
-        return true;
-    }
-
-
-    @Override
     protected boolean canWalkOnPath(PathNodeType pathType) {
         if (pathType == PathNodeType.WATER) {
             return false;
         }
-        if (pathType == PathNodeType.LAVA) {
-            return false;
-        }
+        return pathType != PathNodeType.LAVA;
+    }
+
+    @Override
+    protected boolean isAtValidPosition() {
         return true;
     }
 

@@ -34,8 +34,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.entity.ai.ActiveTargetGoalBuilderZomb;
 import survivalplus.modid.entity.ai.BuilderZombDestroyBedGoal;
+import survivalplus.modid.entity.ai.movecontrols.BuilderZombieMoveControl;
 import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
 
 import java.time.LocalDate;
@@ -60,13 +60,14 @@ public class BuilderZombieEntity
     private int ticksUntilWaterConversion;
     private int DirtPlaceCooldown = 0;
 
-    private boolean hasTargetBed = false;
+    public boolean hasTargetBed = false;
 
     public BlockPos targetBedPos;
 
     public BuilderZombieEntity(EntityType<? extends net.minecraft.entity.mob.ZombieEntity> entityType, World world) {
         super((EntityType<? extends ZombieEntity>)entityType, world);
         this.navigation = new BuilderZombieNavigation(this, this.getWorld());
+        this.moveControl = new BuilderZombieMoveControl(this);
     }
 
     public void setHasTargetBed(boolean b){
@@ -88,7 +89,7 @@ public class BuilderZombieEntity
         this.goalSelector.add(6, new MoveThroughVillageGoal(this, 1.0, true, 4, this::canBreakDoors));
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(1, new RevengeGoal(this, new Class[0]).setGroupRevenge(ZombifiedPiglinEntity.class));
-        this.targetSelector.add(2, new ActiveTargetGoalBuilderZomb<>(this, PlayerEntity.class, false));
+        this.targetSelector.add(2, new ActiveTargetGoal<>(this, PlayerEntity.class, false));
         this.targetSelector.add(3, new ActiveTargetGoal<MerchantEntity>((MobEntity)this, MerchantEntity.class, false));
         this.targetSelector.add(3, new ActiveTargetGoal<IronGolemEntity>((MobEntity)this, IronGolemEntity.class, true));
         this.targetSelector.add(5, new ActiveTargetGoal<TurtleEntity>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
@@ -166,6 +167,7 @@ public class BuilderZombieEntity
 
     @Override
     public void tick() {
+        hasTargetBed = targetBedPos != null;
         if (!this.getWorld().isClient && this.isAlive() && !this.isAiDisabled()) {
             if (this.isConvertingInWater()) {
                 --this.ticksUntilWaterConversion;
@@ -209,14 +211,15 @@ public class BuilderZombieEntity
             }
 
             LivingEntity target = getTarget();
-            if (DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed)) {
+            if (DirtPlaceCooldown <= 0 && (target != null || hasTargetBed)) {
                 World world = this.getWorld();
                 BlockPos BlockUnder = getBlockPos().down(1);
                 BlockPos BlockUnder2 = getBlockPos().down(2);
                 if(target != null){
                 int XDiff = Math.abs(this.getBlockX() - target.getBlockX());
                 int ZDiff = Math.abs(this.getBlockZ() - target.getBlockZ());
-                if (XDiff >= 2 || ZDiff >= 2) {
+                int YDiff = this.getBlockY() - target.getBlockY();
+                if ((XDiff >= 2 || ZDiff >= 2) || YDiff < 0) {
                     if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
                         world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
@@ -224,10 +227,11 @@ public class BuilderZombieEntity
                     }
                 }
                 }
-                if(this.targetBedPos != null) {
+                if(hasTargetBed) {
                     int XDiff = Math.abs(this.getBlockX() - targetBedPos.getX());
                     int ZDiff = Math.abs(this.getBlockZ() - targetBedPos.getZ());
-                    if (XDiff >= 2 || ZDiff >= 2) {
+                    int YDiff = this.getBlockY() - targetBedPos.getY();
+                    if ((XDiff >= 2 || ZDiff >= 2) || YDiff < 0) {
                         if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
                         world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
@@ -323,7 +327,7 @@ public class BuilderZombieEntity
     }
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
-        int FullDaysRequired = 13;
+        int FullDaysRequired = 21;
         long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
         return currentAmountofFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
     }
