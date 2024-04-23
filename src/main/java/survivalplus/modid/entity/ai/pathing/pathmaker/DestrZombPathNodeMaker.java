@@ -105,9 +105,6 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
                         if(!world.getBlockState(pos.up()).isIn(BlockTags.REPLACEABLE) || !world.getBlockState(pos.up()).isIn(this.blockTag)){
                             return getNodeWith(x, y, z, PathNodeType.BLOCKED, PathNodeType.BLOCKED.getDefaultPenalty());
                         }
-                        if(world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE)){
-                            return getNodeWith(x, y, z, PathNodeType.OPEN, PathNodeType.OPEN.getDefaultPenalty());
-                        }
                         return getNodeWith(x, y, z, PathNodeType.WALKABLE, PathNodeType.WALKABLE.getDefaultPenalty());
                     }
                 }
