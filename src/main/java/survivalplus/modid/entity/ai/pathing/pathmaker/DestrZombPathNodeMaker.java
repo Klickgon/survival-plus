@@ -2,8 +2,8 @@ package survivalplus.modid.entity.ai.pathing.pathmaker;
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
-import net.minecraft.block.AbstractRailBlock;
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.ai.pathing.PathNodeType;
@@ -11,7 +11,6 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.*;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
@@ -24,9 +23,17 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     private TagKey<Block> blockTag;
 
-    public DestrZombPathNodeMaker(TagKey<Block> blocktag){
+    public DestrZombPathNodeMaker(Entity zomb){
         super();
-        this.blockTag = blocktag;
+        if(zomb.getClass() == MinerZombieEntity.class){
+            this.blockTag = MinerZombieEntity.BLOCKTAG;
+        }
+        if(zomb.getClass() == LumberjackZombieEntity.class){
+            this.blockTag = LumberjackZombieEntity.BLOCKTAG;
+        }
+        if(zomb.getClass() == DiggingZombieEntity.class){
+            this.blockTag = DiggingZombieEntity.BLOCKTAG;
+        }
     }
 
     private double getStepHeight() {
@@ -53,7 +60,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             if (!this.checkBoxCollision(box = box.offset(vec3d))) continue;
             return false;
         }
-        return true;
+        return false;
     }
 
     private PathNode getBlockedNode(int x, int y, int z) {
@@ -80,6 +87,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
         else return false;
     }
 
+
     @Override
     @Nullable
     protected PathNode getPathNode(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
@@ -89,6 +97,21 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             Box box;
             PathNode pathNode = null;
             BlockPos.Mutable mutable = new BlockPos.Mutable();
+
+                World world = this.entity.getWorld();
+                BlockPos pos = new BlockPos(x, y, z);
+                if (world.getBlockState(pos).isIn(this.blockTag)){
+                    if(!(world.getBlockState(pos.up()).isIn(BlockTags.REPLACEABLE) && world.getBlockState(pos.up(2)).isIn(BlockTags.REPLACEABLE))){
+                        if(!world.getBlockState(pos.up()).isIn(BlockTags.REPLACEABLE) || !world.getBlockState(pos.up()).isIn(this.blockTag)){
+                            return getNodeWith(x, y, z, PathNodeType.BLOCKED, PathNodeType.BLOCKED.getDefaultPenalty());
+                        }
+                        if(world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE)){
+                            return getNodeWith(x, y, z, PathNodeType.OPEN, PathNodeType.OPEN.getDefaultPenalty());
+                        }
+                        return getNodeWith(x, y, z, PathNodeType.WALKABLE, PathNodeType.WALKABLE.getDefaultPenalty());
+                    }
+                }
+
             double d = this.getFeetY(mutable.set(x, y, z));
             if (d - prevFeetY > this.getStepHeight()) {
                 return null;
@@ -100,21 +123,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
                 pathNode = this.getNodeWith(x, y, z, pathNodeType, f);
             }
 
-            if(this.blockTag != null) {
-                World world = this.entity.getWorld();
-                BlockPos pos = new BlockPos(x, y, z);
-                if (world.getBlockState(pos).isIn(this.blockTag)){
-                    if(!world.getBlockState(pos.up()).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(pos.up()).isIn(this.blockTag)){
-                        return getNodeWith(x, y, z, PathNodeType.BLOCKED, f);
-                    }
-                    if(world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE)){
-                        return getNodeWith(x, y, z, PathNodeType.OPEN, f);
-                    }
-                    return getNodeWith(x, y, z, PathNodeType.WALKABLE, f);
-                }
-            }
-
-            if (DestrZombPathNodeMaker.isBlocked(nodeType) && pathNode != null && pathNode.penalty >= 0.0f && !this.isBlocked(pathNode)) {
+            if (DestrZombPathNodeMaker.isBlocked(nodeType) && pathNode != null && pathNode.penalty >= 0.0f && !this.isBlocked(pathNode) && !this.entity.getWorld().getBlockState(pathNode.getBlockPos()).isIn(this.blockTag)) {
                 pathNode = null;
             }
             if (pathNodeType == PathNodeType.WALKABLE || this.isAmphibious() && pathNodeType == PathNodeType.WATER) {
@@ -165,21 +174,4 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
         } else return super.getPathNode(x, y, z, maxYStep, prevFeetY, direction, nodeType);
     }
 
-    @Override
-    protected PathNodeType adjustNodeType(BlockView world, BlockPos pos, PathNodeType type) {
-        boolean bl = this.canEnterOpenDoors();
-
-
-
-        if (type == PathNodeType.DOOR_WOOD_CLOSED && this.canOpenDoors() && bl) {
-            type = PathNodeType.WALKABLE_DOOR;
-        }
-        if (type == PathNodeType.DOOR_OPEN && !bl) {
-            type = PathNodeType.BLOCKED;
-        }
-        if (type == PathNodeType.RAIL && !(world.getBlockState(pos).getBlock() instanceof AbstractRailBlock) && !(world.getBlockState(pos.down()).getBlock() instanceof AbstractRailBlock)) {
-            type = PathNodeType.UNPASSABLE_RAIL;
-        }
-        return type;
-    }
 }

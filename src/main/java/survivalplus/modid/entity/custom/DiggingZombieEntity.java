@@ -1,5 +1,6 @@
 package survivalplus.modid.entity.custom;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.NavigationConditions;
@@ -26,6 +27,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -54,19 +56,20 @@ public class DiggingZombieEntity
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
     private boolean canBreakDoors;
     public BlockPos targetBedPos;
+    public static final TagKey<Block> BLOCKTAG = BlockTags.SHOVEL_MINEABLE;
     private int inWaterTime;
     private int ticksUntilWaterConversion;
 
     public DiggingZombieEntity(EntityType<? extends ZombieEntity> entityType, World world) {
         super(entityType, world);
-        this.navigation = new DestroyZombieNavigation((ZombieEntity) this, this.getWorld(), BlockTags.SHOVEL_MINEABLE);
+        this.navigation = new DestroyZombieNavigation((ZombieEntity) this, this.getWorld());
     }
 
 
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 16, BlockTags.SHOVEL_MINEABLE));
+        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 16));
         this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));
@@ -78,7 +81,7 @@ public class DiggingZombieEntity
         this.goalSelector.add(6, new MoveThroughVillageGoal(this, 1.0, true, 4, this::canBreakDoors));
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(1, new RevengeGoal(this, new Class[0]).setGroupRevenge(ZombifiedPiglinEntity.class));
-        this.targetSelector.add(2, new ActiveTargetGoalDestrZomb<PlayerEntity>((MobEntity)this, PlayerEntity.class, false, BlockTags.SHOVEL_MINEABLE));
+        this.targetSelector.add(2, new ActiveTargetGoalDestrZomb<PlayerEntity>((MobEntity)this, PlayerEntity.class, false));
         this.targetSelector.add(3, new ActiveTargetGoal<MerchantEntity>((MobEntity)this, MerchantEntity.class, false));
         this.targetSelector.add(3, new ActiveTargetGoal<IronGolemEntity>((MobEntity)this, IronGolemEntity.class, true));
         this.targetSelector.add(5, new ActiveTargetGoal<TurtleEntity>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));

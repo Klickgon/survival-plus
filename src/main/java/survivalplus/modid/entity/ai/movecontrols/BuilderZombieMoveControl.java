@@ -22,8 +22,6 @@ public class BuilderZombieMoveControl extends MoveControl {
 
     private int DirtJumpcooldown = 10;
 
-    private boolean IsNextTick = false;
-
     public BuilderZombieMoveControl(MobEntity entity) {
         super(entity);
     }

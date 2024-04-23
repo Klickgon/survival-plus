@@ -2,16 +2,13 @@ package survivalplus.modid.entity.ai;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
-import net.minecraft.entity.ai.goal.StepAndDestroyBlockGoal;
 import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -19,7 +16,6 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.entity.custom.BuilderZombieEntity;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
@@ -30,18 +26,26 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     private int counter;
     private final TagKey<Block> BedGroup = BlockTags.BEDS;
 
-    private static final int destroyBlockCooldown = 10;
+    private static final int destroyBlockCooldown = 5;
 
-    private final TagKey<Block> blocktag;
+    private TagKey<Block> blockTag;
     private BlockPos facingBlock;
 
     private int destroyBlockCooldownCounter = 10;
 
-    public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference, TagKey<Block> blocktag) {
+    public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 16, maxYDifference);
         this.DestroyMob = mob;
         this.cooldown = 0;
-        this.blocktag = blocktag;
+        if(mob.getClass() == MinerZombieEntity.class){
+            this.blockTag = MinerZombieEntity.BLOCKTAG;
+        }
+        if(mob.getClass() == LumberjackZombieEntity.class){
+            this.blockTag = LumberjackZombieEntity.BLOCKTAG;
+        }
+        if(mob.getClass() == DiggingZombieEntity.class){
+            this.blockTag = DiggingZombieEntity.BLOCKTAG;
+        }
     }
 
     @Override
@@ -93,38 +97,39 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         }
 
         if(this.destroyBlockCooldownCounter <= 0){
-                float rotation = this.DestroyMob.getHeadYaw();
-                BlockPos currentPos = this.DestroyMob.getBlockPos();
-                int cposX = currentPos.getX();
-                int cposY = currentPos.getY();
-                int cposZ = currentPos.getZ();
-                int targetposY = this.targetPos.getY();
-                int DiffY = targetposY - cposY; // Positive: Target is higher, Negative: Zombie is Higher
-                if (rotation > -135 && rotation <= -45)     this.facingBlock = new BlockPos(cposX + 1, cposY + 1, cposZ);
-                else if(rotation > 45 && rotation <= 135)   this.facingBlock = new BlockPos(cposX - 1, cposY + 1, cposZ);
-                else if(rotation > 135 || rotation <= -135) this.facingBlock = new BlockPos(cposX, cposY + 1, cposZ - 1);
-                else if (rotation > -45 || rotation <= 45)  this.facingBlock = new BlockPos(cposX, cposY + 1, cposZ + 1);
+            float rotation = this.DestroyMob.getBodyYaw();
+            BlockPos currentPos = this.DestroyMob.getBlockPos();
+
+            int cposY = currentPos.getY();
+
+            int targetposY = this.targetPos.getY();
+            int DiffY = targetposY - cposY; // Positive: Target is higher, Negative: Zombie is Higher
+
+            if (rotation > 45 && rotation <= 135)           this.facingBlock = currentPos.up().west();
+            else if (rotation > -135 && rotation <= -45)    this.facingBlock = currentPos.up().east();
+            else if (rotation > 135 || rotation <= -135)    this.facingBlock = currentPos.up().north();
+            else if (rotation > -45 || rotation <= 45)      this.facingBlock = currentPos.up().south();
 
             if(DiffY <= 0 && DiffY > -2) {
-                if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
+                if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                     world.breakBlock(this.facingBlock, false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                } else if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
+                } else if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
                     world.breakBlock(this.facingBlock.down(), false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
                 }
             }
 
             if(DiffY < -2) {
-                if (world.getBlockState(this.facingBlock.down()).isIn(blocktag)) {
+                if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
                     world.breakBlock(this.facingBlock.down(), false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
                 }
-                else if(world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blocktag)){
+                else if(world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blockTag)){
                     world.breakBlock(this.facingBlock.down(2), false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
                 }
-                else if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
+                else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                     world.breakBlock(this.facingBlock, false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
                 }
@@ -132,11 +137,11 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             }
 
             if(DiffY > 0) {
-                if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blocktag)) {
+                if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag)) {
                     world.breakBlock(this.mob.getBlockPos().up(2), false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
                 }
-                else if (world.getBlockState(this.facingBlock).isIn(blocktag)) {
+                else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                     world.breakBlock(this.facingBlock, false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
                 }
