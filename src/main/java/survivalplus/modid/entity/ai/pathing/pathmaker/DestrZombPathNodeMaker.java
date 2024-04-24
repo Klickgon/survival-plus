@@ -119,7 +119,6 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             if (f >= 0.0f) {
                 pathNode = this.getNodeWith(x, y, z, pathNodeType, f);
             }
-
             if (DestrZombPathNodeMaker.isBlocked(nodeType) && pathNode != null && pathNode.penalty >= 0.0f && !this.isBlocked(pathNode) && !this.entity.getWorld().getBlockState(pathNode.getBlockPos()).isIn(this.blockTag)) {
                 pathNode = null;
             }

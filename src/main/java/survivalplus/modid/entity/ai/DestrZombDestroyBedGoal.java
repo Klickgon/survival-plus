@@ -91,7 +91,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         World world = this.DestroyMob.getWorld();
         BlockPos blockPos = this.DestroyMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
-        if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 2)) {
+        if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 3)) {
             world.removeBlock(blockPos2, false);
             this.onDestroyBlock(world, blockPos2);
         }
@@ -110,7 +110,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             else if (rotation > 135 || rotation <= -135)    this.facingBlock = currentPos.up().north();
             else if (rotation > -45 || rotation <= 45)      this.facingBlock = currentPos.up().south();
 
-            if(DiffY <= 0 && DiffY > -2) {
+            if(DiffY == 0) {
                 if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                     world.breakBlock(this.facingBlock, false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
@@ -120,7 +120,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
                 }
             }
 
-            if(DiffY < -2) {
+            if(DiffY < 0) {
                 if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
                     world.breakBlock(this.facingBlock.down(), false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
@@ -137,19 +137,20 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             }
 
             if(DiffY > 0) {
-                if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag)) {
-                    world.breakBlock(this.mob.getBlockPos().up(2), false);
-                    this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                }
-                else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                     world.breakBlock(this.facingBlock, false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
                 }
-                else if(world.getBlockState(this.facingBlock).isReplaceable()){
+                else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
+                    world.breakBlock(this.mob.getBlockPos().up(2), false);
+                    this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                }
+                else if(world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)){
                     world.breakBlock(this.facingBlock.up(), false);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
                 }
             }
+
         }
         else this.destroyBlockCooldownCounter--;
     }
@@ -160,7 +161,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         if (world.getBlockState(pos).isIn(this.BedGroup)) {
             return pos;
         }
-        for (BlockPos blockPos : blockPoss = new BlockPos[]{pos.down(), pos.west(), pos.east(), pos.north(), pos.south(), pos.down().down()}) {
+        for (BlockPos blockPos : blockPoss = new BlockPos[]{pos.west(), pos.east(), pos.north(), pos.south()}) {
             if (!world.getBlockState(blockPos).isIn(this.BedGroup)) continue;
             return blockPos;
         }
@@ -175,7 +176,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos).isIn(this.BedGroup) && chunk.getBlockState(pos.up()).isAir() && chunk.getBlockState(pos.up(2)).isAir();
+            return chunk.getBlockState(pos.down()).isIn(this.BedGroup);
         }
         return false;
     }

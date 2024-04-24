@@ -10,6 +10,7 @@ import net.minecraft.entity.ai.goal.TrackTargetGoal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -29,7 +30,7 @@ extends TrackTargetGoal {
     private static final int DEFAULT_RECIPROCAL_CHANCE = 10;
     protected final Class<T> targetClass;
 
-    private static final int destroyBlockCooldown = 5;
+    private static final int destroyBlockCooldown = 10;
 
     protected final int reciprocalChance;
     @Nullable
@@ -102,7 +103,7 @@ extends TrackTargetGoal {
                 else if (rotation > 135 || rotation <= -135)    this.facingBlock = currentPos.up().north();
                 else if (rotation > -45 || rotation <= 45)      this.facingBlock = currentPos.up().south();
 
-                if(DiffY <= 0 && DiffY > -2) {
+                if(DiffY == 0) {
                     if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                         world.breakBlock(this.facingBlock, false);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;
@@ -112,7 +113,7 @@ extends TrackTargetGoal {
                     }
                 }
 
-                if(DiffY < -2) {
+                if(DiffY < 0) {
                     if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
                         world.breakBlock(this.facingBlock.down(), false);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;
@@ -129,15 +130,15 @@ extends TrackTargetGoal {
                 }
 
                 if(DiffY > 0) {
-                    if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag)) {
+                    if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                        world.breakBlock(this.facingBlock, false);
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                    }
+                    else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
                         world.breakBlock(this.mob.getBlockPos().up(2), false);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     }
-                    else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
-                            world.breakBlock(this.facingBlock, false);
-                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                    else if(world.getBlockState(this.facingBlock).isReplaceable()){
+                    else if(world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)){
                         world.breakBlock(this.facingBlock.up(), false);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     }

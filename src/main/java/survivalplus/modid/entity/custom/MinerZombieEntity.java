@@ -207,6 +207,18 @@ public class MinerZombieEntity
                 }
             }
         }
+        float rotation = this.getBodyYaw();
+        BlockPos currentPos = this.getBlockPos();
+        BlockPos facingBlock = null;
+        if(currentPos != null) {
+            if (rotation > 45 && rotation <= 135)           facingBlock = currentPos.up().west();
+            else if (rotation > -135 && rotation <= -45)    facingBlock = currentPos.up().east();
+            else if (rotation > 135 || rotation <= -135)    facingBlock = currentPos.up().north();
+            else if (rotation > -45 || rotation <= 45)      facingBlock = currentPos.up().south();
+            if (this.getWorld().getBlockState(facingBlock.down()).isIn(BLOCKTAG)) {
+                this.getJumpControl().setActive();
+            }
+        }
         super.tickMovement();
     }
 
@@ -214,8 +226,6 @@ public class MinerZombieEntity
         this.ticksUntilWaterConversion = ticksUntilWaterConversion;
         this.getDataTracker().set(CONVERTING_IN_WATER, true);
     }
-
-
 
     protected void convertInWater() {
     }
@@ -366,10 +376,10 @@ public class MinerZombieEntity
         float f = difficulty.getClampedLocalDifficulty();
         this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
         if (entityData == null) {
-            entityData = new MinerZombieEntity.ZombieData(MinerZombieEntity.shouldBeBaby(random), true);
+            entityData = new ZombieData(MinerZombieEntity.shouldBeBaby(random), true);
         }
-        if (entityData instanceof MinerZombieEntity.ZombieData) {
-            MinerZombieEntity.ZombieData zombieData = (MinerZombieEntity.ZombieData)entityData;
+        if (entityData instanceof ZombieData) {
+            ZombieData zombieData = (ZombieData)entityData;
             this.setCanBreakDoors(this.shouldBreakDoors() && random.nextFloat() < f * 0.1f);
             this.initEquipment();
         }
