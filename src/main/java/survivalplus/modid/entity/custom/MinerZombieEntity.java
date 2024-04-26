@@ -207,18 +207,6 @@ public class MinerZombieEntity
                 }
             }
         }
-        float rotation = this.getBodyYaw();
-        BlockPos currentPos = this.getBlockPos();
-        BlockPos facingBlock = null;
-        if(currentPos != null) {
-            if (rotation > 45 && rotation <= 135)           facingBlock = currentPos.up().west();
-            else if (rotation > -135 && rotation <= -45)    facingBlock = currentPos.up().east();
-            else if (rotation > 135 || rotation <= -135)    facingBlock = currentPos.up().north();
-            else if (rotation > -45 || rotation <= 45)      facingBlock = currentPos.up().south();
-            if (this.getWorld().getBlockState(facingBlock.down()).isIn(BLOCKTAG)) {
-                this.getJumpControl().setActive();
-            }
-        }
         super.tickMovement();
     }
 

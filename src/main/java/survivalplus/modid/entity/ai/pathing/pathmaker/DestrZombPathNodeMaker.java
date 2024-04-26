@@ -92,12 +92,6 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
     @Nullable
     protected PathNode getPathNode(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
         if (this.entity.getTarget() != null || hasTargetBedPos(this.entity)) {
-            double h;
-            double g;
-            Box box;
-            PathNode pathNode = null;
-            BlockPos.Mutable mutable = new BlockPos.Mutable();
-
                 World world = this.entity.getWorld();
                 BlockPos pos = new BlockPos(x, y, z);
                 if (world.getBlockState(pos).isIn(this.blockTag)){
@@ -108,66 +102,8 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
                         return getNodeWith(x, y, z, PathNodeType.WALKABLE, PathNodeType.WALKABLE.getDefaultPenalty());
                     }
                 }
-
-            double d = this.getFeetY(mutable.set(x, y, z));
-            if (d - prevFeetY > this.getStepHeight()) {
-                return null;
-            }
-            PathNodeType pathNodeType = this.getNodeType(this.entity, x, y, z);
-            float f = this.entity.getPathfindingPenalty(pathNodeType);
-            double e = (double)this.entity.getWidth() / 2.0;
-            if (f >= 0.0f) {
-                pathNode = this.getNodeWith(x, y, z, pathNodeType, f);
-            }
-            if (DestrZombPathNodeMaker.isBlocked(nodeType) && pathNode != null && pathNode.penalty >= 0.0f && !this.isBlocked(pathNode) && !this.entity.getWorld().getBlockState(pathNode.getBlockPos()).isIn(this.blockTag)) {
-                pathNode = null;
-            }
-            if (pathNodeType == PathNodeType.WALKABLE || this.isAmphibious() && pathNodeType == PathNodeType.WATER) {
-                return pathNode;
-            }
-            if ((pathNode == null || pathNode.penalty < 0.0f) && maxYStep > 0 && (pathNodeType != PathNodeType.FENCE || this.canWalkOverFences()) && pathNodeType != PathNodeType.UNPASSABLE_RAIL && pathNodeType != PathNodeType.TRAPDOOR && pathNodeType != PathNodeType.POWDER_SNOW && (pathNode = this.getPathNode(x, y + 1, z, maxYStep - 1, prevFeetY, direction, nodeType)) != null && (pathNode.type == PathNodeType.OPEN || pathNode.type == PathNodeType.WALKABLE) && this.entity.getWidth() < 1.0f && this.checkBoxCollision(box = new Box((g = (double)(x - direction.getOffsetX()) + 0.5) - e, this.getFeetY(mutable.set(g, (double)(y + 1), h = (double)(z - direction.getOffsetZ()) + 0.5)) + 0.001, h - e, g + e, (double)this.entity.getHeight() + this.getFeetY(mutable.set((double)pathNode.x, (double)pathNode.y, (double)pathNode.z)) - 0.002, h + e))) {
-                pathNode = null;
-            }
-            if (!this.isAmphibious() && pathNodeType == PathNodeType.WATER && !this.canSwim()) {
-                if (this.getNodeType(this.entity, x, y - 1, z) != PathNodeType.WATER) {
-                    return pathNode;
-                }
-                while (y > this.entity.getWorld().getBottomY()) {
-                    if ((pathNodeType = this.getNodeType(this.entity, x, --y, z)) == PathNodeType.WATER) {
-                        pathNode = this.getNodeWith(x, y, z, pathNodeType, this.entity.getPathfindingPenalty(pathNodeType));
-                        continue;
-                    }
-                    return pathNode;
-                }
-            }
-            if (pathNodeType == PathNodeType.OPEN) {
-                int i = 0;
-                int j = y;
-                while (pathNodeType == PathNodeType.OPEN) {
-                    if (--y < this.entity.getWorld().getBottomY()) {
-                        return this.getBlockedNode(x, j, z);
-                    }
-                    if (i++ >= this.entity.getSafeFallDistance()) {
-                        return this.getBlockedNode(x, y, z);
-                    }
-                    pathNodeType = this.getNodeType(this.entity, x, y, z);
-                    f = this.entity.getPathfindingPenalty(pathNodeType);
-                    if (pathNodeType != PathNodeType.OPEN && f >= 0.0f) {
-                        pathNode = this.getNodeWith(x, y, z, pathNodeType, f);
-                        break;
-                    }
-                    if (!(f < 0.0f)) continue;
-                    return this.getBlockedNode(x, y, z);
-                }
-            }
-            if (DestrZombPathNodeMaker.isBlocked(pathNodeType) && pathNode == null) {
-                pathNode = this.getNode(x, y, z);
-                pathNode.visited = true;
-                pathNode.type = pathNodeType;
-                pathNode.penalty = pathNodeType.getDefaultPenalty();
-            }
-            return pathNode;
-        } else return super.getPathNode(x, y, z, maxYStep, prevFeetY, direction, nodeType);
+        }
+        return super.getPathNode(x, y, z, maxYStep, prevFeetY, direction, nodeType);
     }
 
 }

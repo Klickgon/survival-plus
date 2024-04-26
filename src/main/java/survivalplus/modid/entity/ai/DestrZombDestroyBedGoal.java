@@ -26,7 +26,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     private int counter;
     private final TagKey<Block> BedGroup = BlockTags.BEDS;
 
-    private static final int destroyBlockCooldown = 5;
+    private static final int destroyBlockCooldown = 10;
 
     private TagKey<Block> blockTag;
     private BlockPos facingBlock;
@@ -97,18 +97,19 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         }
 
         if(this.destroyBlockCooldownCounter <= 0){
-            float rotation = this.DestroyMob.getBodyYaw();
-            BlockPos currentPos = this.DestroyMob.getBlockPos();
+            float rawrotation = Math.abs(this.mob.getBodyYaw());
+            float rotation = (float) (rawrotation - 360 * (Math.floor(rawrotation / 360)));
 
+            BlockPos currentPos = this.DestroyMob.getBlockPos();
             int cposY = currentPos.getY();
 
             int targetposY = this.targetPos.getY();
             int DiffY = targetposY - cposY; // Positive: Target is higher, Negative: Zombie is Higher
 
-            if (rotation > 45 && rotation <= 135)           this.facingBlock = currentPos.up().west();
-            else if (rotation > -135 && rotation <= -45)    this.facingBlock = currentPos.up().east();
-            else if (rotation > 135 || rotation <= -135)    this.facingBlock = currentPos.up().north();
-            else if (rotation > -45 || rotation <= 45)      this.facingBlock = currentPos.up().south();
+            if (rotation > 315 || rotation <= 45)   this.facingBlock = currentPos.up().south();
+            else if (rotation <= 135)               this.facingBlock = currentPos.up().west();
+            else if (rotation <= 225)               this.facingBlock = currentPos.up().north();
+            else if (rotation <= 315)               this.facingBlock = currentPos.up().east();
 
             if(DiffY == 0) {
                 if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
@@ -161,7 +162,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         if (world.getBlockState(pos).isIn(this.BedGroup)) {
             return pos;
         }
-        for (BlockPos blockPos : blockPoss = new BlockPos[]{pos.west(), pos.east(), pos.north(), pos.south()}) {
+        for (BlockPos blockPos : blockPoss = new BlockPos[]{pos.west(), pos.east(), pos.north(), pos.south(), pos.up()}) {
             if (!world.getBlockState(blockPos).isIn(this.BedGroup)) continue;
             return blockPos;
         }

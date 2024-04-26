@@ -92,59 +92,63 @@ extends TrackTargetGoal {
         if(this.destroyBlockCooldownCounter <= 0){
             if(this.targetEntity != null){
                 World world = this.mob.getWorld();
-                float rotation = this.mob.getBodyYaw();
+
+                float rawrotation = Math.abs(this.mob.getBodyYaw());
+                float rotation = (float) (rawrotation - 360 * (Math.floor(rawrotation / 360)));
+
                 BlockPos currentPos = this.mob.getBlockPos();
                 int cposY = currentPos.getY();
+
                 int targetposY = this.targetEntity.getBlockY();
                 int DiffY = targetposY - cposY; // Positive: Target is higher, Negative: Zombie is Higher
 
-                if (rotation > 45 && rotation <= 135)           this.facingBlock = currentPos.up().west();
-                else if (rotation > -135 && rotation <= -45)    this.facingBlock = currentPos.up().east();
-                else if (rotation > 135 || rotation <= -135)    this.facingBlock = currentPos.up().north();
-                else if (rotation > -45 || rotation <= 45)      this.facingBlock = currentPos.up().south();
+                if (rotation > 315 || rotation <= 45)   this.facingBlock = currentPos.up().south();
+                else if (rotation <= 135)               this.facingBlock = currentPos.up().west();
+                else if (rotation <= 225)               this.facingBlock = currentPos.up().north();
+                else if (rotation <= 315)               this.facingBlock = currentPos.up().east();
 
-                if(DiffY == 0) {
-                    if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
-                        world.breakBlock(this.facingBlock, false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    } else if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
-                        world.breakBlock(this.facingBlock.down(), false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                }
-
-                if(DiffY < 0) {
-                    if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
-                        world.breakBlock(this.facingBlock.down(), false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                    else if(world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blockTag)){
-                        world.breakBlock(this.facingBlock.down(2), false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                    else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
-                        world.breakBlock(this.facingBlock, false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                    if(DiffY == 0) {
+                        if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                            world.breakBlock(this.facingBlock, false);
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                        } else if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
+                            world.breakBlock(this.facingBlock.down(), false);
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                        }
                     }
 
-                }
+                    if(DiffY < 0) {
+                        if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
+                            world.breakBlock(this.facingBlock.down(), false);
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                        }
+                        else if(world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blockTag)){
+                            world.breakBlock(this.facingBlock.down(2), false);
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                        }
+                        else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                            world.breakBlock(this.facingBlock, false);
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                        }
 
-                if(DiffY > 0) {
-                    if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
-                        world.breakBlock(this.facingBlock, false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     }
-                    else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
-                        world.breakBlock(this.mob.getBlockPos().up(2), false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
+
+                    if(DiffY > 0) {
+                        if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                            world.breakBlock(this.facingBlock, false);
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                        }
+                        else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
+                            world.breakBlock(this.mob.getBlockPos().up(2), false);
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                        }
+                        else if(world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)){
+                            world.breakBlock(this.facingBlock.up(), false);
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown;
+                        }
                     }
-                    else if(world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)){
-                        world.breakBlock(this.facingBlock.up(), false);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                    }
-                    }
-                }
             }
+        }
         else this.destroyBlockCooldownCounter--;
     }
 
