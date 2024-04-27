@@ -30,7 +30,7 @@ extends TrackTargetGoal {
     private static final int DEFAULT_RECIPROCAL_CHANCE = 10;
     protected final Class<T> targetClass;
 
-    private static final int destroyBlockCooldown = 10;
+    private static final int destroyBlockCooldown = 20;
 
     protected final int reciprocalChance;
     @Nullable
@@ -39,7 +39,7 @@ extends TrackTargetGoal {
     public TagKey<Block> blockTag;
     private BlockPos facingBlock;
 
-    private int destroyBlockCooldownCounter = 10;
+    private int destroyBlockCooldownCounter = 20;
 
     public ActiveTargetGoalDestrZomb(MobEntity mob, Class<T> targetClass, boolean checkVisibility) {
         this((ZombieEntity) mob, targetClass, 10, checkVisibility, false, null);

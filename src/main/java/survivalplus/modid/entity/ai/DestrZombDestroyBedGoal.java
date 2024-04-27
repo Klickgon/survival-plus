@@ -25,13 +25,11 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     private final HostileEntity DestroyMob;
     private int counter;
     private final TagKey<Block> BedGroup = BlockTags.BEDS;
-
-    private static final int destroyBlockCooldown = 10;
-
+    private static final int destroyBlockCooldown = 20;
     private TagKey<Block> blockTag;
+    @Nullable
     private BlockPos facingBlock;
-
-    private int destroyBlockCooldownCounter = 10;
+    private int destroyBlockCooldownCounter = 20;
 
     public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 16, maxYDifference);

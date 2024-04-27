@@ -8,10 +8,7 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -31,7 +28,7 @@ public abstract class ServerWorldChanger extends World {
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
     public long ticksleep(long timeOfDay) {
-        return this.properties.getTimeOfDay() + 10000L; // Changes the sleeping skip from a set time point to 10000 ticks after sleep start
+        return this.properties.getTimeOfDay() + 8000L; // Changes the sleeping skip from a set time point to 10000 ticks after sleep start
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
