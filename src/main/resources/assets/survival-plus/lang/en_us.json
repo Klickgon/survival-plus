@@ -6,5 +6,6 @@
     "entity.survival-plus.minerzombie" : "Miner Zombie",
     "entity.survival-plus.lumberjackzombie" : "Lumberjack Zombie",
     "entity.survival-plus.diggingzombie" : "Digging Zombie",
-    "entity.survival-plus.reeper" : "Reeper"
+    "entity.survival-plus.reeper" : "Reeper",
+    "entity.survival-plus.leapingspider" : "Leaping Spider"
 }

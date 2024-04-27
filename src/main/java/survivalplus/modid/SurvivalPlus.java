@@ -1,7 +1,6 @@
 package survivalplus.modid;
 
 import net.fabricmc.api.ModInitializer;
-
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +27,8 @@ public class SurvivalPlus implements ModInitializer {
 		FabricDefaultAttributeRegistry.register(ModEntities.DIGGINGZOMBIE, DiggingZombieEntity.createZombieAttributes());
 
 		FabricDefaultAttributeRegistry.register(ModEntities.SCORCHEDSKELETON, ScorchedSkeletonEntity.createAbstractSkeletonAttributes());
+
+		FabricDefaultAttributeRegistry.register(ModEntities.LEAPINGSPIDER, LeapingSpiderEntity.createSpiderAttributes());
 
 		ModEntityGeneration.addSpawns();
 

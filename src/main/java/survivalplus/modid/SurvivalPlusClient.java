@@ -29,5 +29,8 @@ public class SurvivalPlusClient implements ClientModInitializer {
 
         EntityRendererRegistry.register(ModEntities.SCORCHEDSKELETON, ScorchedSkeletonRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.SCORCHEDSKELETON, ScorchedSkeletonModel::getTexturedModelData);
+
+        EntityRendererRegistry.register(ModEntities.LEAPINGSPIDER, LeapingSpiderRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(ModModelLayers.LEAPINGSPIDER, LeapingSpiderModel::getTexturedModelData);
     }
 }

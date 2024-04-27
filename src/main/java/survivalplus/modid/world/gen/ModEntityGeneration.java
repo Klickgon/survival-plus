@@ -15,5 +15,6 @@ public class ModEntityGeneration {
         BiomeModifications.addSpawn(BiomeSelectors.foundInOverworld(), SpawnGroup.MONSTER, ModEntities.DIGGINGZOMBIE, 30, 1, 3);
         BiomeModifications.addSpawn(BiomeSelectors.foundInOverworld(), SpawnGroup.MONSTER, ModEntities.BUILDERZOMBIE, 35, 1, 3);
         BiomeModifications.addSpawn(BiomeSelectors.foundInOverworld(), SpawnGroup.MONSTER, ModEntities.REEPER, 35, 1, 3);
+        BiomeModifications.addSpawn(BiomeSelectors.foundInOverworld(), SpawnGroup.MONSTER, ModEntities.LEAPINGSPIDER, 40, 1, 3);
     }
 }

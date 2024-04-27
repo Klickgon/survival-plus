@@ -21,4 +21,7 @@ public class ModModelLayers {
 
     public static final EntityModelLayer SCORCHEDSKELETON =
             new EntityModelLayer(new Identifier(SurvivalPlus.MOD_ID,"scorchedskeleton"),"main");
+
+    public static final EntityModelLayer LEAPINGSPIDER =
+            new EntityModelLayer(new Identifier(SurvivalPlus.MOD_ID,"leapingspider"),"main");
 }

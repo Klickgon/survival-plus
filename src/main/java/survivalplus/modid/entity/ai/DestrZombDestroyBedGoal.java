@@ -5,8 +5,6 @@ import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.BlockView;
@@ -90,8 +88,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         BlockPos blockPos = this.DestroyMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
         if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 3)) {
-            world.removeBlock(blockPos2, false);
-            this.onDestroyBlock(world, blockPos2);
+            world.breakBlock(blockPos2, true);
         }
 
         if(this.destroyBlockCooldownCounter <= 0){
@@ -165,10 +162,6 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             return blockPos;
         }
         return null;
-    }
-
-    public void onDestroyBlock(World world, BlockPos pos) {
-        world.playSound(null, pos, SoundEvents.BLOCK_WOOL_BREAK, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
     }
 
     @Override
