@@ -35,6 +35,7 @@ import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.ai.ReeperDestroyBedGoal;
 import survivalplus.modid.entity.ai.ReeperIgniteGoal;
+import survivalplus.modid.util.ModGamerules;
 
 import java.util.Collection;
 
@@ -220,7 +221,7 @@ public class ReeperEntity
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int FullDaysRequired = 34;
         long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return currentAmountofFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
+        return (currentAmountofFullDays >= FullDaysRequired || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     @Override

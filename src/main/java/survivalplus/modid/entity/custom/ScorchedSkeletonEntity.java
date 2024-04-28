@@ -32,6 +32,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.enchantments.ModEnchantments;
 import survivalplus.modid.entity.ai.DestroyBedGoal;
+import survivalplus.modid.util.ModGamerules;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
@@ -97,7 +98,7 @@ extends SkeletonEntity {
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int FullDaysRequired = 51;
         long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return currentAmountofFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
+        return (currentAmountofFullDays >= FullDaysRequired || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     @Override

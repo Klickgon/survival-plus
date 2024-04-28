@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import survivalplus.modid.enchantments.ModEnchantments;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.custom.*;
+import survivalplus.modid.util.ModGamerules;
+import survivalplus.modid.util.ModPlayerStats;
 import survivalplus.modid.world.gen.ModEntityGeneration;
 
 public class SurvivalPlus implements ModInitializer {
@@ -36,5 +38,8 @@ public class SurvivalPlus implements ModInitializer {
 
 		ModEntities.registerModEntities();
 		ModEntities.registerSpawnRestrictions();
+
+		ModGamerules.registerModGamerules();
+		ModPlayerStats.registerModPlayerStats();
 	}
 }

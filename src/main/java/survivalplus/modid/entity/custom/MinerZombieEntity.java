@@ -38,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.ai.ActiveTargetGoalDestrZomb;
 import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
+import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.util.ModTags;
 
 import java.time.LocalDate;
@@ -285,9 +286,8 @@ public class MinerZombieEntity
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int FullDaysRequired = 27;
         long currentAmountOfFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return currentAmountOfFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
+        return (currentAmountOfFullDays >= FullDaysRequired || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
-
 
     protected void initEquipment() {}
 

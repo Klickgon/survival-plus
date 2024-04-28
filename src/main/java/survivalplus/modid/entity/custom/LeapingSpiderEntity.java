@@ -40,6 +40,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import survivalplus.modid.entity.ai.LeapAtTargetGoal;
+import survivalplus.modid.util.ModGamerules;
 
 public class LeapingSpiderEntity
 extends HostileEntity {
@@ -189,7 +190,7 @@ extends HostileEntity {
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int FullDaysRequired = 21;
         long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return currentAmountofFullDays >= FullDaysRequired && canSpawnInDark(type, world, spawnReason, pos, random);
+        return (currentAmountofFullDays >= FullDaysRequired || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     @Override

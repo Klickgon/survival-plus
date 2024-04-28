@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import survivalplus.modid.util.ModGamerules;
 
 @Mixin(HostileEntity.class)
 public class HostileEntityChanger {
@@ -23,6 +24,6 @@ public class HostileEntityChanger {
             afterOneDay = !world.isSkyVisible(pos);
         }
         else afterOneDay = true;
-        cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && afterOneDay && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
+        cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (afterOneDay || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
     }
 }

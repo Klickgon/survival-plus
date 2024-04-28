@@ -1,7 +1,10 @@
 package survivalplus.modid.mixin;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -9,28 +12,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalplus.modid.util.IWorldChanger;
 
 @Mixin(World.class)
-public class WorldChanger implements IWorldChanger {
+public abstract class WorldChanger implements IWorldChanger {
 
     @Unique
-    public int sleepcooldown = 0;
+    public boolean enoughTimesSinceRest = false;
+
+    @Shadow @Nullable public abstract MinecraftServer getServer();
 
     @Inject(method = "isDay", at = @At(value = "HEAD"), cancellable = true)
     public void sleepWhenever(CallbackInfoReturnable<Boolean> cir){
-        if(this.sleepcooldown <= 0) { // Replaces the Day Check with a Cooldown Check for the Sleep failure
-            cir.setReturnValue(false);
-        }
-        else {
-            cir.setReturnValue(true);
-        }
+                cir.setReturnValue(!enoughTimesSinceRest);
     }
 
-    public int getSleepCooldown(){
-        return sleepcooldown;
+    @Override
+    public void setEnoughTimeSinceRest(boolean b) {
+        this.enoughTimesSinceRest = b;
     }
-
-    public void setSleepCooldown(int i){
-        this.sleepcooldown = i;
-    }
-
-
 }
