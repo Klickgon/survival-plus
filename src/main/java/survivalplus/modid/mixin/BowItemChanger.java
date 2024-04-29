@@ -19,7 +19,6 @@ import survivalplus.modid.util.IPPEChanger;
 @Mixin(BowItem.class)
 public class BowItemChanger {
 
-
     @Inject(method = "onStoppedUsing", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;damage(ILnet/minecraft/entity/LivingEntity;Ljava/util/function/Consumer;)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     public void flameInjection(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci, PlayerEntity playerEntity, boolean bl, ItemStack itemStack, int i, float f, boolean bl2, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity, int j, int k){
         if (EnchantmentHelper.getLevel(ModEnchantments.FLAME_TWO, stack) > 0) { // Checks if the Bow has a Flame II enchantment, to set the Arrow on fire

@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.util.IWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
 
@@ -54,7 +55,7 @@ public abstract class ServerWorldChanger extends World {
 
 
     @Inject(method = "tick", at = @At("HEAD"))
-    protected void checkTimeSinceSleep(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+    protected void injectCustomStats(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         IWorldChanger oworld = (IWorldChanger) (Object) this.getServer().getOverworld();
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.incrementStat(ModPlayerStats.TIME_SINCE_SLEEP); // increments and then checks if all players can sleep in this world
@@ -64,6 +65,15 @@ public abstract class ServerWorldChanger extends World {
             }
             oworld.setEnoughTimeSinceRest(true);
         }
+        for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
+            SurvivalPlus.LOGGER.info(String.valueOf(serverPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT))));
+            if(serverPlayer.getSpawnPointPosition() != null){ // Checks if the Player has a Spawn position different from the World Spawn Position
+                serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
+                break;
+            }
+            serverPlayer.incrementStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT);
+        }
+
     }
 
 }
