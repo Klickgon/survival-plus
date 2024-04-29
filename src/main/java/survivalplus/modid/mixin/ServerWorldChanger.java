@@ -1,5 +1,6 @@
 package survivalplus.modid.mixin;
 
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -7,6 +8,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stats;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
@@ -18,11 +21,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.util.IWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -55,7 +58,7 @@ public abstract class ServerWorldChanger extends World {
 
 
     @Inject(method = "tick", at = @At("HEAD"))
-    protected void injectCustomStats(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+    protected void injectTickHead(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         IWorldChanger oworld = (IWorldChanger) (Object) this.getServer().getOverworld();
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.incrementStat(ModPlayerStats.TIME_SINCE_SLEEP); // increments and then checks if all players can sleep in this world
@@ -65,13 +68,15 @@ public abstract class ServerWorldChanger extends World {
             }
             oworld.setEnoughTimeSinceRest(true);
         }
+
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
-            SurvivalPlus.LOGGER.info(String.valueOf(serverPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT))));
-            if(serverPlayer.getSpawnPointPosition() != null){ // Checks if the Player has a Spawn position different from the World Spawn Position
-                serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
-                break;
-            }
-            serverPlayer.incrementStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT);
+            BlockPos bpos = serverPlayer.getSpawnPointPosition();
+                if(bpos != null){
+                    Optional<Vec3d> result = PlayerEntity.findRespawnPosition(serverPlayer.getServerWorld(), bpos, 0.0f, false, true);
+                    if (!result.equals(Optional.empty()))
+                        serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
+                    else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
+            } else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
         }
 
     }

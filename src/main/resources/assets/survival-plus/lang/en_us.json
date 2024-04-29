@@ -1,5 +1,5 @@
 {
-    "block.survival-plus.bed.sleepcooldown": "You can't sleep just now, you already slept recently",
+    "block.survival-plus.bed.sleepcooldown": "You can't sleep just now, at least one Player already slept recently",
     "enchantment.survival-plus.flame_two": "Flame",
     "entity.survival-plus.builderzombie" : "Builder Zombie",
     "entity.survival-plus.scorchedskeleton" : "Scorched Skeleton",
