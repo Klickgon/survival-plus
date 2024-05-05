@@ -9,6 +9,7 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.*;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.BuilderZombieEntity;
+import survivalplus.modid.util.IHostileEntityChanger;
 
 public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
@@ -50,7 +51,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
     @Override
     @Nullable
     protected PathNode getPathNode(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        if (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity)) {
+        if (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null) {
             double h;
             double g;
             Box box;

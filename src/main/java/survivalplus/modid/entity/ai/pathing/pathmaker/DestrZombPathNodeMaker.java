@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
+import survivalplus.modid.util.IHostileEntityChanger;
 
 public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
@@ -91,7 +92,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
     @Override
     @Nullable
     protected PathNode getPathNode(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        if (this.entity.getTarget() != null || hasTargetBedPos(this.entity)) {
+        if (this.entity.getTarget() != null || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null) {
                 World world = this.entity.getWorld();
                 BlockPos pos = new BlockPos(x, y, z);
                 if (world.getBlockState(pos).isIn(this.blockTag)){

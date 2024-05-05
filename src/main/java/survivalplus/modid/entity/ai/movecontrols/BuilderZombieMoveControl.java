@@ -17,6 +17,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 import survivalplus.modid.entity.custom.BuilderZombieEntity;
+import survivalplus.modid.util.IHostileEntityChanger;
 
 public class BuilderZombieMoveControl extends MoveControl {
 
@@ -81,8 +82,9 @@ public class BuilderZombieMoveControl extends MoveControl {
             this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)));
             World world = this.entity.getWorld();
             BuilderZombieEntity bzomb = (BuilderZombieEntity) this.entity;
+            IHostileEntityChanger bzomb2 = (IHostileEntityChanger) this.entity;
             BlockPos bzombpos = bzomb.getBlockPos();
-            if(DirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed)) {
+            if(DirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
                 if(isDirtJumpRequired(bzombpos.down(), world)){
                     world.setBlockState(bzombpos.down(), Blocks.DIRT.getDefaultState());
                     world.playSound(null, bzombpos.down(), SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);

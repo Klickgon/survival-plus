@@ -34,9 +34,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.entity.ai.BuilderZombDestroyBedGoal;
+import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.entity.ai.movecontrols.BuilderZombieMoveControl;
 import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
+import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.util.ModGamerules;
 
 import java.time.LocalDate;
@@ -78,7 +79,7 @@ public class BuilderZombieEntity
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new BuilderZombDestroyBedGoal(this, 1.0, 8));
+        this.goalSelector.add(4, new DestroyBedGoal(this, 1.0, 8));
         this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));
@@ -212,7 +213,8 @@ public class BuilderZombieEntity
             }
 
             LivingEntity target = getTarget();
-            if (DirtPlaceCooldown <= 0 && (target != null || hasTargetBed)) {
+            IHostileEntityChanger bzomb = (IHostileEntityChanger) this;
+            if (DirtPlaceCooldown <= 0 && (target != null || hasTargetBed || bzomb.getBaseAssault() != null)) {
                 World world = this.getWorld();
                 BlockPos BlockUnder = getBlockPos().down(1);
                 BlockPos BlockUnder2 = getBlockPos().down(2);

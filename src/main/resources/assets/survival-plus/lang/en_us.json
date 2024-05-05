@@ -1,5 +1,5 @@
 {
-    "block.survival-plus.bed.sleepcooldown": "You can't sleep just now, at least one Player already slept recently",
+    "block.survival-plus.bed.sleepcooldown": "You can't sleep just now, not everyone has been awake for long enough",
     "enchantment.survival-plus.flame_two": "Flame",
     "entity.survival-plus.builderzombie" : "Builder Zombie",
     "entity.survival-plus.scorchedskeleton" : "Scorched Skeleton",
@@ -7,5 +7,12 @@
     "entity.survival-plus.lumberjackzombie" : "Lumberjack Zombie",
     "entity.survival-plus.diggingzombie" : "Digging Zombie",
     "entity.survival-plus.reeper" : "Reeper",
-    "entity.survival-plus.leapingspider" : "Leaping Spider"
+    "entity.survival-plus.leapingspider" : "Leaping Spider",
+    "event.survival-plus.baseassault" : "Base Assault",
+    "event.survival-plus.defeat": "Defeat",
+    "event.survival-plus.defeat.full": "Base Assault - Defeat",
+    "event.survival-plus.attackers_remaining": "Attackers Remaining: %s",
+    "event.survival-plus.victory": "Victory",
+    "event.survival-plus.victory.full": "Base Assault - Victory",
+    "event.survival-plus.baseassault.hostiles_remaining": "Attackers Remaining: %s"
 }
