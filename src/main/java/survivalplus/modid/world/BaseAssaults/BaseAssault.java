@@ -22,7 +22,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.Heightmap;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -215,7 +214,7 @@ public class BaseAssault {
             if (!this.active) {
                 return;
             }
-            this.attachedPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT));
+
             ++this.ticksActive;
             if(!this.attachedPlayer.isAlive() && !this.world.getBlockState(this.center).isIn(BlockTags.BEDS)){
                 this.status = Status.LOSS;
@@ -256,6 +255,7 @@ public class BaseAssault {
                 }
             }
         } else if (this.isFinished()) {
+            this.attachedPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT));
             ++this.finishCooldown;
             if (this.finishCooldown >= 600) {
                 this.invalidate();
@@ -295,7 +295,7 @@ public class BaseAssault {
     private void updateCenter() {
         Optional<Vec3d> op = PlayerEntity.findRespawnPosition(this.world, this.center,0.0f, false, true);
         if(op.isPresent()) {
-            this.center = new BlockPos((int) Math.rint(op.get().x), (int) Math.rint(op.get().y), (int) Math.rint(op.get().z));
+            this.center = this.attachedPlayer.getSpawnPointPosition();
             this.findPlayerInsteadOfBed = !this.world.getBlockState(this.center).isIn(BlockTags.BEDS);
         }
         else this.findPlayerInsteadOfBed = true;
@@ -310,12 +310,22 @@ public class BaseAssault {
             float f = this.world.random.nextFloat() * ((float)Math.PI * 2);
             int k = this.center.getX() + MathHelper.floor(MathHelper.cos(f) * 32.0f * i) + this.world.random.nextInt(5);
             int l = this.center.getZ() + MathHelper.floor(MathHelper.sin(f) * 32.0f * i) + this.world.random.nextInt(5);
-            int m = this.world.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, k, l);
+            int m = calculateSpawnY(k, l);
             mutable.set(k, m, l);
             if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, mutable, EntityType.RAVAGER) && (!this.world.getBlockState((BlockPos)mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir())) continue;
             return mutable;
         }
         return null;
+    }
+
+    private int calculateSpawnY(int x, int z){
+        World world = this.world;
+        BlockPos pos = new BlockPos (x, this.center.getY() + 24, z);
+        while(world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE) || !world.getBlockState(pos).isAir() || !world.getBlockState(pos.up()).isAir()){
+            if(pos.getY() <= world.getBottomY()) break;
+            pos = new BlockPos(pos.getX(), pos.getY() - 1, pos.getZ());
+        }
+        return pos.getY();
     }
 
     public int getId() {
@@ -350,6 +360,7 @@ public class BaseAssault {
         spawnTypeOfHostile(wave[9], ModEntities.REEPER, pos);
         spawnTypeOfHostile(wave[10], ModEntities.SCORCHEDSKELETON, pos);
         this.totalHealth = getCurrentHostilesHealth();
+        this.attachedPlayer.teleport(pos.getX(), pos.getY(), pos.getZ());
         this.markDirty();
     }
 

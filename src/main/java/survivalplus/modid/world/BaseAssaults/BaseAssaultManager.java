@@ -74,12 +74,12 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return null;
         }
-        if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT)) < 120000) {
+        if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT)) < 400) {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();
         BlockPos spawnPos = player.getSpawnPointPosition();
-        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64)) {
+        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || world.isDay()) {
             return null;
         }
         BaseAssault baseAssault = this.getOrCreateBaseAssault(player.getServerWorld(), spawnPos, player);
