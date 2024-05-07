@@ -320,9 +320,10 @@ public class BaseAssault {
 
     private int calculateSpawnY(int x, int z){
         World world = this.world;
-        BlockPos pos = new BlockPos (x, this.center.getY() + 24, z);
+        int y = this.center.getY();
+        BlockPos pos = new BlockPos (x, y + 36, z);
         while(world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE) || !world.getBlockState(pos).isAir() || !world.getBlockState(pos.up()).isAir()){
-            if(pos.getY() <= world.getBottomY()) break;
+            if(pos.getY() <= (y - 16)) break;
             pos = new BlockPos(pos.getX(), pos.getY() - 1, pos.getZ());
         }
         return pos.getY();
@@ -360,7 +361,6 @@ public class BaseAssault {
         spawnTypeOfHostile(wave[9], ModEntities.REEPER, pos);
         spawnTypeOfHostile(wave[10], ModEntities.SCORCHEDSKELETON, pos);
         this.totalHealth = getCurrentHostilesHealth();
-        this.attachedPlayer.teleport(pos.getX(), pos.getY(), pos.getZ());
         this.markDirty();
     }
 
@@ -378,7 +378,7 @@ public class BaseAssault {
                 hostile.setPosition((double)pos.getX() + 0.5, (double)pos.getY() + 1.0, (double)pos.getZ() + 0.5);
                 hostile.initialize(this.world, this.world.getLocalDifficulty(pos), SpawnReason.EVENT, null, null);
                 hostile.setOnGround(true);
-                hostile2.getGoalSelector().add(4, new BaseAssaultGoal(hostile, 1.0));
+                hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
                 this.world.spawnEntityAndPassengers(hostile);
                 this.hostiles.add(hostile);
                 this.totalHealth += hostile.getHealth();

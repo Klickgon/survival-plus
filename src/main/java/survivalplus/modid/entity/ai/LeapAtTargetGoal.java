@@ -5,20 +5,20 @@ package survivalplus.modid.entity.ai;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
+import survivalplus.modid.entity.custom.LeapingSpiderEntity;
 
 import java.util.EnumSet;
 
 public class LeapAtTargetGoal
 extends Goal {
-    private final MobEntity mob;
+    private final LeapingSpiderEntity mob;
     private LivingEntity target;
     private final float velocity;
     private boolean canLeapAttack = false;
 
-    public LeapAtTargetGoal(MobEntity mob, float velocity) {
+    public LeapAtTargetGoal(LeapingSpiderEntity mob, float velocity) {
         this.mob = mob;
         this.velocity = velocity;
         this.setControls(EnumSet.of(Control.JUMP, Control.MOVE));
@@ -46,11 +46,14 @@ extends Goal {
     @Override
     public void tick(){
         this.attack(this.target);
-        this.canLeapAttack = !this.mob.isOnGround();
+        boolean bl = !this.mob.isOnGround();
+        if(mob.isLeaping) this.mob.isLeaping = bl;
+        this.canLeapAttack = bl;
     }
 
     protected void attack(LivingEntity target) {
         if (this.canAttack(target)) {
+            this.mob.isLeaping = true;
             this.mob.swingHand(Hand.MAIN_HAND);
             boolean bl = this.mob.tryAttack(target);
             this.canLeapAttack = !bl;

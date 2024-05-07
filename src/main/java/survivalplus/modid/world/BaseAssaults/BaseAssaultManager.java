@@ -64,7 +64,7 @@ extends PersistentState {
 
     @Nullable
     public BaseAssault startBaseAssault(ServerPlayerEntity player) {
-        if (player.isSpectator()) {
+        if (player.isSpectator() || player.isCreative()) {
             return null;
         }
         if (this.world.getGameRules().getBoolean(GameRules.DISABLE_RAIDS)) {
@@ -74,12 +74,12 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return null;
         }
-        if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT)) < 12000) {
+        if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT)) < 120000) {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();
         BlockPos spawnPos = player.getSpawnPointPosition();
-        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || world.isDay()) {
+        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || !world.isNight()) {
             return null;
         }
         BaseAssault baseAssault = this.getOrCreateBaseAssault(player.getServerWorld(), spawnPos, player);

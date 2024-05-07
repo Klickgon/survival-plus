@@ -35,7 +35,7 @@ public class HostileEntityChanger extends PathAwareEntity implements IHostileEnt
         // Blocks hostile Entity Spawns during the first day on the surface, but mobs can still spawn underground during the first day
         boolean afterOneDay;
         if (world.getLevelProperties().getTimeOfDay() <= 24000L) {
-            afterOneDay = !world.isSkyVisible(pos);
+            afterOneDay = !world.isSkyVisibleAllowingSea(pos);
         }
         else afterOneDay = true;
         cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (afterOneDay || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));

@@ -49,9 +49,11 @@ extends HostileEntity {
      * #isClimbingWall() wall climbing}.
      */
     private static final TrackedData<Byte> SPIDER_FLAGS = DataTracker.registerData(LeapingSpiderEntity.class, TrackedDataHandlerRegistry.BYTE);
+    public boolean isLeaping;
 
     public LeapingSpiderEntity(EntityType<? extends LeapingSpiderEntity> entityType, World world) {
         super((EntityType<? extends HostileEntity>)entityType, world);
+        this.isLeaping = false;
     }
 
     @Override
@@ -161,7 +163,7 @@ extends HostileEntity {
             f += EnchantmentHelper.getAttackDamage(this.getMainHandStack(), ((LivingEntity)target).getGroup());
             g += (float)EnchantmentHelper.getKnockback(this);
         }
-        bl = target.damage(this.getDamageSources().mobAttack(this), f * k + 1);
+        bl = (this.isOnGround() || this.isLeaping) && target.damage(this.getDamageSources().mobAttack(this), f * k + 1);
         if (bl) {
             if (g > 0.0f && target instanceof LivingEntity) {
                 ((LivingEntity)target).takeKnockback(g, MathHelper.sin(this.getYaw() * ((float)Math.PI / 180)), -MathHelper.cos(this.getYaw() * ((float)Math.PI / 180)));
