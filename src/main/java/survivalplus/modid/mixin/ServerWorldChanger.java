@@ -68,7 +68,8 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     protected void resetTimeSinceSleepStat(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP));// Resets the "time since sleep" stat for every player once everyone wakes up
-            serverPlayer.increaseStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT), 8000); // also increases the time since last Base Assault by the time of day skipped through sleeping
+            serverPlayer.increaseStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT), 8000);
+            // also increases the time since last Base Assault by the time of day skipped through sleeping
         }
     }
 

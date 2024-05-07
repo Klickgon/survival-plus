@@ -379,6 +379,7 @@ public class DiggingZombieEntity
             }
         }
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.WOODEN_SHOVEL));
+        this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
         this.applyAttributeModifiers(f);
         return entityData;
     }

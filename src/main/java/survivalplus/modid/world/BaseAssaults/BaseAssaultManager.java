@@ -79,7 +79,7 @@ extends PersistentState {
         }
         BlockPos playerPos = player.getBlockPos();
         BlockPos spawnPos = player.getSpawnPointPosition();
-        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || !world.isNight()) {
+        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || world.getAmbientDarkness() < 4) {
             return null;
         }
         BaseAssault baseAssault = this.getOrCreateBaseAssault(player.getServerWorld(), spawnPos, player);

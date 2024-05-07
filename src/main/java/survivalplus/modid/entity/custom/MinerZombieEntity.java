@@ -386,6 +386,7 @@ public class MinerZombieEntity
             }
         }
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_PICKAXE));
+        this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
         this.applyAttributeModifiers(f);
         return entityData;
     }

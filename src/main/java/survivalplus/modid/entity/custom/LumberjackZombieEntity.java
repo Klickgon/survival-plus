@@ -414,6 +414,7 @@ public class LumberjackZombieEntity
             }
         }
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_AXE));
+        this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
         this.applyAttributeModifiers(f);
         return entityData;
     }
