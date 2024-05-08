@@ -18,16 +18,16 @@ public class BaseAssaultWaves {
     // Index 10: Scorched Skeleton
 
     public static final short[] BASEASSAULT_ONE =      {3, 1, 2, 0, 0, 0, 0, 0, 0 ,0, 0};
-    public static final short[] BASEASSAULT_TWO =      {3, 2, 2, 0, 2, 0, 0, 0, 0, 0, 0};
-    public static final short[] BASEASSAULT_THREE =    {4, 2, 2, 1, 3, 0, 0, 0, 0, 0, 0};
-    public static final short[] BASEASSAULT_FOUR =     {4, 3, 3, 2, 2, 1, 0, 0, 0, 0, 0};
-    public static final short[] BASEASSAULT_FIVE =     {4, 3, 4, 2, 3, 2, 0, 0, 1, 0, 0};
-    public static final short[] BASEASSAULT_SIX =      {4, 4, 5, 4, 4, 3, 2, 0, 2, 0, 0};
-    public static final short[] BASEASSAULT_SEVEN =    {3, 4, 5, 4, 4, 4, 3, 2, 2, 0, 0};
-    public static final short[] BASEASSAULT_EIGHT =    {2, 3, 5, 4, 4, 5, 4, 3, 3, 2, 0};
-    public static final short[] BASEASSAULT_NINE =     {0, 0, 3, 3, 5, 5, 5, 4, 4, 3, 2};
-    public static final short[] BASEASSAULT_TEN =      {0, 0, 0, 0, 5, 5, 6, 5, 4, 4, 3};
-    public static final short[] BASEASSAULT_ELEVEN =   {0, 0, 0, 0, 3, 5, 7, 6, 4, 4, 3};
-    public static final short[] BASEASSAULT_TWELVE =   {0, 0, 0, 0, 3, 3, 7, 6, 6, 4, 4};
+    public static final short[] BASEASSAULT_TWO =      {3, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0};
+    public static final short[] BASEASSAULT_THREE =    {3, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0};
+    public static final short[] BASEASSAULT_FOUR =     {2, 3, 3, 1, 2, 1, 0, 0, 0, 0, 0};
+    public static final short[] BASEASSAULT_FIVE =     {2, 2, 2, 2, 2, 1, 0, 0, 1, 0, 0};
+    public static final short[] BASEASSAULT_SIX =      {2, 2, 2, 2, 3, 2, 2, 0, 1, 0, 0};
+    public static final short[] BASEASSAULT_SEVEN =    {1, 1, 2, 2, 1, 3, 3, 1, 1, 0, 0};
+    public static final short[] BASEASSAULT_EIGHT =    {0, 1, 2, 3, 2, 3, 3, 2, 3, 2, 0};
+    public static final short[] BASEASSAULT_NINE =     {0, 0, 1, 1, 2, 3, 3, 2, 4, 3, 1};
+    public static final short[] BASEASSAULT_TEN =      {0, 0, 0, 0, 3, 4, 3, 2, 4, 3, 1};
+    public static final short[] BASEASSAULT_ELEVEN =   {0, 0, 0, 0, 3, 4, 3, 3, 2, 3, 2};
+    public static final short[] BASEASSAULT_TWELVE =   {0, 0, 0, 0, 3, 4, 4, 3, 3, 3, 3};
 
 }

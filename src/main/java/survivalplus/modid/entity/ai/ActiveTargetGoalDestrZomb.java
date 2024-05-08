@@ -109,25 +109,25 @@ extends TrackTargetGoal {
 
                     if(DiffY > 0 && DiffY <= 2) {
                         if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
-                            world.breakBlock(this.facingBlock, false);
+                            world.breakBlock(this.facingBlock, true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                         } else if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
-                            world.breakBlock(this.facingBlock.down(), false);
+                            world.breakBlock(this.facingBlock.down(), true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                         }
                     }
 
                     if(DiffY < 0) {
                         if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
-                            world.breakBlock(this.facingBlock.down(), false);
+                            world.breakBlock(this.facingBlock.down(), true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                         }
                         else if(world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blockTag)){
-                            world.breakBlock(this.facingBlock.down(2), false);
+                            world.breakBlock(this.facingBlock.down(2), true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                         }
                         else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
-                            world.breakBlock(this.facingBlock, false);
+                            world.breakBlock(this.facingBlock, true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                         }
 
@@ -135,15 +135,15 @@ extends TrackTargetGoal {
 
                     if(DiffY > 2) {
                         if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
-                            world.breakBlock(this.facingBlock, false);
+                            world.breakBlock(this.facingBlock, true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                         }
                         else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
-                            world.breakBlock(this.mob.getBlockPos().up(2), false);
+                            world.breakBlock(this.mob.getBlockPos().up(2), true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                         }
                         else if(world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)){
-                            world.breakBlock(this.facingBlock.up(), false);
+                            world.breakBlock(this.facingBlock.up(), true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                         }
                     }
