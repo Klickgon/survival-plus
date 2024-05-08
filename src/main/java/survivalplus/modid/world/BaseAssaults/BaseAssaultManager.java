@@ -74,7 +74,7 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return null;
         }
-        if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT)) < 120000) {
+        if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT)) < 144000) {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();

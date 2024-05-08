@@ -397,8 +397,9 @@ public class BaseAssault {
     public float getCurrentHostilesHealth() {
         float f = 0.0f;
         HostileEntity[] hostilesArray = this.hostiles.toArray(new HostileEntity[this.hostiles.size()]);
-        for (HostileEntity hostileEntity : hostilesArray) {
-            f += hostileEntity.getHealth();
+        for (HostileEntity hostile : hostilesArray) {
+            if(!hostile.isAlive()) f += 0.0f;
+            else f += hostile.getHealth();
         }
         return f;
     }

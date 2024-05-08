@@ -50,8 +50,7 @@ public class ReeperEntity
     private int fuseTime = 30;
     private int explosionRadius = 3;
     public BlockPos targetBedPos;
-
-    private boolean hadTarget = false;
+    public boolean forceExplosion = false;
     private boolean lostTarget = false;
     public boolean wasWithinDistance = false;
 
@@ -134,8 +133,8 @@ public class ReeperEntity
     public void tick() {
         if (this.isAlive()) {
 
-            if(!this.hadTarget && this.getTarget() != null) this.hadTarget = true;
-            if(this.hadTarget && this.getTarget() == null) this.lostTarget = true;
+            if(!this.forceExplosion && this.getTarget() != null) this.forceExplosion = true;
+            if(this.forceExplosion && this.getTarget() == null) this.lostTarget = true;
             int i;
             this.lastFuseTime = this.currentFuseTime;
             if (this.isIgnited()) {

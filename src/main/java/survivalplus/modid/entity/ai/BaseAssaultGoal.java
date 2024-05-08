@@ -2,6 +2,7 @@ package survivalplus.modid.entity.ai;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
+import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
+import survivalplus.modid.entity.custom.ReeperEntity;
 import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.world.BaseAssaults.BaseAssault;
 
@@ -84,7 +86,9 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
             if(this.mob.getBlockPos().isWithinDistance(targetPos, 1.5)) {
                 BlockPos bedPos = tweakToProperBedPos(baseAssault.getCenter(), this.mob.getWorld());
                 if (bedPos != null && mob.getWorld().getBlockState(bedPos).isIn(BlockTags.BEDS))
-                    mob.getWorld().breakBlock(bedPos, false);
+                    if (mob.getClass() == CreeperEntity.class) ((CreeperEntity) mob).ignite();
+                    else if (mob.getClass() == ReeperEntity.class) ((ReeperEntity) mob).forceExplosion = true;
+                    else mob.getWorld().breakBlock(bedPos, false);
             }
 
             if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0){

@@ -10,10 +10,12 @@
     }
   },
   "pattern": [
-    "NXN",
+    "XNX",
+    "N N",
     "X X"
   ],
   "result": {
-    "item": "minecraft:chainmail_helmet"
-  }
+    "item": "minecraft:chainmail_leggings"
+  },
+  "show_notification": true
 }
