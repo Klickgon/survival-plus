@@ -233,9 +233,6 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
             pathNode = this.getNode(x, y, z);
             pathNode.type = pathNodeType;
             pathNode.penalty = Math.max(pathNode.penalty, f);
-            if (pathNodeType == PathNodeType.WALKABLE) {
-                pathNode.penalty += 1.0f;
-            }
         }
         return pathNode;
     }

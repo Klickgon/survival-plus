@@ -30,27 +30,32 @@
       ]
     },
     {
-      "type": "minecraft:item",
-      "functions": [
+      "rolls": 1,
+      "entries": [
         {
-          "add": false,
-          "count": {
-            "type": "minecraft:uniform",
-            "max": 1.0,
-            "min": 0.0
-          },
-          "function": "minecraft:set_count"
-        },
-        {
-          "count": {
-            "type": "minecraft:uniform",
-            "max": 1.0,
-            "min": 0.0
-          },
-          "function": "minecraft:looting_enchant"
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 2.0,
+                "min": 0.0
+              },
+              "function": "minecraft:set_count"
+            },
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 1.0,
+                "min": 0.0
+              },
+              "function": "minecraft:looting_enchant"
+            }
+          ],
+          "name": "minecraft:coal"
         }
-      ],
-      "name": "minecraft:coal"
+      ]
     }
   ]
 }

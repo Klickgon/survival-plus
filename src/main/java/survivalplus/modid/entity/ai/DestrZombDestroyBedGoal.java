@@ -2,6 +2,7 @@ package survivalplus.modid.entity.ai;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
+import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
@@ -22,11 +23,11 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     private final HostileEntity DestroyMob;
     private final TagKey<Block> BedGroup = BlockTags.BEDS;
-    private static final int destroyBlockCooldown = 20;
+    private static final int destroyBlockCooldown = 15;
     private TagKey<Block> blockTag;
     @Nullable
     private BlockPos facingBlock;
-    private int destroyBlockCooldownCounter = 20;
+    private int destroyBlockCooldownCounter = destroyBlockCooldown;
 
     public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 16, maxYDifference);
@@ -89,22 +90,20 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             world.breakBlock(blockPos2, true);
         }
 
-        if(this.destroyBlockCooldownCounter <= 0){
+        if(this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
             float rawrotation = Math.abs(this.mob.getBodyYaw());
             float rotation = (float) (rawrotation - 360 * (Math.floor(rawrotation / 360)));
 
             BlockPos currentPos = this.DestroyMob.getBlockPos();
-            int cposY = currentPos.getY();
 
-            int targetposY = this.targetPos.getY();
-            int DiffY = targetposY - cposY; // Positive: Target is higher, Negative: Zombie is Higher
+            int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 
             if (rotation > 315 || rotation <= 45)   this.facingBlock = currentPos.up().south();
             else if (rotation <= 135)               this.facingBlock = currentPos.up().west();
             else if (rotation <= 225)               this.facingBlock = currentPos.up().north();
             else if (rotation <= 315)               this.facingBlock = currentPos.up().east();
 
-            if(DiffY > 0 && DiffY <= 2) {
+            if(DiffY == 0) {
                 if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                     world.breakBlock(this.facingBlock, true);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
@@ -130,7 +129,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
             }
 
-            if(DiffY > 2) {
+            if(DiffY > 0) {
                 if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                     world.breakBlock(this.facingBlock, true);
                     this.destroyBlockCooldownCounter = destroyBlockCooldown;
@@ -147,6 +146,17 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
         }
         else this.destroyBlockCooldownCounter--;
+    }
+
+    private int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob
+        Path path = this.mob.getNavigation().getCurrentPath();
+        if(path.getCurrentNodeIndex() + 1 < path.getLength()){
+            int currentnodeposY = path.getCurrentNodePos().getY();
+            int nextnodeposY = path.getNodePos(path.getCurrentNodeIndex() + 1).getY();
+
+            return nextnodeposY - currentnodeposY;
+        }
+        else return 0;
     }
 
     @Nullable
