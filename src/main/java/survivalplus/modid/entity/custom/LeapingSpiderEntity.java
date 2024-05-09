@@ -39,6 +39,7 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.entity.ai.LeapAtTargetGoal;
 import survivalplus.modid.util.ModGamerules;
 
@@ -61,6 +62,7 @@ extends HostileEntity {
         this.goalSelector.add(1, new SwimGoal(this));
         this.goalSelector.add(3, new LeapAtTargetGoal(this, 0.4765f));
         this.goalSelector.add(4, new AttackGoal(this));
+        this.goalSelector.add(4, new DestroyBedGoal(this, 1.0, 8));
         this.goalSelector.add(5, new WanderAroundFarGoal(this, 0.8));
         this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(6, new LookAroundGoal(this));

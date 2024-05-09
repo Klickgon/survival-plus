@@ -63,10 +63,7 @@ public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void tick() {
         super.tick();
-        if (!targetPos.isWithinDistance(this.reeper.getBlockPos(), 3.0)) {
-                this.reeper.setFuseSpeed(-1);
-        }
-        else this.reeper.setFuseSpeed(1);
+        if (targetPos.isWithinDistance(this.reeper.getBlockPos(), 3.0)) this.reeper.ignite();
     }
 
     @Override

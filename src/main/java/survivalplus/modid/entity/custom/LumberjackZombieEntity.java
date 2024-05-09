@@ -72,7 +72,7 @@ public class LumberjackZombieEntity
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 16));
+        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 8));
         this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));

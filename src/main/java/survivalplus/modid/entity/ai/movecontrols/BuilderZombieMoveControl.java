@@ -101,7 +101,7 @@ public class BuilderZombieMoveControl extends MoveControl {
     }
 
     private boolean isDirtJumpRequired(BlockPos pos, World world){
-        boolean canPlaceBlock = world.getBlockState(pos).isIn(BlockTags.REPLACEABLE);
+        boolean canPlaceBlock = world.getBlockState(pos).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE);
 
         boolean canJumpSafely = world.getBlockState(pos.up(2)).isAir();
 

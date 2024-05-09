@@ -44,7 +44,7 @@ public class ReeperIgniteGoal extends Goal {
             if (this.reeper.squaredDistanceTo(this.target) > 49.0) {
                 return;
             }
-            this.reeper.wasWithinDistance = true;
+            this.reeper.ignite();
         }
     }
 }
