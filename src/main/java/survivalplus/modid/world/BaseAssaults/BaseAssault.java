@@ -338,7 +338,7 @@ public class BaseAssault {
         HostileEntity[] hostileArray = hostileList.toArray(new HostileEntity[hostileList.size()]);
         int i = 0;
         for(HostileEntity hostileEntity : hostileArray){
-            if(hostileEntity.getHealth() > 0) i++;
+            if(hostileEntity.isAlive()) i++;
         }
         return i;
     }

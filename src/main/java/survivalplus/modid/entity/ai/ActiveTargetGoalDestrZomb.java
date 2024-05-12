@@ -18,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
@@ -100,6 +101,7 @@ extends TrackTargetGoal {
                 BlockPos currentPos = this.mob.getBlockPos();
 
                 int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
+                SurvivalPlus.LOGGER.info(String.valueOf(DiffY));
 
                 if (rotation > 315 || rotation <= 45)   this.facingBlock = currentPos.up().south();
                 else if (rotation <= 135)               this.facingBlock = currentPos.up().west();
@@ -160,15 +162,6 @@ extends TrackTargetGoal {
             return nextnodeposY - currentnodeposY;
         }
         else return 0;
-    }
-
-
-    public void setTargetEntity(@Nullable LivingEntity targetEntity) {
-        this.targetEntity = targetEntity;
-    }
-
-    public @Nullable LivingEntity getTargetEntity(){
-        return this.targetEntity;
     }
 }
 
