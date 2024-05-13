@@ -40,8 +40,6 @@ public class BaseAssault {
     private static final Text VICTORY_TITLE = Text.translatable("event.survival-plus.victory.full");
     private static final Text DEFEAT_TITLE = Text.translatable("event.survival-plus.defeat.full");
     private static final String HOSTILES_REMAINING_TRANSLATION_KEY = "event.survival-plus.baseassault.hostiles_remaining";
-    private static final int MAX_ACTIVE_TICKS = 48000;
-    public static final int SQUARED_MAX_RAIDER_DISTANCE = 12544;
     private final ArrayList<HostileEntity> hostiles = new ArrayList<>();
     private long ticksActive;
     private BlockPos center;
@@ -53,7 +51,6 @@ public class BaseAssault {
     private boolean active;
     private final short[] wave;
     private final ServerBossBar bar = new ServerBossBar(EVENT_TEXT, BossBar.Color.GREEN, BossBar.Style.NOTCHED_10);
-    private int postBaseAssaultTicks;
     private int preBaseAssaultTicks;
     private Status status;
     private int finishCooldown;
@@ -97,7 +94,6 @@ public class BaseAssault {
         nbt.putBoolean("Active", this.active);
         nbt.putLong("TicksActive", this.ticksActive);
         nbt.putInt("PreRaidTicks", this.preBaseAssaultTicks);
-        nbt.putInt("PostRaidTicks", this.postBaseAssaultTicks);
         nbt.putFloat("TotalHealth", this.totalHealth);
         nbt.putString("Status", this.status.getName());
         nbt.putInt("CX", this.center.getX());
@@ -128,9 +124,6 @@ public class BaseAssault {
         return this.status == Status.LOSS;
     }
 
-    public float getTotalHealth() {
-        return this.totalHealth;
-    }
 
     public short[] getWave(int wavenumber) {
         return switch (wavenumber) {

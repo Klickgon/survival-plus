@@ -13,6 +13,9 @@ import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.custom.*;
 
 public class ModEntities {
+
+
+
     public static final EntityType<ReeperEntity> REEPER = Registry.register(Registries.ENTITY_TYPE,
             new Identifier(SurvivalPlus.MOD_ID,"reeper"),
             FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, ReeperEntity::new)
@@ -57,6 +60,8 @@ public class ModEntities {
         SpawnRestriction.register(ModEntities.REEPER, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, ReeperEntity::canSpawn);
         SpawnRestriction.register(ModEntities.LEAPINGSPIDER, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, LeapingSpiderEntity::canSpawn);
     }
+
+
 
     public static void registerModEntities(){
     }

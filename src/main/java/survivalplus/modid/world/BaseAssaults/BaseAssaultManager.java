@@ -12,10 +12,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.util.ModPlayerStats;
 
 import java.util.Iterator;
@@ -45,7 +45,7 @@ extends PersistentState {
         Iterator<BaseAssault> iterator = this.baseAssaults.values().iterator();
         while (iterator.hasNext()) {
             BaseAssault baseAssault = iterator.next();
-            if (this.world.getGameRules().getBoolean(GameRules.DISABLE_RAIDS)) {
+            if (this.world.getGameRules().getBoolean(ModGamerules.DISABLE_BASEASSAULTS)) {
                 baseAssault.invalidate();
             }
             if (baseAssault.hasStopped()) {
@@ -67,7 +67,7 @@ extends PersistentState {
         if (player.isSpectator() || player.isCreative()) {
             return null;
         }
-        if (this.world.getGameRules().getBoolean(GameRules.DISABLE_RAIDS)) {
+        if (this.world.getGameRules().getBoolean(ModGamerules.DISABLE_BASEASSAULTS)) {
             return null;
         }
         DimensionType dimensionType = player.getWorld().getDimension();

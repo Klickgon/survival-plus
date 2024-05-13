@@ -3,7 +3,7 @@
 	"id": "survival-plus",
 	"version": "${version}",
 	"name": "Survival Plus",
-	"description": "Survival Gamemode expansion mod",
+	"description": "Minecraft Mod meant to rebalance and expand the survival aspects of the classic gamemode.",
 	"authors": [
 		"Klickgon"
 	],

@@ -24,6 +24,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.LocalDifficulty;
@@ -42,10 +43,11 @@ extends SkeletonEntity {
     private static final TrackedData<Boolean> CONVERTING = DataTracker.registerData(ScorchedSkeletonEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     public static final String STRAY_CONVERSION_TIME_KEY = "StrayConversionTime";
     private int conversionTime;
+    private int smokeParticleCooldown;
 
     public ScorchedSkeletonEntity(EntityType<? extends ScorchedSkeletonEntity> entityType, World world) {
         super((EntityType<? extends SkeletonEntity>)entityType, world);
-
+        smokeParticleCooldown = (int) Math.rint(Math.random() * 10) + 10;
     }
 
     @Override
@@ -67,6 +69,17 @@ extends SkeletonEntity {
     protected void initDataTracker() {
         super.initDataTracker();
         this.getDataTracker().startTracking(CONVERTING, false);
+    }
+
+    public void tick(){
+        super.tick();
+        if (this.getWorld().isClient) {
+            if(smokeParticleCooldown <= 0) {
+                getWorld().addParticle(ParticleTypes.SMOKE, this.getX(), this.getY() + 1.99, this.getZ(), 0, 0, 0);
+                smokeParticleCooldown = (int) Math.rint(Math.random() * 10) + 10;
+            }
+            else smokeParticleCooldown--;
+        }
     }
 
     @Override

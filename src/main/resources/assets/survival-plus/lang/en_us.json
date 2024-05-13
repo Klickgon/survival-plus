@@ -14,5 +14,13 @@
     "event.survival-plus.attackers_remaining": "Attackers Remaining: %s",
     "event.survival-plus.victory": "Victory",
     "event.survival-plus.victory.full": "Base Assault - Victory",
-    "event.survival-plus.baseassault.hostiles_remaining": "Attackers Remaining: %s"
+    "event.survival-plus.baseassault.hostiles_remaining": "Attackers Remaining: %s",
+    "item.survival-plus.reeper_spawn_egg": "Reeper Spawn Egg",
+    "item.survival-plus.scorched_skeleton_spawn_egg": "Scorched Skeleton Spawn Egg",
+    "item.survival-plus.miner_zombie_spawn_egg": "Miner Zombie Spawn Egg",
+    "item.survival-plus.builder_zombie_spawn_egg": "Builder Zombie Spawn Egg",
+    "item.survival-plus.digging_zombie_spawn_egg": "Digging Zombie Spawn Egg",
+    "item.survival-plus.lumberjack_zombie_spawn_egg": "Lumberjack Zombie Spawn Egg",
+    "item.survival-plus.leaping_spider_spawn_egg": "Leaping Spider Spawn Egg",
+    "itemgroup.survival-plus": "Survival Plus Item Group"
 }
