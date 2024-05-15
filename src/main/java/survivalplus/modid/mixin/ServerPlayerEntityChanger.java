@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
+import survivalplus.modid.world.baseassaults.BaseAssaultWaves;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityChanger extends PlayerEntity implements IServerPlayerChanger {
@@ -29,7 +30,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     }
 
     @Unique
-    public byte[] generatedWave;
+    private byte[] generatedWave = BaseAssaultWaves.BASEASSAULT_TWELVE;
 
     @Shadow public abstract boolean isSpectator();
 
@@ -58,19 +59,20 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
             cir.setReturnValue(Either.left(SleepFailureReason.NOT_SAFE));
         }
     }
-    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
+    @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
     public void nbtWriteInject(NbtCompound nbt, CallbackInfo ci){
-        nbt.putByteArray("generatedwave",this.generatedWave);
+        nbt.putByteArray("generatedwave", this.generatedWave);
     }
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
     public void nbtReadInject(NbtCompound nbt, CallbackInfo ci){
-        this.generatedWave = nbt.getByteArray("generatedwave");
+        if(nbt.contains("generatedwave"))
+            this.generatedWave = nbt.getByteArray("generatedwave");
     }
 
     @Unique
     public byte[] getGeneratedWave() {
-        return generatedWave;
+        return this.generatedWave;
     }
 
     @Unique

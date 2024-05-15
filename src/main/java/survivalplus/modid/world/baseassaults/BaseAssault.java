@@ -140,20 +140,16 @@ public class BaseAssault {
         };
     }
 
-    private byte[] getGeneratedWave(){
+    private byte @Nullable [] getGeneratedWave(){
         return ((IServerPlayerChanger)this.attachedPlayer).getGeneratedWave();
     }
 
     private void generateNextWave(){
         byte[] wave = getGeneratedWave();
-        if(wave == null){
-            wave = BaseAssaultWaves.BASEASSAULT_TWELVE;
-        }
         if(calcSumArray(wave) < 45){ // checks if the generated wave has less than 45 mobs in it to increment the count of a random mob
-            byte randomIndex = (byte) Math.rint(Math.random() * 10);
+            byte randomIndex = (byte) Math.rint(Math.random() * 10); // for the next wave
             ++wave[randomIndex];
         }
-
         ((IServerPlayerChanger)this.attachedPlayer).setGeneratedWave(wave);
     }
 

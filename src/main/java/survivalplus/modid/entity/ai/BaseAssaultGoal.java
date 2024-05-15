@@ -50,8 +50,11 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
     @Override
     public boolean canStart() {
         if (this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.attachedPlayer.getBlockPos() != null) {
-            this.targetPos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
-            return true;
+            BlockPos pos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
+            if(pos != null){
+                this.targetPos = pos;
+                return true;
+            }
         }
         if (this.mob.getWorld().getBlockState(this.baseAssault.getCenter()).isIn(BlockTags.BEDS)) {
             BlockPos pos = tweakToProperPos(baseAssault.getCenter(), this.mob.getWorld());
@@ -82,7 +85,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                     this.targetPos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
                 }
                 if (this.baseAssault.getCenter() != null) {
-                    this.targetPos = tweakToProperPos(baseAssault.getCenter(), this.mob.getWorld());
+                    this.targetPos = tweakToProperPos(baseAssault.getCenter().up(), this.mob.getWorld());
                 }
             }
             if(this.mob.getBlockPos().isWithinDistance(targetPos, 1.5)) {
