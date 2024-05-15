@@ -1,7 +1,7 @@
 /*
  * Decompiled with CFR 0.2.1 (FabricMC 53fa44c9).
  */
-package survivalplus.modid.world.BaseAssaults;
+package survivalplus.modid.world.baseassaults;
 
 import com.google.common.collect.Maps;
 import net.minecraft.datafixer.DataFixTypes;

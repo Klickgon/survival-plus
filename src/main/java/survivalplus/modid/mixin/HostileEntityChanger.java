@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.util.ModGamerules;
-import survivalplus.modid.world.BaseAssaults.BaseAssault;
+import survivalplus.modid.world.baseassaults.BaseAssault;
 
 @Mixin(HostileEntity.class)
 public class HostileEntityChanger extends PathAwareEntity implements IHostileEntityChanger {

@@ -20,7 +20,7 @@ import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
 import survivalplus.modid.entity.custom.ReeperEntity;
 import survivalplus.modid.util.IHostileEntityChanger;
-import survivalplus.modid.world.BaseAssaults.BaseAssault;
+import survivalplus.modid.world.baseassaults.BaseAssault;
 
 
 public class BaseAssaultGoal extends MoveToTargetPosGoal {

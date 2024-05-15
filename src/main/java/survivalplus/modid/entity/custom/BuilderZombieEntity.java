@@ -6,7 +6,6 @@ import net.minecraft.entity.ai.NavigationConditions;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -42,17 +41,10 @@ import survivalplus.modid.util.ModGamerules;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
-import java.util.UUID;
 import java.util.function.Predicate;
 
 public class BuilderZombieEntity
         extends ZombieEntity {
-    private static final UUID BABY_SPEED_ID = UUID.fromString("B9766B59-9566-4402-BC1F-2EE2A276D836");
-    private static final EntityAttributeModifier BABY_SPEED_BONUS = new EntityAttributeModifier(BABY_SPEED_ID, "Baby speed boost", 0.5, EntityAttributeModifier.Operation.MULTIPLY_BASE);
-    private static final TrackedData<Boolean> BABY = DataTracker.registerData(survivalplus.modid.entity.custom.BuilderZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    /**
-     * Unused tracked data, left over from 1.10 when zombies, zombie villagers and husks were all the same type of entity.
-     */
     private static final TrackedData<Integer> ZOMBIE_TYPE = DataTracker.registerData(survivalplus.modid.entity.custom.BuilderZombieEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(survivalplus.modid.entity.custom.BuilderZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.HARD;
@@ -99,7 +91,6 @@ public class BuilderZombieEntity
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-        this.getDataTracker().startTracking(BABY, false);
         this.getDataTracker().startTracking(ZOMBIE_TYPE, 0);
         this.getDataTracker().startTracking(CONVERTING_IN_WATER, false);
     }
@@ -130,36 +121,8 @@ public class BuilderZombieEntity
     }
 
     @Override
-    public boolean isBaby() {
-        return this.getDataTracker().get(BABY);
-    }
-
-    @Override
-    public int getXpToDrop() {
-        if (this.isBaby()) {
-            this.experiencePoints = (int)((double)this.experiencePoints * 2.5);
-        }
-        return super.getXpToDrop();
-    }
-
-    @Override
-    public void setBaby(boolean baby) {
-        this.getDataTracker().set(BABY, baby);
-        if (this.getWorld() != null && !this.getWorld().isClient) {
-            EntityAttributeInstance entityAttributeInstance = this.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
-            entityAttributeInstance.removeModifier(BABY_SPEED_BONUS.getId());
-            if (baby) {
-                entityAttributeInstance.addTemporaryModifier(BABY_SPEED_BONUS);
-            }
-        }
-    }
-
-    @Override
-    public void onTrackedDataSet(TrackedData<?> data) {
-        if (BABY.equals(data)) {
-            this.calculateDimensions();
-        }
-        super.onTrackedDataSet(data);
+    protected boolean canConvertInWater() {
+        return false;
     }
 
     @Override
@@ -255,18 +218,11 @@ public class BuilderZombieEntity
         this.getDataTracker().set(CONVERTING_IN_WATER, true);
     }
 
-
-
-    protected void convertInWater() {
+    @Override
+    public void setBaby(boolean baby) {
     }
 
-
-    public void convertTo(EntityType<? extends net.minecraft.entity.mob.ZombieEntity> entityType) {
-        survivalplus.modid.entity.custom.BuilderZombieEntity zombieEntity = (BuilderZombieEntity) this.convertTo(entityType, true);
-        if (zombieEntity != null) {
-            zombieEntity.applyAttributeModifiers(zombieEntity.getWorld().getLocalDifficulty(zombieEntity.getBlockPos()).getClampedLocalDifficulty());
-            zombieEntity.setCanBreakDoors(zombieEntity.shouldBreakDoors() && this.canBreakDoors());
-        }
+    protected void convertInWater() {
     }
 
     protected boolean burnsInDaylight() {
@@ -326,8 +282,8 @@ public class BuilderZombieEntity
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int FullDaysRequired = 21;
-        long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (currentAmountofFullDays >= FullDaysRequired || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && canSpawnInDark(type, world, spawnReason, pos, random);
+        int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
+        return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= FullDaysRequired) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
 
@@ -338,7 +294,6 @@ public class BuilderZombieEntity
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-        nbt.putBoolean("IsBaby", this.isBaby());
         nbt.putBoolean("CanBreakDoors", this.canBreakDoors());
         nbt.putInt("InWaterTime", this.isTouchingWater() ? this.inWaterTime : -1);
         nbt.putInt("DrownedConversionTime", this.isConvertingInWater() ? this.ticksUntilWaterConversion : -1);
@@ -347,7 +302,6 @@ public class BuilderZombieEntity
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.setBaby(nbt.getBoolean("IsBaby"));
         this.setCanBreakDoors(nbt.getBoolean("CanBreakDoors"));
         this.inWaterTime = nbt.getInt("InWaterTime");
         if (nbt.contains("DrownedConversionTime", NbtElement.NUMBER_TYPE) && nbt.getInt("DrownedConversionTime") > -1) {
@@ -408,7 +362,7 @@ public class BuilderZombieEntity
         float f = difficulty.getClampedLocalDifficulty();
         this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
         if (entityData == null) {
-            entityData = new survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData(survivalplus.modid.entity.custom.BuilderZombieEntity.shouldBeBaby(random), true);
+            entityData = new BuilderZombieEntity.ZombieData(BuilderZombieEntity.shouldBeBaby(random), false);
         }
         if (entityData instanceof survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData) {
             survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData zombieData = (survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData)entityData;
@@ -439,7 +393,7 @@ public class BuilderZombieEntity
     }
 
     public static boolean shouldBeBaby(Random random) {
-        return random.nextFloat() < 0.05f;
+        return false;
     }
 
     protected void applyAttributeModifiers(float chanceMultiplier) {

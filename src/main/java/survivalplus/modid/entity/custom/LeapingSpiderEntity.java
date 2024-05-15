@@ -193,8 +193,8 @@ extends HostileEntity {
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int FullDaysRequired = 21;
-        long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (currentAmountofFullDays >= FullDaysRequired || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && canSpawnInDark(type, world, spawnReason, pos, random);
+        int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
+        return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= FullDaysRequired) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     @Override

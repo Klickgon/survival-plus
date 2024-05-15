@@ -7,7 +7,6 @@ import net.minecraft.entity.ai.NavigationConditions;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -43,14 +42,10 @@ import survivalplus.modid.util.ModGamerules;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
-import java.util.UUID;
 import java.util.function.Predicate;
 
 public class DiggingZombieEntity
         extends ZombieEntity {
-    private static final UUID BABY_SPEED_ID = UUID.fromString("B9766B59-9566-4402-BC1F-2EE2A276D836");
-    private static final EntityAttributeModifier BABY_SPEED_BONUS = new EntityAttributeModifier(BABY_SPEED_ID, "Baby speed boost", 0.5, EntityAttributeModifier.Operation.MULTIPLY_BASE);
-    private static final TrackedData<Boolean> BABY = DataTracker.registerData(DiggingZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Integer> ZOMBIE_TYPE = DataTracker.registerData(DiggingZombieEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(DiggingZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.HARD;
@@ -95,7 +90,6 @@ public class DiggingZombieEntity
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-        this.getDataTracker().startTracking(BABY, false);
         this.getDataTracker().startTracking(ZOMBIE_TYPE, 0);
         this.getDataTracker().startTracking(CONVERTING_IN_WATER, false);
     }
@@ -126,38 +120,6 @@ public class DiggingZombieEntity
     }
 
     @Override
-    public boolean isBaby() {
-        return this.getDataTracker().get(BABY);
-    }
-
-    @Override
-    public int getXpToDrop() {
-        if (this.isBaby()) {
-            this.experiencePoints = (int)((double)this.experiencePoints * 2.5);
-        }
-        return super.getXpToDrop();
-    }
-
-    @Override
-    public void setBaby(boolean baby) {
-        this.getDataTracker().set(BABY, baby);
-        if (this.getWorld() != null && !this.getWorld().isClient) {
-            EntityAttributeInstance entityAttributeInstance = this.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
-            entityAttributeInstance.removeModifier(BABY_SPEED_BONUS.getId());
-            if (baby) {
-                entityAttributeInstance.addTemporaryModifier(BABY_SPEED_BONUS);
-            }
-        }
-    }
-
-    @Override
-    public void onTrackedDataSet(TrackedData<?> data) {
-        if (BABY.equals(data)) {
-            this.calculateDimensions();
-        }
-        super.onTrackedDataSet(data);
-    }
-
     protected boolean canConvertInWater() {
         return false;
     }
@@ -214,19 +176,14 @@ public class DiggingZombieEntity
         this.getDataTracker().set(CONVERTING_IN_WATER, true);
     }
 
+    @Override
+    public void setBaby(boolean baby) {
+    }
 
-
+    @Override
     protected void convertInWater() {
     }
 
-
-    public void convertTo(EntityType<? extends ZombieEntity> entityType) {
-        DiggingZombieEntity zombieEntity = (DiggingZombieEntity) this.convertTo(entityType, true);
-        if (zombieEntity != null) {
-            zombieEntity.applyAttributeModifiers(zombieEntity.getWorld().getLocalDifficulty(zombieEntity.getBlockPos()).getClampedLocalDifficulty());
-            zombieEntity.setCanBreakDoors(zombieEntity.shouldBreakDoors() && this.canBreakDoors());
-        }
-    }
 
     @Override
     public boolean damage(DamageSource source, float amount) {
@@ -281,8 +238,8 @@ public class DiggingZombieEntity
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int FullDaysRequired = 7;
-        long currentAmountofFullDays = (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (currentAmountofFullDays >= FullDaysRequired || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && canSpawnInDark(type, world, spawnReason, pos, random);
+        int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
+        return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= FullDaysRequired) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
 
@@ -291,7 +248,6 @@ public class DiggingZombieEntity
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-        nbt.putBoolean("IsBaby", this.isBaby());
         nbt.putBoolean("CanBreakDoors", this.canBreakDoors());
         nbt.putInt("InWaterTime", this.isTouchingWater() ? this.inWaterTime : -1);
         nbt.putInt("DrownedConversionTime", this.isConvertingInWater() ? this.ticksUntilWaterConversion : -1);
@@ -300,7 +256,6 @@ public class DiggingZombieEntity
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.setBaby(nbt.getBoolean("IsBaby"));
         this.setCanBreakDoors(nbt.getBoolean("CanBreakDoors"));
         this.inWaterTime = nbt.getInt("InWaterTime");
         if (nbt.contains("DrownedConversionTime", NbtElement.NUMBER_TYPE) && nbt.getInt("DrownedConversionTime") > -1) {
@@ -361,7 +316,7 @@ public class DiggingZombieEntity
         float f = difficulty.getClampedLocalDifficulty();
         this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
         if (entityData == null) {
-            entityData = new DiggingZombieEntity.ZombieData(DiggingZombieEntity.shouldBeBaby(random), true);
+            entityData = new DiggingZombieEntity.ZombieData(DiggingZombieEntity.shouldBeBaby(random), false);
         }
         if (entityData instanceof DiggingZombieEntity.ZombieData) {
             DiggingZombieEntity.ZombieData zombieData = (DiggingZombieEntity.ZombieData)entityData;

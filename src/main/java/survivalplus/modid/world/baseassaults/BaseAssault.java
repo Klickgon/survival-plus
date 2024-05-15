@@ -1,7 +1,7 @@
 /*
  * Decompiled with CFR 0.2.1 (FabricMC 53fa44c9).
  */
-package survivalplus.modid.world.BaseAssaults;
+package survivalplus.modid.world.baseassaults;
 
 import com.google.common.collect.Sets;
 import net.minecraft.block.Blocks;
@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.ai.BaseAssaultGoal;
 import survivalplus.modid.util.IHostileEntityChanger;
+import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
 
@@ -49,7 +50,7 @@ public class BaseAssault {
     private final int id;
     private float totalHealth;
     private boolean active;
-    private final short[] wave;
+    private final byte[] wave;
     private final ServerBossBar bar = new ServerBossBar(EVENT_TEXT, BossBar.Color.GREEN, BossBar.Style.NOTCHED_10);
     private int preBaseAssaultTicks;
     private Status status;
@@ -108,10 +109,6 @@ public class BaseAssault {
         return this.hasWon() || this.hasLost();
     }
 
-    public boolean isPreRaid() {
-        return this.preBaseAssaultTicks > 0;
-    }
-
     public boolean hasStopped() {
         return this.status == Status.STOPPED;
     }
@@ -125,7 +122,7 @@ public class BaseAssault {
     }
 
 
-    public short[] getWave(int wavenumber) {
+    public byte[] getWave(int wavenumber) {
         return switch (wavenumber) {
             case 1 -> BaseAssaultWaves.BASEASSAULT_ONE;
             case 2 -> BaseAssaultWaves.BASEASSAULT_TWO;
@@ -138,8 +135,34 @@ public class BaseAssault {
             case 9 -> BaseAssaultWaves.BASEASSAULT_NINE;
             case 10 -> BaseAssaultWaves.BASEASSAULT_TEN;
             case 11 -> BaseAssaultWaves.BASEASSAULT_ELEVEN;
-            default -> BaseAssaultWaves.BASEASSAULT_TWELVE;
+            case 12 -> BaseAssaultWaves.BASEASSAULT_TWELVE;
+            default -> getGeneratedWave();
         };
+    }
+
+    private byte[] getGeneratedWave(){
+        return ((IServerPlayerChanger)this.attachedPlayer).getGeneratedWave();
+    }
+
+    private void generateNextWave(){
+        byte[] wave = getGeneratedWave();
+        if(wave == null){
+            wave = BaseAssaultWaves.BASEASSAULT_TWELVE;
+        }
+        if(calcSumArray(wave) < 45){ // checks if the generated wave has less than 45 mobs in it to increment the count of a random mob
+            byte randomIndex = (byte) Math.rint(Math.random() * 10);
+            ++wave[randomIndex];
+        }
+
+        ((IServerPlayerChanger)this.attachedPlayer).setGeneratedWave(wave);
+    }
+
+    private int calcSumArray(byte[] array){
+        int sum = 0;
+        for(byte num : array){
+            sum += num;
+        }
+        return sum;
     }
 
     public World getWorld() {
@@ -181,7 +204,6 @@ public class BaseAssault {
     }
 
     public void start(PlayerEntity player) {
-
     }
 
     public void invalidate() {
@@ -263,6 +285,8 @@ public class BaseAssault {
                     if(!this.winStatIncreased) {
                         this.attachedPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON));
                         this.winStatIncreased = true;
+                        if(attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) + 1 >= 12)
+                            generateNextWave();
                     }
                 } else {
                     this.bar.setName(DEFEAT_TITLE);
@@ -275,7 +299,6 @@ public class BaseAssault {
             if (blockPos != null) {
                 this.started = true;
                 this.spawnWave(blockPos);
-                this.waveSpawned = true;
             } else {
                 ++k;
             }
@@ -341,7 +364,7 @@ public class BaseAssault {
     }
 
     private void spawnWave(BlockPos pos) {
-        short[] wave = this.wave;
+        byte[] wave = this.wave;
         spawnTypeOfHostile(wave[0], EntityType.ZOMBIE, pos);
         spawnTypeOfHostile(wave[1], EntityType.SPIDER, pos);
         spawnTypeOfHostile(wave[2], EntityType.SKELETON, pos);
@@ -354,6 +377,7 @@ public class BaseAssault {
         spawnTypeOfHostile(wave[9], ModEntities.REEPER, pos);
         spawnTypeOfHostile(wave[10], ModEntities.SCORCHEDSKELETON, pos);
         this.totalHealth = getCurrentHostilesHealth();
+        if(getHostileCount() > 0) this.waveSpawned = true;
         this.markDirty();
     }
 
@@ -397,15 +421,11 @@ public class BaseAssault {
         return f;
     }
 
-
     public boolean isActive() {
         return this.active;
     }
 
-
-
-
-    static enum Status {
+    enum Status {
         ONGOING,
         VICTORY,
         LOSS,

@@ -3,6 +3,7 @@ package survivalplus.modid.mixin;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Unit;
@@ -11,18 +12,24 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityChanger extends PlayerEntity {
+public abstract class ServerPlayerEntityChanger extends PlayerEntity implements IServerPlayerChanger {
 
     public ServerPlayerEntityChanger(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(world, pos, yaw, gameProfile);
     }
+
+    @Unique
+    public byte[] generatedWave;
 
     @Shadow public abstract boolean isSpectator();
 
@@ -51,5 +58,23 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity {
             cir.setReturnValue(Either.left(SleepFailureReason.NOT_SAFE));
         }
     }
+    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
+    public void nbtWriteInject(NbtCompound nbt, CallbackInfo ci){
+        nbt.putByteArray("generatedwave",this.generatedWave);
+    }
 
+    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
+    public void nbtReadInject(NbtCompound nbt, CallbackInfo ci){
+        this.generatedWave = nbt.getByteArray("generatedwave");
+    }
+
+    @Unique
+    public byte[] getGeneratedWave() {
+        return generatedWave;
+    }
+
+    @Unique
+    public void setGeneratedWave(byte[] wave) {
+        this.generatedWave = wave;
+    }
 }

@@ -1,8 +1,8 @@
 package survivalplus.modid.util;
 
 import net.minecraft.util.math.BlockPos;
-import survivalplus.modid.world.BaseAssaults.BaseAssault;
-import survivalplus.modid.world.BaseAssaults.BaseAssaultManager;
+import survivalplus.modid.world.baseassaults.BaseAssault;
+import survivalplus.modid.world.baseassaults.BaseAssaultManager;
 
 public interface IServerWorldChanger {
 

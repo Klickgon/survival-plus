@@ -31,8 +31,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.IWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
-import survivalplus.modid.world.BaseAssaults.BaseAssault;
-import survivalplus.modid.world.BaseAssaults.BaseAssaultManager;
+import survivalplus.modid.world.baseassaults.BaseAssault;
+import survivalplus.modid.world.baseassaults.BaseAssaultManager;
 
 import java.util.List;
 import java.util.Optional;
