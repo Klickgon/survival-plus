@@ -147,7 +147,7 @@ public class BaseAssault {
     private void generateNextWave(){
         byte[] wave = getGeneratedWave();
         if(calcSumArray(wave) < 45){ // checks if the generated wave has less than 45 mobs in it to increment the count of a random mob
-            byte randomIndex = (byte) Math.rint(Math.random() * 10); // for the next wave
+            byte randomIndex = (byte) Math.rint(Math.random() * 10); //to increment the count of a random mob for the next wave
             ++wave[randomIndex];
         }
         ((IServerPlayerChanger)this.attachedPlayer).setGeneratedWave(wave);
@@ -227,7 +227,7 @@ public class BaseAssault {
             }
 
             ++this.ticksActive;
-            if(!this.attachedPlayer.isAlive() && !this.world.getBlockState(this.center).isIn(BlockTags.BEDS)){
+            if(this.attachedPlayer.getHealth() <= 0 && !this.world.getBlockState(this.center).isIn(BlockTags.BEDS)){
                 this.status = Status.LOSS;
             }
             updateCenter();
@@ -291,10 +291,13 @@ public class BaseAssault {
         }
         int k = 0;
         while (this.preBaseAssaultTicks == 0 && getHostileCount() == 0) {
-            BlockPos blockPos = getSpawnLocation(1.5f, 20);
-            if (blockPos != null) {
+            float f = this.world.random.nextFloat();
+            BlockPos pos1 = getSpawnLocation(f);
+            BlockPos pos2 = getSpawnLocation(f);
+            BlockPos pos3 = getSpawnLocation(f);
+            if (pos1 != null && pos2 != null && pos3 != null) {
                 this.started = true;
-                this.spawnWave(blockPos);
+                this.spawnWave(pos1, pos2, pos3);
             } else {
                 ++k;
             }
@@ -315,16 +318,17 @@ public class BaseAssault {
     }
 
     @Nullable
-    private BlockPos getSpawnLocation(float proximity, int tries) {
-        float i = proximity;
+    private BlockPos getSpawnLocation(float f) {
+        float i = 2.0f;
         BlockPos.Mutable mutable = new BlockPos.Mutable();
-        for (int j = 0; j < tries; ++j) {
-            float f = this.world.random.nextFloat() * ((float)Math.PI * 2);
-            int k = this.center.getX() + MathHelper.floor(MathHelper.cos(f) * 32.0f * i) + this.world.random.nextInt(5);
-            int l = this.center.getZ() + MathHelper.floor(MathHelper.sin(f) * 32.0f * i) + this.world.random.nextInt(5);
+        for (int j = 0; j < 15; ++j) {
+            float fl = (f + (this.world.random.nextFloat() * 0.40f)) * ((float)Math.PI * 2);
+            int k = this.center.getX() + MathHelper.floor(MathHelper.cos(fl) * 32.0f * i) + this.world.random.nextInt(10);
+            int l = this.center.getZ() + MathHelper.floor(MathHelper.sin(fl) * 32.0f * i) + this.world.random.nextInt(10);
             int m = calculateSpawnY(k, l);
             mutable.set(k, m, l);
-            if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, mutable, EntityType.RAVAGER) && (!this.world.getBlockState((BlockPos)mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir())) continue;
+            i -= 0.07f;
+            if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, mutable, EntityType.SPIDER) && (!this.world.getBlockState((BlockPos)mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir())) continue;
             return mutable;
         }
         return null;
@@ -359,22 +363,32 @@ public class BaseAssault {
         return ++this.nextAvailableId;
     }
 
-    private void spawnWave(BlockPos pos) {
+    private void spawnWave(BlockPos pos1, BlockPos pos2, BlockPos pos3) {
         byte[] wave = this.wave;
-        spawnTypeOfHostile(wave[0], EntityType.ZOMBIE, pos);
-        spawnTypeOfHostile(wave[1], EntityType.SPIDER, pos);
-        spawnTypeOfHostile(wave[2], EntityType.SKELETON, pos);
-        spawnTypeOfHostile(wave[3], EntityType.CREEPER, pos);
-        spawnTypeOfHostile(wave[4], ModEntities.DIGGINGZOMBIE, pos);
-        spawnTypeOfHostile(wave[5], ModEntities.LUMBERJACKZOMBIE, pos);
-        spawnTypeOfHostile(wave[6], ModEntities.MINERZOMBIE, pos);
-        spawnTypeOfHostile(wave[7], ModEntities.BUILDERZOMBIE, pos);
-        spawnTypeOfHostile(wave[8], ModEntities.LEAPINGSPIDER, pos);
-        spawnTypeOfHostile(wave[9], ModEntities.REEPER, pos);
-        spawnTypeOfHostile(wave[10], ModEntities.SCORCHEDSKELETON, pos);
+        spawnTypeOfHostile(wave[0], EntityType.ZOMBIE, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[1], EntityType.SPIDER, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[2], EntityType.SKELETON, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[3], EntityType.CREEPER, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[4], ModEntities.DIGGINGZOMBIE, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[5], ModEntities.LUMBERJACKZOMBIE, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[6], ModEntities.MINERZOMBIE, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[7], ModEntities.BUILDERZOMBIE, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[8], ModEntities.LEAPINGSPIDER, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[9], ModEntities.REEPER, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[10], ModEntities.SCORCHEDSKELETON, posDiceRoll(pos1, pos2, pos3));
         this.totalHealth = getCurrentHostilesHealth();
         if(getHostileCount() > 0) this.waveSpawned = true;
         this.markDirty();
+    }
+
+    private static BlockPos posDiceRoll(BlockPos pos1, BlockPos pos2, BlockPos pos3){
+        byte b = (byte) (Math.rint(Math.random() * 2) + 1);
+        return switch (b) {
+                case 1 -> pos1;
+                case 2 -> pos2;
+                case 3 -> pos3;
+            default -> throw new IllegalStateException("Unexpected value: " + b);
+        };
     }
 
     private void spawnTypeOfHostile(short count, EntityType hostile, BlockPos pos){
