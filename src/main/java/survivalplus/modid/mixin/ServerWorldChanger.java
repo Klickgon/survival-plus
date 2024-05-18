@@ -61,14 +61,14 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
     public long ticksleep(long timeOfDay) {
-        return this.properties.getTimeOfDay() + 8000L; // Changes the sleeping skip from a set time point to 8000 ticks after sleep start
+        return this.properties.getTimeOfDay() + 6000L; // Changes the sleeping skip from a set time point to 6000 ticks after sleep start
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
     protected void resetTimeSinceSleepStat(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP));// Resets the "time since sleep" stat for every player once everyone wakes up
-            serverPlayer.increaseStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT), 8000);
+            serverPlayer.increaseStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT), 6000);
             // also increases the time since last Base Assault by the time of day skipped through sleeping
         }
     }
