@@ -338,7 +338,7 @@ public class BaseAssault {
         World world = this.world;
         int y = this.center.getY();
         BlockPos pos = new BlockPos (x, y + 36, z);
-        while(world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE) || !world.getBlockState(pos).isAir() || !world.getBlockState(pos.up()).isAir()){
+        while(world.getBlockState(pos.down()).isReplaceable() || !world.getBlockState(pos).isReplaceable() || !world.getBlockState(pos.up()).isAir()){
             if(pos.getY() <= (y - 16)) break;
             pos = new BlockPos(pos.getX(), pos.getY() - 1, pos.getZ());
         }

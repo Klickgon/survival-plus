@@ -110,7 +110,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                 else if (rotation <= 225)               this.facingBlock = currentPos.up().north();
                 else if (rotation <= 315)               this.facingBlock = currentPos.up().east();
 
-                if(DiffY == 0 ) {
+                if(DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {
                     if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                         world.breakBlock(this.facingBlock, true);
                         this.destroyBlockCooldownCounter = destroyBlockCooldown;
