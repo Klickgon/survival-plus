@@ -2,7 +2,6 @@ package survivalplus.modid.entity.ai;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
-import net.minecraft.entity.ai.goal.StepAndDestroyBlockGoal;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
@@ -21,15 +20,13 @@ import org.jetbrains.annotations.Nullable;
 public class DestroyBedGoal extends MoveToTargetPosGoal {
 
     private final HostileEntity DestroyMob;
-    private int counter;
     private final TagKey<Block> BedGroup = BlockTags.BEDS;
 
-    private static final int MAX_COOLDOWN = 20;
 
     public DestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 32, maxYDifference);
         this.DestroyMob = mob;
-        this.cooldown = 200;
+        this.cooldown = 0;
     }
 
     @Override
@@ -38,18 +35,11 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        this.cooldown = 600;
-
         if (!this.DestroyMob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
-
-        if (this.findTargetPos()) {
-            this.cooldown = StepAndDestroyBlockGoal.toGoalTicks(20);
-            return true;
-        }
-
-        return false;
+        this.cooldown = 400 + this.mob.getWorld().random.nextInt(100);
+        return this.findTargetPos();
     }
 
     @Override
@@ -61,7 +51,6 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void start() {
         super.start();
-        this.counter = 0;
     }
 
 

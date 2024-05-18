@@ -35,7 +35,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
     public BaseAssaultGoal(HostileEntity mob, double speed) {
         super(mob, speed, 64, 12);
         this.baseAssault = ((IHostileEntityChanger) this.mob).getBaseAssault();
-        this.cooldown = 100;
+        this.cooldown = 0;
         if(mob.getClass() == MinerZombieEntity.class){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
         }
@@ -49,7 +49,12 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
     @Override
     public boolean canStart() {
+        if (this.cooldown > 0) {
+            --this.cooldown;
+            return false;
+        }
         if (this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.attachedPlayer.getBlockPos() != null) {
+            this.cooldown = 10 + this.mob.getWorld().random.nextInt(15);
             BlockPos pos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
             if(pos != null){
                 this.targetPos = pos;
@@ -57,6 +62,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
             }
         }
         if (this.mob.getWorld().getBlockState(this.baseAssault.getCenter()).isIn(BlockTags.BEDS)) {
+            this.cooldown = 10 + this.mob.getWorld().random.nextInt(15);
             BlockPos pos = tweakToProperPos(baseAssault.getCenter(), this.mob.getWorld());
             if(pos != null){
                 this.targetPos = pos;

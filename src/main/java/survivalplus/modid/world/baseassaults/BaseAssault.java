@@ -147,7 +147,7 @@ public class BaseAssault {
     private void generateNextWave(){
         byte[] wave = getGeneratedWave();
         if(calcSumArray(wave) < 45){ // checks if the generated wave has less than 45 mobs in it to increment the count of a random mob
-            byte randomIndex = (byte) Math.rint(Math.random() * 10); //to increment the count of a random mob for the next wave
+            byte randomIndex = (byte) Math.rint(Math.random() * 10); // to increment the count of a random mob for the next wave
             ++wave[randomIndex];
         }
         ((IServerPlayerChanger)this.attachedPlayer).setGeneratedWave(wave);
@@ -365,17 +365,17 @@ public class BaseAssault {
 
     private void spawnWave(BlockPos pos1, BlockPos pos2, BlockPos pos3) {
         byte[] wave = this.wave;
-        spawnTypeOfHostile(wave[0], EntityType.ZOMBIE, posDiceRoll(pos1, pos2, pos3));
-        spawnTypeOfHostile(wave[1], EntityType.SPIDER, posDiceRoll(pos1, pos2, pos3));
-        spawnTypeOfHostile(wave[2], EntityType.SKELETON, posDiceRoll(pos1, pos2, pos3));
-        spawnTypeOfHostile(wave[3], EntityType.CREEPER, posDiceRoll(pos1, pos2, pos3));
-        spawnTypeOfHostile(wave[4], ModEntities.DIGGINGZOMBIE, posDiceRoll(pos1, pos2, pos3));
-        spawnTypeOfHostile(wave[5], ModEntities.LUMBERJACKZOMBIE, posDiceRoll(pos1, pos2, pos3));
-        spawnTypeOfHostile(wave[6], ModEntities.MINERZOMBIE, posDiceRoll(pos1, pos2, pos3));
-        spawnTypeOfHostile(wave[7], ModEntities.BUILDERZOMBIE, posDiceRoll(pos1, pos2, pos3));
-        spawnTypeOfHostile(wave[8], ModEntities.LEAPINGSPIDER, posDiceRoll(pos1, pos2, pos3));
-        spawnTypeOfHostile(wave[9], ModEntities.REEPER, posDiceRoll(pos1, pos2, pos3));
-        spawnTypeOfHostile(wave[10], ModEntities.SCORCHEDSKELETON, posDiceRoll(pos1, pos2, pos3));
+        spawnTypeOfHostile(wave[0], EntityType.ZOMBIE, pos1, pos2, pos3);
+        spawnTypeOfHostile(wave[1], EntityType.SPIDER, pos1, pos2, pos3);
+        spawnTypeOfHostile(wave[2], EntityType.SKELETON, pos1, pos2, pos3);
+        spawnTypeOfHostile(wave[3], EntityType.CREEPER, pos1, pos2, pos3);
+        spawnTypeOfHostile(wave[4], ModEntities.DIGGINGZOMBIE, pos1, pos2, pos3);
+        spawnTypeOfHostile(wave[5], ModEntities.LUMBERJACKZOMBIE, pos1, pos2, pos3);
+        spawnTypeOfHostile(wave[6], ModEntities.MINERZOMBIE, pos1, pos2, pos3);
+        spawnTypeOfHostile(wave[7], ModEntities.BUILDERZOMBIE, pos1, pos2, pos3);
+        spawnTypeOfHostile(wave[8], ModEntities.LEAPINGSPIDER, pos1, pos2, pos3);;
+        spawnTypeOfHostile(wave[9], ModEntities.REEPER, pos1, pos2, pos3);
+        spawnTypeOfHostile(wave[10], ModEntities.SCORCHEDSKELETON, pos1, pos2, pos3);
         this.totalHealth = getCurrentHostilesHealth();
         if(getHostileCount() > 0) this.waveSpawned = true;
         this.markDirty();
@@ -391,9 +391,9 @@ public class BaseAssault {
         };
     }
 
-    private void spawnTypeOfHostile(short count, EntityType hostile, BlockPos pos){
+    private void spawnTypeOfHostile(short count, EntityType hostile, BlockPos pos1, BlockPos pos2, BlockPos pos3){
         for(int i = 0; i < count; i++){
-            addHostile((HostileEntity) hostile.create(this.world), pos);
+            addHostile((HostileEntity) hostile.create(this.world), posDiceRoll(pos1, pos2, pos3));
         }
     }
 
