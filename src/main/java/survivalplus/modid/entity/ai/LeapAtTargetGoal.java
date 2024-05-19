@@ -17,15 +17,21 @@ extends Goal {
     private LivingEntity target;
     private final float velocity;
     private boolean canLeapAttack = false;
+    private int cooldown;
 
     public LeapAtTargetGoal(LeapingSpiderEntity mob, float velocity) {
         this.mob = mob;
         this.velocity = velocity;
         this.setControls(EnumSet.of(Control.JUMP, Control.MOVE));
+        this.cooldown = 5;
     }
 
     @Override
     public boolean canStart() {
+        if (this.cooldown > 0) {
+            --this.cooldown;
+            return false;
+        }
         if (this.mob.hasControllingPassenger()) {
             return false;
         }
@@ -40,7 +46,8 @@ extends Goal {
         if (!this.mob.isOnGround()) {
             return false;
         }
-        return this.mob.getRandom().nextInt(LeapAtTargetGoal.toGoalTicks(40)) == 0;
+        this.cooldown = 5 + this.mob.getRandom().nextInt(20);
+        return true;
     }
 
     @Override

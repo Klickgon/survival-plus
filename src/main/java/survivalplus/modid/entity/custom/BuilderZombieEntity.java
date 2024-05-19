@@ -5,6 +5,7 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.NavigationConditions;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.MobNavigation;
+import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -33,6 +34,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.ai.BuilderZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.movecontrols.BuilderZombieMoveControl;
 import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
@@ -172,33 +174,20 @@ public class BuilderZombieEntity
 
             LivingEntity target = getTarget();
             IHostileEntityChanger bzomb = (IHostileEntityChanger) this;
-            if (DirtPlaceCooldown <= 0 && (target != null || hasTargetBed || bzomb.getBaseAssault() != null)) {
+            if (DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
                 World world = this.getWorld();
                 BlockPos BlockUnder = getBlockPos().down(1);
                 BlockPos BlockUnder2 = getBlockPos().down(2);
-                if(target != null){
-                int XDiff = Math.abs(this.getBlockX() - target.getBlockX());
-                int ZDiff = Math.abs(this.getBlockZ() - target.getBlockZ());
-                int YDiff = this.getBlockY() - target.getBlockY();
-                if ((XDiff >= 2 || ZDiff >= 2) || YDiff < 0) {
+
+                int pathYDiff = calcDiffY();
+
+                SurvivalPlus.LOGGER.info(String.valueOf(calcDiffY()));
+                if (pathYDiff >= 0) {
                     if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
                         world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
                         DirtPlaceCooldown = 1;
                     }
-                }
-                }
-                if(hasTargetBed) {
-                    int XDiff = Math.abs(this.getBlockX() - targetBedPos.getX());
-                    int ZDiff = Math.abs(this.getBlockZ() - targetBedPos.getZ());
-                    int YDiff = this.getBlockY() - targetBedPos.getY();
-                    if ((XDiff >= 2 || ZDiff >= 2) || YDiff < 0) {
-                        if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
-                        world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
-                        world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-                        DirtPlaceCooldown = 1;
-                    }
-                }
                 }
             }
             else DirtPlaceCooldown--;
@@ -206,9 +195,20 @@ public class BuilderZombieEntity
         super.tickMovement();
     }
 
+    public int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob
+        Path path = this.getNavigation().getCurrentPath();
+        if(path != null && path.getCurrentNodeIndex() + 1 < path.getLength()){
+            int currentnodeposY = path.getCurrentNodePos().getY();
+            int nextnodeposY = path.getNodePos(path.getCurrentNodeIndex() + 1).getY();
+
+            return nextnodeposY - currentnodeposY;
+        }
+        else return 0;
+    }
+
     private boolean canPlaceDirt (World world, BlockPos BlockUnder, BlockPos BlockUnder2){
         if(world.getBlockState(BlockUnder).isAir()){
-            return world.getBlockState(BlockUnder2).isAir() ;
+            return world.getBlockState(BlockUnder2).isAir();
         }
         return world.getBlockState(BlockUnder).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(BlockUnder).isAir();
     }

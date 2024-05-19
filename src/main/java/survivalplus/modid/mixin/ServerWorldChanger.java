@@ -27,6 +27,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.IWorldChanger;
@@ -61,14 +62,18 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
     public long ticksleep(long timeOfDay) {
-        return this.properties.getTimeOfDay() + 6000L; // Changes the sleeping skip from a set time point to 6000 ticks after sleep start
+        return this.properties.getTimeOfDay() + 7000L; // Changes the sleeping skip from a set time point to 6000 ticks after sleep start
+    }
+
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;resetWeather()V"))
+    public void removeWeatherReset(ServerWorld instance) { // Removes the weather reset after sleeping
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
     protected void resetTimeSinceSleepStat(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP));// Resets the "time since sleep" stat for every player once everyone wakes up
-            serverPlayer.increaseStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT), 6000);
+            serverPlayer.increaseStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT), 7000);
             // also increases the time since last Base Assault by the time of day skipped through sleeping
         }
     }

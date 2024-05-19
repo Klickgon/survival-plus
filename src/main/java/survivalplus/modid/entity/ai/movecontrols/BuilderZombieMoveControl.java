@@ -7,7 +7,6 @@ import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.entity.ai.pathing.PathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -23,7 +22,7 @@ public class BuilderZombieMoveControl extends MoveControl {
 
     private int DirtJumpcooldown = 10;
 
-    public BuilderZombieMoveControl(MobEntity entity) {
+    public BuilderZombieMoveControl(BuilderZombieEntity entity) {
         super(entity);
     }
 
@@ -83,8 +82,8 @@ public class BuilderZombieMoveControl extends MoveControl {
             World world = this.entity.getWorld();
             BuilderZombieEntity bzomb = (BuilderZombieEntity) this.entity;
             IHostileEntityChanger bzomb2 = (IHostileEntityChanger) this.entity;
-            BlockPos bzombpos = bzomb.getBlockPos();
             if(DirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
+                BlockPos bzombpos = bzomb.getBlockPos();
                 if(isDirtJumpRequired(bzombpos.down(), world)){
                     world.setBlockState(bzombpos.down(), Blocks.DIRT.getDefaultState());
                     world.playSound(null, bzombpos.down(), SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
@@ -114,11 +113,7 @@ public class BuilderZombieMoveControl extends MoveControl {
     private boolean jumpRequirement(double o, double d, double e, VoxelShape voxelShape, BlockPos blockPos, BlockState blockState){
         boolean bl1 = o > (double)this.entity.getStepHeight() && d * d + e * e < (double)Math.max(1.0f, this.entity.getWidth());
         boolean bl2 = this.entity.getY() < voxelShape.getMax(Direction.Axis.Y) + (double)blockPos.getY() && !blockState.isIn(BlockTags.DOORS);
-        PathNodeMaker pnm = this.entity.getNavigation().getNodeMaker();
-        int x = this.entity.getBlockX();
-        int y = this.entity.getBlockY();
-        int z = this.entity.getBlockZ();
-        return bl1 || bl2 && !blockState.isIn(BlockTags.FENCES) || (pnm.getNode(x, y + 1, z).type == PathNodeType.WALKABLE);
+        return bl1 || bl2 && !blockState.isIn(BlockTags.FENCES) || ((BuilderZombieEntity)this.entity).calcDiffY() >= 1;
     }
 
 
