@@ -53,6 +53,7 @@ public class MinerZombieEntity
     private boolean canBreakDoors;
     public BlockPos targetBedPos;
     public static final TagKey<Block> BLOCKTAG = ModTags.Blocks.MINERZOMBIE_MINABLE;
+    public static final int defaultCooldown = 15;
     private int inWaterTime;
     private int ticksUntilWaterConversion;
 

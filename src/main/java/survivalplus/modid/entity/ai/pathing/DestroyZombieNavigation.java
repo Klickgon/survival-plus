@@ -10,8 +10,6 @@ import survivalplus.modid.entity.ai.pathing.pathmaker.DestrZombPathNodeMaker;
 
 public class DestroyZombieNavigation extends MobNavigation {
 
-    private int recalcCooldown = 0;
-
     public DestroyZombieNavigation(MobEntity mobEntity, World world) {
         super(mobEntity, world);
     }
@@ -26,16 +24,12 @@ public class DestroyZombieNavigation extends MobNavigation {
 
     @Override
     public void recalculatePath() {
-        if (this.recalcCooldown <= 0) {
-            LivingEntity target = this.entity.getTarget();
-            if (target != null) {
-                this.currentPath = null;
-                this.currentPath = this.findPathTo(target, (int) this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
-                this.recalcCooldown = 5;
-            }
-        }
-        else this.recalcCooldown--;
+        LivingEntity target = this.entity.getTarget();
 
+        if (target != null) {
+            this.currentPath = null;
+            this.currentPath = this.findPathTo(target, (int) this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
+        }
     }
 
 

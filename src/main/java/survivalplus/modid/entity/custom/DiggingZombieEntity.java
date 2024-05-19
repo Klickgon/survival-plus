@@ -53,6 +53,7 @@ public class DiggingZombieEntity
     private boolean canBreakDoors;
     public BlockPos targetBedPos;
     public static final TagKey<Block> BLOCKTAG = BlockTags.SHOVEL_MINEABLE;
+    public static final int defaultCooldown = 5;
     private int inWaterTime;
     private int ticksUntilWaterConversion;
 

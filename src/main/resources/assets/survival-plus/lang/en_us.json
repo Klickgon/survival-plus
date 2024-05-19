@@ -22,5 +22,7 @@
     "item.survival-plus.digging_zombie_spawn_egg": "Digging Zombie Spawn Egg",
     "item.survival-plus.lumberjack_zombie_spawn_egg": "Lumberjack Zombie Spawn Egg",
     "item.survival-plus.leaping_spider_spawn_egg": "Leaping Spider Spawn Egg",
-    "itemgroup.survival-plus": "Survival Plus Item Group"
+    "itemgroup.survival-plus": "Survival Plus Item Group",
+    "gamerule.disableBaseassaults": "Disable Base Assaults",
+    "gamerule.doMobSpawnProgression": "Mob Spawn Progression"
 }

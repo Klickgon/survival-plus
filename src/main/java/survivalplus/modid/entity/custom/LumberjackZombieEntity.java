@@ -55,6 +55,7 @@ public class LumberjackZombieEntity
     private boolean canBreakDoors;
     public BlockPos targetBedPos;
     public static final TagKey<Block> BLOCKTAG = BlockTags.AXE_MINEABLE;
+    public static final int defaultCooldown = 10;
     private int inWaterTime;
     private int ticksUntilWaterConversion;
 

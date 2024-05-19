@@ -28,10 +28,9 @@ import java.util.function.Predicate;
 
 public class ActiveTargetGoalDestrZomb<T extends LivingEntity>
 extends TrackTargetGoal {
-    private static final int DEFAULT_RECIPROCAL_CHANCE = 10;
     protected final Class<T> targetClass;
 
-    private static final int destroyBlockCooldown = 15;
+    private int destroyBlockCooldown;
 
     protected final int reciprocalChance;
     @Nullable
@@ -39,20 +38,23 @@ extends TrackTargetGoal {
     protected TargetPredicate targetPredicate;
     public TagKey<Block> blockTag;
     private BlockPos facingBlock;
-
-    private int destroyBlockCooldownCounter = destroyBlockCooldown;
+    private int destroyBlockCooldownCounter;
 
     public ActiveTargetGoalDestrZomb(MobEntity mob, Class<T> targetClass, boolean checkVisibility) {
         this((ZombieEntity) mob, targetClass, 10, checkVisibility, false, null);
         if(mob.getClass() == MinerZombieEntity.class){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
+            destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
         }
         if(mob.getClass() == LumberjackZombieEntity.class){
             this.blockTag = LumberjackZombieEntity.BLOCKTAG;
+            destroyBlockCooldown = LumberjackZombieEntity.defaultCooldown;
         }
         if(mob.getClass() == DiggingZombieEntity.class){
             this.blockTag = DiggingZombieEntity.BLOCKTAG;
+            destroyBlockCooldown = DiggingZombieEntity.defaultCooldown;
         }
+        destroyBlockCooldownCounter = destroyBlockCooldown;
     }
 
     public ActiveTargetGoalDestrZomb(ZombieEntity mob, Class<T> targetClass, int reciprocalChance, boolean checkVisibility, boolean checkCanNavigate, @Nullable Predicate<LivingEntity> targetPredicate) {

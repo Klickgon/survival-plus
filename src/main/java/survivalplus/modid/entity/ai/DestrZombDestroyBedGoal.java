@@ -23,11 +23,11 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     private final HostileEntity DestroyMob;
     private final TagKey<Block> BedGroup = BlockTags.BEDS;
-    private static final int destroyBlockCooldown = 15;
+    private int destroyBlockCooldown;
     private TagKey<Block> blockTag;
     @Nullable
     private BlockPos facingBlock;
-    private int destroyBlockCooldownCounter = destroyBlockCooldown;
+    private int destroyBlockCooldownCounter;
 
     public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 16, maxYDifference);
@@ -35,13 +35,17 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         this.cooldown = 0;
         if(mob.getClass() == MinerZombieEntity.class){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
+            destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
         }
         if(mob.getClass() == LumberjackZombieEntity.class){
             this.blockTag = LumberjackZombieEntity.BLOCKTAG;
+            destroyBlockCooldown = LumberjackZombieEntity.defaultCooldown;
         }
         if(mob.getClass() == DiggingZombieEntity.class){
             this.blockTag = DiggingZombieEntity.BLOCKTAG;
+            destroyBlockCooldown = DiggingZombieEntity.defaultCooldown;
         }
+        destroyBlockCooldownCounter = destroyBlockCooldown;
     }
 
     @Override
