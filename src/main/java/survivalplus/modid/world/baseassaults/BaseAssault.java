@@ -150,6 +150,12 @@ public class BaseAssault {
             byte randomIndex = (byte) Math.rint(Math.random() * 10); // to increment the count of a random mob for the next wave
             ++wave[randomIndex];
         }
+        else { // if the wave has 45 mobs, one random mob gets replaced with a different one
+            byte randomIndex1 = (byte) Math.rint(Math.random() * 10);
+            --wave[randomIndex1];
+            byte randomIndex2 = (byte) Math.rint(Math.random() * 10);
+            ++wave[randomIndex2];
+        }
         ((IServerPlayerChanger)this.attachedPlayer).setGeneratedWave(wave);
     }
 
@@ -387,7 +393,7 @@ public class BaseAssault {
                 case 1 -> pos1;
                 case 2 -> pos2;
                 case 3 -> pos3;
-            default -> throw new IllegalStateException("Unexpected value: " + b);
+            default -> throw new IllegalStateException("Unexpected diceroll value: " + b);
         };
     }
 
