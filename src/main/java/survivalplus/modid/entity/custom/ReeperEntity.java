@@ -3,6 +3,8 @@ package survivalplus.modid.entity.custom;
 import net.minecraft.client.render.entity.feature.SkinOverlayOwner;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
+import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -10,6 +12,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.CatEntity;
@@ -40,7 +43,7 @@ import survivalplus.modid.util.ModGamerules;
 import java.util.Collection;
 
 public class ReeperEntity
-        extends HostileEntity
+        extends CreeperEntity
         implements SkinOverlayOwner {
     private static final TrackedData<Integer> FUSE_SPEED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> CHARGED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -55,7 +58,7 @@ public class ReeperEntity
     public boolean wasWithinDistance = false;
 
     public ReeperEntity(EntityType<? extends HostileEntity> entityType, World world) {
-        super(entityType, world);
+        super((EntityType<? extends CreeperEntity>) entityType, world);
     }
 
     @Override
@@ -77,13 +80,6 @@ public class ReeperEntity
         return HostileEntity.createHostileAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.20);
     }
 
-    @Override
-    public int getSafeFallDistance() {
-        if (this.getTarget() == null) {
-            return 3;
-        }
-        return 3 + (int)(this.getHealth() - 1.0f);
-    }
 
     @Override
     public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
@@ -132,7 +128,6 @@ public class ReeperEntity
     @Override
     public void tick() {
         if (this.isAlive()) {
-
             if(!this.forceExplosion && this.getTarget() != null) this.forceExplosion = true;
             if(this.forceExplosion && this.getTarget() == null) this.lostTarget = true;
             int i;
@@ -141,6 +136,18 @@ public class ReeperEntity
                 this.setFuseSpeed(1);
             }
             if (this.lostTarget || this.wasWithinDistance) {
+                this.setFuseSpeed(1);
+            }
+            LandPathNodeMaker pnm = (LandPathNodeMaker) this.getNavigation().getNodeMaker();
+            BlockPos pos = this.getBlockPos();
+            int x = pos.getX();
+            int y = pos.getY();
+            int z = pos.getZ();
+            PathNodeType pnt1 = pnm.getNodeType(this.getWorld(), x + 1, y, z, this);
+            PathNodeType pnt2 = pnm.getNodeType(this.getWorld(), x, y, z + 1, this);
+            PathNodeType pnt3 = pnm.getNodeType(this.getWorld(), x - 1, y, z, this);
+            PathNodeType pnt4 = pnm.getNodeType(this.getWorld(), x, y, z - 1, this);
+            if(isNodeTypeClosedDoor(pnt1) || isNodeTypeClosedDoor(pnt2) || isNodeTypeClosedDoor(pnt3) || isNodeTypeClosedDoor(pnt4)) {
                 this.setFuseSpeed(1);
             }
             if ((i = this.getFuseSpeed()) > 0 && this.currentFuseTime == 0) {
@@ -159,6 +166,10 @@ public class ReeperEntity
         super.tick();
     }
 
+    private boolean isNodeTypeClosedDoor(PathNodeType pnt){
+        return pnt == PathNodeType.DOOR_WOOD_CLOSED || pnt == PathNodeType.DOOR_IRON_CLOSED;
+    }
+
 
     @Override
     public void setTarget(@Nullable LivingEntity target) {
@@ -166,16 +177,6 @@ public class ReeperEntity
             return;
         }
         super.setTarget(target);
-    }
-
-    @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_CREEPER_HURT;
-    }
-
-    @Override
-    protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_CREEPER_DEATH;
     }
 
     @Override
@@ -187,11 +188,6 @@ public class ReeperEntity
             creeperEntity.onHeadDropped();
             this.dropItem(Items.CREEPER_HEAD);
         }
-    }
-
-    @Override
-    public boolean tryAttack(Entity target) {
-        return true;
     }
 
     @Override
