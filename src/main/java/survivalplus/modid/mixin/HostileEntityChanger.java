@@ -1,5 +1,6 @@
 package survivalplus.modid.mixin;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.GoalSelector;
@@ -35,10 +36,23 @@ public class HostileEntityChanger extends PathAwareEntity implements IHostileEnt
         // Blocks hostile Entity Spawns during the first day on the surface, but mobs can still spawn underground during the first day
         boolean afterOneDay;
         if (world.getLevelProperties().getTimeOfDay() <= 24000L) {
-            afterOneDay = !world.isSkyVisibleAllowingSea(pos);
+            afterOneDay = firstNightSpawnRestriction(pos, world.toServerWorld());
         }
         else afterOneDay = true;
         cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (afterOneDay || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
+    }
+
+    @Unique
+    private static boolean firstNightSpawnRestriction(BlockPos pos, World world) {
+        BlockPos blockPos = new BlockPos(pos.getX(), pos.getY() + 32, pos.getZ());
+        while (blockPos.getY() > pos.getY()) {
+            BlockState blockState = world.getBlockState(blockPos);
+            if (blockState.isOpaqueFullCube(world, blockPos)) {
+                return !world.isSkyVisible(pos);
+            }
+            blockPos = blockPos.down();
+        }
+        return false;
     }
 
     @Override
