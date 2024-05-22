@@ -24,5 +24,8 @@
     "item.survival-plus.leaping_spider_spawn_egg": "Leaping Spider Spawn Egg",
     "itemgroup.survival-plus": "Survival Plus Item Group",
     "gamerule.disableBaseassaults": "Disable Base Assaults",
-    "gamerule.doMobSpawnProgression": "Mob Spawn Progression"
+    "gamerule.doMobSpawnProgression": "Mob Spawn Progression",
+    "stat.survival-plus.baseassaultswon": "Base Assaults Won",
+    "stat.survival-plus.timesincesleep": "Time Since Last Full Sleep",
+    "stat.survival-plus.timewithoutcustomrespawnpoint": "Time without Custom Respawn Point"
 }

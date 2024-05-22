@@ -146,7 +146,7 @@ public class BaseAssault {
 
     private void generateNextWave(){
         byte[] wave = getGeneratedWave();
-        if(calcSumArray(wave) < 45){ // checks if the generated wave has less than 45 mobs in it to increment the count of a random mob
+        if(calcSumArray(wave) < 45){ // checks if the generated wave has less than 45 mobs in it
             byte randomIndex = (byte) Math.rint(Math.random() * 10); // to increment the count of a random mob for the next wave
             ++wave[randomIndex];
         }
@@ -272,7 +272,7 @@ public class BaseAssault {
                 }
             }
         } else if (this.isFinished()) {
-            this.attachedPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT));
+            ((IServerPlayerChanger)this.attachedPlayer).resetTimeSinceLastBaseAssault();
             ++this.finishCooldown;
             if (this.finishCooldown >= 600) {
                 this.invalidate();

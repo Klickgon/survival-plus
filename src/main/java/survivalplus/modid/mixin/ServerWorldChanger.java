@@ -29,6 +29,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import survivalplus.modid.SurvivalPlus;
+import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.IWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
@@ -73,7 +75,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     protected void resetTimeSinceSleepStat(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP));// Resets the "time since sleep" stat for every player once everyone wakes up
-            serverPlayer.increaseStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT), 7000);
+            ((IServerPlayerChanger)serverPlayer).increaseTimeSinceLastBaseAssault(7000);
             // also increases the time since last Base Assault by the time of day skipped through sleeping
         }
     }
@@ -108,7 +110,8 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             this.baseAssaultManager.startBaseAssault(serverPlayer);
-            serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT));
+            ((IServerPlayerChanger) serverPlayer).incrementTimeSinceLastBaseAssault();
+            SurvivalPlus.LOGGER.info("{}: {}", serverPlayer.getName(), ((IServerPlayerChanger) serverPlayer).getTimeSinceLastBaseAssault());
         }
         baseAssaultManager.tick();
     }

@@ -32,6 +32,9 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     @Unique
     private byte[] generatedWave = BaseAssaultWaves.BASEASSAULT_TWELVE;
 
+    @Unique
+    private int timeSinceLastBaseAssault;
+
     @Shadow public abstract boolean isSpectator();
 
     @Shadow public abstract boolean isCreative();
@@ -62,12 +65,15 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
     public void nbtWriteInject(NbtCompound nbt, CallbackInfo ci){
         nbt.putByteArray("generatedwave", this.generatedWave);
+        nbt.putInt("timesincelastbaseassault", this.timeSinceLastBaseAssault);
     }
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
     public void nbtReadInject(NbtCompound nbt, CallbackInfo ci){
         if(nbt.contains("generatedwave"))
             this.generatedWave = nbt.getByteArray("generatedwave");
+        if(nbt.contains("timesincelastbaseassault"))
+            this.timeSinceLastBaseAssault = nbt.getInt("timesincelastbaseassault");
     }
 
     @Unique
@@ -78,5 +84,25 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     @Unique
     public void setGeneratedWave(byte[] wave) {
         this.generatedWave = wave;
+    }
+
+    @Unique
+    public void resetTimeSinceLastBaseAssault(){
+        this.timeSinceLastBaseAssault = 0;
+    }
+
+    @Unique
+    public void incrementTimeSinceLastBaseAssault(){
+        this.timeSinceLastBaseAssault++;
+    }
+
+    @Unique
+    public int getTimeSinceLastBaseAssault(){
+        return this.timeSinceLastBaseAssault;
+    }
+
+    @Unique
+    public void increaseTimeSinceLastBaseAssault(int time){
+        this.timeSinceLastBaseAssault += time;
     }
 }
