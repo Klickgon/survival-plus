@@ -58,7 +58,6 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
     protected ServerWorldChanger(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
-
     }
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
@@ -96,7 +95,6 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
             }
             oworld.setEnoughTimeSinceRest(true);
         }
-
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             BlockPos bpos = serverPlayer.getSpawnPointPosition();
                 if(bpos != null){
@@ -105,9 +103,6 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
                         serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
                     else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             } else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
-        }
-
-        for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             this.baseAssaultManager.startBaseAssault(serverPlayer);
             ((IServerPlayerChanger) serverPlayer).incrementTimeSinceLastBaseAssault();
         }

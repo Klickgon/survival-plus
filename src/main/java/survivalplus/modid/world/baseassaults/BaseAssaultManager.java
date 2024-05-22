@@ -74,7 +74,7 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return null;
         }
-        if(((IServerPlayerChanger)player).getTimeSinceLastBaseAssault() < 400) {
+        if(((IServerPlayerChanger)player).getTimeSinceLastBaseAssault() < 144000) {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();
