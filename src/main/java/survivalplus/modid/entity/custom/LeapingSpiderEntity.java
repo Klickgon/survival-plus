@@ -239,32 +239,12 @@ extends HostileEntity {
             return super.canStart() && !this.mob.hasPassengers();
         }
 
-        @Override
-        public boolean shouldContinue() {
-            float f = this.mob.getBrightnessAtEyes();
-            if (f >= 0.5f && this.mob.getRandom().nextInt(100) == 0) {
-                this.mob.setTarget(null);
-                return false;
-            }
-            return super.shouldContinue();
-        }
-
-
     }
 
     static class TargetGoal<T extends LivingEntity>
     extends ActiveTargetGoal<T> {
         public TargetGoal(LeapingSpiderEntity spider, Class<T> targetEntityClass) {
             super((MobEntity)spider, targetEntityClass, true);
-        }
-
-        @Override
-        public boolean canStart() {
-            float f = this.mob.getBrightnessAtEyes();
-            if (f >= 0.5f) {
-                return false;
-            }
-            return super.canStart();
         }
     }
 

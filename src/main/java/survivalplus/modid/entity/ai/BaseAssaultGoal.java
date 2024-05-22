@@ -28,8 +28,8 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
     private final BaseAssault baseAssault;
     private TagKey<Block> blockTag = null;
     private BlockPos facingBlock;
-    private static final int destroyBlockCooldown = 15;
-    private int destroyBlockCooldownCounter = destroyBlockCooldown;
+    private int destroyBlockCooldown;
+    private int destroyBlockCooldownCounter;
 
 
     public BaseAssaultGoal(HostileEntity mob, double speed) {
@@ -38,13 +38,17 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         this.cooldown = 0;
         if(mob.getClass() == MinerZombieEntity.class){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
+            destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
         }
         if(mob.getClass() == LumberjackZombieEntity.class){
             this.blockTag = LumberjackZombieEntity.BLOCKTAG;
+            destroyBlockCooldown = LumberjackZombieEntity.defaultCooldown;
         }
         if(mob.getClass() == DiggingZombieEntity.class){
             this.blockTag = DiggingZombieEntity.BLOCKTAG;
+            destroyBlockCooldown = DiggingZombieEntity.defaultCooldown;
         }
+        destroyBlockCooldownCounter = destroyBlockCooldown;
     }
 
     @Override
@@ -53,6 +57,8 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
+        if(this.baseAssault == null)
+            return false;
         if (this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.attachedPlayer.getBlockPos() != null) {
             this.cooldown = 10 + this.mob.getWorld().random.nextInt(15);
             BlockPos pos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
@@ -86,30 +92,32 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
     @Override
     public void tick() {
-            if(!this.mob.getBlockPos().isWithinDistance(targetPos, 3)) {
-                if (this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.attachedPlayer.getBlockPos() != null) {
+        if(((IHostileEntityChanger) this.mob).getBaseAssault() == null) stop();
+
+        if(!this.mob.getBlockPos().isWithinDistance(targetPos, 3)) {
+                if (!this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.getCenter() != null) {
+                    this.targetPos = tweakToProperPos(baseAssault.getCenter(), this.mob.getWorld());
+                }
+                else if (this.baseAssault.attachedPlayer.getBlockPos() != null) {
                     this.targetPos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
                 }
-                if (this.baseAssault.getCenter() != null) {
-                    this.targetPos = tweakToProperPos(baseAssault.getCenter().up(), this.mob.getWorld());
-                }
+                else stop();
+        }
+        if(this.mob.getBlockPos().isWithinDistance(targetPos, 1.5)) {
+            BlockPos bedPos = tweakToProperBedPos(baseAssault.getCenter(), this.mob.getWorld());
+            if (bedPos != null && mob.getWorld().getBlockState(bedPos).isIn(BlockTags.BEDS)) {
+                if (mob.getClass() == CreeperEntity.class) ((CreeperEntity) mob).ignite();
+                else if (mob.getClass() == ReeperEntity.class) ((ReeperEntity) mob).forceExplosion = true;
+                else mob.getWorld().breakBlock(bedPos, false);
             }
-            if(this.mob.getBlockPos().isWithinDistance(targetPos, 1.5)) {
-                BlockPos bedPos = tweakToProperBedPos(baseAssault.getCenter(), this.mob.getWorld());
-                if (bedPos != null && mob.getWorld().getBlockState(bedPos).isIn(BlockTags.BEDS))
-                    if (mob.getClass() == CreeperEntity.class) ((CreeperEntity) mob).ignite();
-                    else if (mob.getClass() == ReeperEntity.class) ((ReeperEntity) mob).forceExplosion = true;
-                    else mob.getWorld().breakBlock(bedPos, false);
-            }
+        }
+        if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
+            World world = this.mob.getWorld();
+            float rawrotation = Math.abs(this.mob.getBodyYaw());
+            float rotation = (float) (rawrotation - 360 * (Math.floor(rawrotation / 360)));
+            BlockPos currentPos = this.mob.getBlockPos();
 
-            if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
-                World world = this.mob.getWorld();
-                float rawrotation = Math.abs(this.mob.getBodyYaw());
-                float rotation = (float) (rawrotation - 360 * (Math.floor(rawrotation / 360)));
-
-                BlockPos currentPos = this.mob.getBlockPos();
-
-                int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
+            int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 
                 if (rotation > 315 || rotation <= 45)   this.facingBlock = currentPos.up().south();
                 else if (rotation <= 135)               this.facingBlock = currentPos.up().west();

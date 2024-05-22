@@ -411,8 +411,8 @@ public class BaseAssault {
                 hostile.setPosition((double)pos.getX() + 0.5, (double)pos.getY() + 1.0, (double)pos.getZ() + 0.5);
                 hostile.initialize(this.world, this.world.getLocalDifficulty(pos), SpawnReason.EVENT, null, null);
                 hostile.setOnGround(true);
-                hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
                 this.world.spawnEntityAndPassengers(hostile);
+                hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
                 this.hostiles.add(hostile);
                 this.totalHealth += hostile.getHealth();
             }
