@@ -29,7 +29,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.IWorldChanger;
@@ -111,7 +110,6 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             this.baseAssaultManager.startBaseAssault(serverPlayer);
             ((IServerPlayerChanger) serverPlayer).incrementTimeSinceLastBaseAssault();
-            SurvivalPlus.LOGGER.info("{}: {}", serverPlayer.getName(), ((IServerPlayerChanger) serverPlayer).getTimeSinceLastBaseAssault());
         }
         baseAssaultManager.tick();
     }
