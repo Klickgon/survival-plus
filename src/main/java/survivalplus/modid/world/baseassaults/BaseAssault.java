@@ -13,6 +13,9 @@ import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -25,6 +28,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.ai.BaseAssaultGoal;
 import survivalplus.modid.util.IHostileEntityChanger;
@@ -75,6 +79,7 @@ public class BaseAssault {
     }
 
     public BaseAssault(ServerWorld world, NbtCompound nbt) {
+        SurvivalPlus.LOGGER.info("BaseAssault initialised through NBT");
         this.world = world;
         this.attachedPlayer = (ServerPlayerEntity) world.getEntity(nbt.getUuid("attachedplayer"));
         this.id = nbt.getInt("Id");
@@ -86,7 +91,21 @@ public class BaseAssault {
         this.center = new BlockPos(nbt.getInt("CX"), nbt.getInt("CY"), nbt.getInt("CZ"));
         this.status = Status.fromName(nbt.getString("Status"));
         this.waveSpawned = nbt.getBoolean("wavespawned");
-        this.wave = getWave(attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) + 1);
+        if (nbt.contains("Hostiles", NbtElement.LIST_TYPE)) {
+            NbtList nbtList = nbt.getList("Hostiles", NbtElement.INT_ARRAY_TYPE);
+            for (NbtElement nbtElement : nbtList) {
+                this.hostiles.add((HostileEntity) world.getEntity(NbtHelper.toUuid(nbtElement)));
+            }
+        }
+        for (HostileEntity hostile : this.hostiles){
+            if(hostile != null){
+                IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
+                hostile2.setBaseAssault(this);
+                hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
+            }
+        }
+        if(attachedPlayer != null) this.wave = getWave(attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) + 1);
+        else this.wave = getWave(1);
     }
 
     public NbtCompound writeNbt(NbtCompound nbt) {
@@ -102,8 +121,15 @@ public class BaseAssault {
         nbt.putInt("CZ", this.center.getZ());
         nbt.putUuid("attachedplayer", this.attachedPlayer.getUuid());
         nbt.putBoolean("wavespawned", this.waveSpawned);
+        NbtList nbtList = new NbtList();
+        for (HostileEntity hostile : this.hostiles) {
+            nbtList.add(NbtHelper.fromUuid(hostile.getUuid()));
+        }
+        nbt.put("Hostiles", nbtList);
+        SurvivalPlus.LOGGER.info("BaseAssault written to NBT");
         return nbt;
     }
+
 
     public boolean isFinished() {
         return this.hasWon() || this.hasLost();
@@ -215,6 +241,9 @@ public class BaseAssault {
     }
 
     public void tick() {
+        if(this.attachedPlayer == null)
+            invalidate();
+
         if (this.hasStopped()) {
             return;
         }
@@ -346,7 +375,7 @@ public class BaseAssault {
         BlockPos pos = new BlockPos (x, y + 36, z);
         while(world.getBlockState(pos.down()).isReplaceable() || !world.getBlockState(pos).isReplaceable() || !world.getBlockState(pos.up()).isAir()){
             if(pos.getY() <= (y - 16)) break;
-            pos = new BlockPos(pos.getX(), pos.getY() - 1, pos.getZ());
+            pos = pos.down();
         }
         return pos.getY();
     }
@@ -356,8 +385,7 @@ public class BaseAssault {
     }
 
     public int getHostileCount() {
-        ArrayList<HostileEntity> hostileList = this.hostiles;
-        HostileEntity[] hostileArray = hostileList.toArray(new HostileEntity[hostileList.size()]);
+        HostileEntity[] hostileArray = this.hostiles.toArray(new HostileEntity[this.hostiles.size()]);
         int i = 0;
         for(HostileEntity hostileEntity : hostileArray){
             if(hostileEntity.isAlive()) i++;

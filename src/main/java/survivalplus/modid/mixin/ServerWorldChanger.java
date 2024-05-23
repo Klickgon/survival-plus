@@ -80,7 +80,8 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void BAMconstructInject(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, boolean debugWorld, long seed, List spawners, boolean shouldTickTime, RandomSequencesState randomSequencesState, CallbackInfo ci){
-        this.baseAssaultManager = this.toServerWorld().getPersistentStateManager().getOrCreate(BaseAssaultManager.getPersistentStateType(this.toServerWorld()), BaseAssaultManager.nameFor(this.toServerWorld().getDimensionEntry()));
+        ServerWorld sworld = this.toServerWorld();
+        this.baseAssaultManager = sworld.getPersistentStateManager().getOrCreate(BaseAssaultManager.getPersistentStateType(sworld), BaseAssaultManager.nameFor(sworld.getDimensionEntry()));
     }
 
 

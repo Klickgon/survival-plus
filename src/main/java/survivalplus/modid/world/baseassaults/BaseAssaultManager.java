@@ -6,6 +6,8 @@ package survivalplus.modid.world.baseassaults;
 import com.google.common.collect.Maps;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -74,7 +76,7 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return null;
         }
-        if(((IServerPlayerChanger)player).getTimeSinceLastBaseAssault() < 144000) {
+        if(((IServerPlayerChanger)player).getTimeSinceLastBaseAssault() < 400) {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();
@@ -105,13 +107,29 @@ extends PersistentState {
 
     public static BaseAssaultManager fromNbt(ServerWorld world, NbtCompound nbt) {
         BaseAssaultManager baManager = new BaseAssaultManager(world);
+        baManager.nextAvailableId = nbt.getInt("NextAvailableID");
         baManager.currentTime = nbt.getInt("Tick");
+        NbtList nbtList = nbt.getList("BaseAssaults", NbtElement.COMPOUND_TYPE);
+        for (int i = 0; i < nbtList.size(); ++i) {
+            NbtCompound nbtCompound = nbtList.getCompound(i);
+            BaseAssault baseassault = new BaseAssault(world, nbtCompound);
+            baManager.baseAssaults.put(baseassault.getId(), baseassault);
+        }
         return baManager;
     }
 
+
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
+        nbt.putInt("NextAvailableID", this.nextAvailableId);
         nbt.putInt("Tick", this.currentTime);
+        NbtList nbtList = new NbtList();
+        for (BaseAssault baseAssault : this.baseAssaults.values()) {
+            NbtCompound nbtCompound = new NbtCompound();
+            baseAssault.writeNbt(nbtCompound);
+            nbtList.add(nbtCompound);
+        }
+        nbt.put("BaseAssaults", nbtList);
         return nbt;
     }
 

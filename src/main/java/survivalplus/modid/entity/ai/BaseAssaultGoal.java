@@ -106,9 +106,10 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         if(this.mob.getBlockPos().isWithinDistance(targetPos, 1.5)) {
             BlockPos bedPos = tweakToProperBedPos(baseAssault.getCenter(), this.mob.getWorld());
             if (bedPos != null && mob.getWorld().getBlockState(bedPos).isIn(BlockTags.BEDS)) {
-                if (mob.getClass() == CreeperEntity.class) ((CreeperEntity) mob).ignite();
-                else if (mob.getClass() == ReeperEntity.class) ((ReeperEntity) mob).forceExplosion = true;
+                if (mob instanceof CreeperEntity && !(mob instanceof ReeperEntity)) ((CreeperEntity) mob).ignite();
+                else if (mob instanceof ReeperEntity) ((ReeperEntity) mob).forceExplosion = true;
                 else mob.getWorld().breakBlock(bedPos, false);
+                stop();
             }
         }
         if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){

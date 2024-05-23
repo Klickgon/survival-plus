@@ -26,7 +26,12 @@
             }
           ],
           "name": "minecraft:rotten_flesh"
-        },
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
         {
           "type": "minecraft:item",
           "functions": [
