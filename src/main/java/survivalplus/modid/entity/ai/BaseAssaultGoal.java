@@ -60,7 +60,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         if(this.baseAssault == null)
             return false;
         if (this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.attachedPlayer.getBlockPos() != null) {
-            this.cooldown = 10 + this.mob.getWorld().random.nextInt(15);
+            this.cooldown = 30 + this.mob.getWorld().random.nextInt(15);
             BlockPos pos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
             if(pos != null){
                 this.targetPos = pos;
@@ -68,7 +68,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
             }
         }
         if (this.mob.getWorld().getBlockState(this.baseAssault.getCenter()).isIn(BlockTags.BEDS)) {
-            this.cooldown = 10 + this.mob.getWorld().random.nextInt(15);
+            this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
             BlockPos pos = tweakToProperPos(baseAssault.getCenter(), this.mob.getWorld());
             if(pos != null){
                 this.targetPos = pos;
@@ -92,18 +92,18 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
     @Override
     public void tick() {
-        if(((IHostileEntityChanger) this.mob).getBaseAssault() == null) stop();
+        if(((IHostileEntityChanger) this.mob).getBaseAssault() == null) ((IHostileEntityChanger) this.mob).getGoalSelector().remove(this);
+        if (this.cooldown < 0) {
+            if (this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.attachedPlayer.getBlockPos() != null) {
+                this.targetPos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
+                this.cooldown = 30 + this.mob.getWorld().random.nextInt(15);
+            } else if (this.baseAssault.getCenter() != null) {
+                this.targetPos = tweakToProperPos(baseAssault.getCenter(), this.mob.getWorld());
+                this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
+            } else stop();
+        } else this.cooldown--;
 
-        if(!this.mob.getBlockPos().isWithinDistance(targetPos, 3)) {
-                if (!this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.getCenter() != null) {
-                    this.targetPos = tweakToProperPos(baseAssault.getCenter(), this.mob.getWorld());
-                }
-                else if (this.baseAssault.attachedPlayer.getBlockPos() != null) {
-                    this.targetPos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
-                }
-                else stop();
-        }
-        if(this.mob.getBlockPos().isWithinDistance(targetPos, 1.5)) {
+        if(!this.baseAssault.findPlayerInsteadOfBed && this.mob.getBlockPos().isWithinDistance(targetPos, 1.5)) {
             BlockPos bedPos = tweakToProperBedPos(baseAssault.getCenter(), this.mob.getWorld());
             if (bedPos != null && mob.getWorld().getBlockState(bedPos).isIn(BlockTags.BEDS)) {
                 if (mob instanceof CreeperEntity && !(mob instanceof ReeperEntity)) ((CreeperEntity) mob).ignite();

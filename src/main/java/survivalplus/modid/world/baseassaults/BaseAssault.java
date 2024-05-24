@@ -45,16 +45,19 @@ public class BaseAssault {
     private static final Text VICTORY_TITLE = Text.translatable("event.survival-plus.victory.full");
     private static final Text DEFEAT_TITLE = Text.translatable("event.survival-plus.defeat.full");
     private static final String HOSTILES_REMAINING_TRANSLATION_KEY = "event.survival-plus.baseassault.hostiles_remaining";
-    private final ArrayList<HostileEntity> hostiles = new ArrayList<>();
+    private ArrayList<HostileEntity> hostiles;
+    private LinkedList<UUID> hostileIDs = new LinkedList<>();
+    private boolean isFromNBT;
     private long ticksActive;
     private BlockPos center;
     private final ServerWorld world;
-    public final ServerPlayerEntity attachedPlayer;
+    public ServerPlayerEntity attachedPlayer;
+    public final UUID playerID;
     private boolean started;
     private final int id;
     private float totalHealth;
     private boolean active;
-    private final byte[] wave;
+    private byte[] wave;
     private final ServerBossBar bar = new ServerBossBar(EVENT_TEXT, BossBar.Color.GREEN, BossBar.Style.NOTCHED_10);
     private int preBaseAssaultTicks;
     private Status status;
@@ -66,8 +69,10 @@ public class BaseAssault {
 
     public BaseAssault(int id, ServerWorld world, BlockPos pos, ServerPlayerEntity attachedPlayer) {
         this.id = id;
+        this.isFromNBT = false;
         this.world = world;
         this.attachedPlayer = attachedPlayer;
+        this.playerID = attachedPlayer.getUuid();
         this.active = true;
         this.preBaseAssaultTicks = 300;
         this.bar.setPercent(0.0f);
@@ -80,53 +85,51 @@ public class BaseAssault {
 
     public BaseAssault(ServerWorld world, NbtCompound nbt) {
         SurvivalPlus.LOGGER.info("BaseAssault initialised through NBT");
+        this.isFromNBT = true;
         this.world = world;
-        this.attachedPlayer = (ServerPlayerEntity) world.getEntity(nbt.getUuid("attachedplayer"));
-        this.id = nbt.getInt("Id");
-        this.started = nbt.getBoolean("Started");
-        this.active = nbt.getBoolean("Active");
-        this.ticksActive = nbt.getLong("TicksActive");
-        this.preBaseAssaultTicks = nbt.getInt("PreRaidTicks");
-        this.totalHealth = nbt.getFloat("TotalHealth");
-        this.center = new BlockPos(nbt.getInt("CX"), nbt.getInt("CY"), nbt.getInt("CZ"));
-        this.status = Status.fromName(nbt.getString("Status"));
-        this.waveSpawned = nbt.getBoolean("wavespawned");
-        if (nbt.contains("Hostiles", NbtElement.LIST_TYPE)) {
-            NbtList nbtList = nbt.getList("Hostiles", NbtElement.INT_ARRAY_TYPE);
+        this.playerID = nbt.getUuid("playerID");
+        SurvivalPlus.LOGGER.info(this.playerID.toString());
+        this.id = nbt.getInt("BAId");
+        this.started = nbt.getBoolean("BAStarted");
+        this.active = nbt.getBoolean("BAActive");
+        this.ticksActive = nbt.getLong("BATicksActive");
+        this.preBaseAssaultTicks = nbt.getInt("BAPreAssaultTicks");
+        this.totalHealth = nbt.getFloat("BATotalHealth");
+        this.center = new BlockPos(nbt.getInt("baCX"), nbt.getInt("baCY"), nbt.getInt("baCZ"));
+        this.status = Status.fromName(nbt.getString("baStatus"));
+        this.waveSpawned = nbt.getBoolean("WaveSpawned");
+        this.wave = nbt.getByteArray("Wave");
+        this.findPlayerInsteadOfBed = nbt.getBoolean("findPlayer");
+        if (nbt.contains("hostileIDs", NbtElement.LIST_TYPE)) {
+            NbtList nbtList = nbt.getList("hostileIDs", NbtElement.INT_ARRAY_TYPE);
             for (NbtElement nbtElement : nbtList) {
-                this.hostiles.add((HostileEntity) world.getEntity(NbtHelper.toUuid(nbtElement)));
+                this.hostileIDs.add(NbtHelper.toUuid(nbtElement));
             }
         }
-        for (HostileEntity hostile : this.hostiles){
-            if(hostile != null){
-                IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
-                hostile2.setBaseAssault(this);
-                hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
-            }
-        }
-        if(attachedPlayer != null) this.wave = getWave(attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) + 1);
-        else this.wave = getWave(1);
     }
 
     public NbtCompound writeNbt(NbtCompound nbt) {
-        nbt.putInt("Id", this.id);
-        nbt.putBoolean("Started", this.started);
-        nbt.putBoolean("Active", this.active);
-        nbt.putLong("TicksActive", this.ticksActive);
-        nbt.putInt("PreRaidTicks", this.preBaseAssaultTicks);
-        nbt.putFloat("TotalHealth", this.totalHealth);
-        nbt.putString("Status", this.status.getName());
-        nbt.putInt("CX", this.center.getX());
-        nbt.putInt("CY", this.center.getY());
-        nbt.putInt("CZ", this.center.getZ());
-        nbt.putUuid("attachedplayer", this.attachedPlayer.getUuid());
-        nbt.putBoolean("wavespawned", this.waveSpawned);
+        nbt.putInt("BAId", this.id);
+        nbt.putBoolean("BAStarted", this.started);
+        nbt.putBoolean("BAActive", this.active);
+        nbt.putLong("BATicksActive", this.ticksActive);
+        nbt.putInt("PreAssaultTicks", this.preBaseAssaultTicks);
+        nbt.putFloat("BATotalHealth", this.totalHealth);
+        nbt.putString("BAStatus", this.status.getName());
+        nbt.putInt("baCX", this.center.getX());
+        nbt.putInt("baCY", this.center.getY());
+        nbt.putInt("baCZ", this.center.getZ());
+        nbt.putByteArray("Wave", this.wave);
+        nbt.putUuid("playerID", this.playerID);
+        nbt.putBoolean("WaveSpawned", this.waveSpawned);
+        nbt.putBoolean("findPlayer", this.findPlayerInsteadOfBed);
         NbtList nbtList = new NbtList();
-        for (HostileEntity hostile : this.hostiles) {
-            nbtList.add(NbtHelper.fromUuid(hostile.getUuid()));
+        if(this.hostiles != null) {
+            for (HostileEntity hostile : this.hostiles) {
+                if (hostile != null) nbtList.add(NbtHelper.fromUuid(hostile.getUuid()));
+            }
         }
-        nbt.put("Hostiles", nbtList);
-        SurvivalPlus.LOGGER.info("BaseAssault written to NBT");
+        nbt.put("hostileIDs", nbtList);
         return nbt;
     }
 
@@ -232,6 +235,7 @@ public class BaseAssault {
     }
 
     public void start(PlayerEntity player) {
+
     }
 
     public void invalidate() {
@@ -241,115 +245,141 @@ public class BaseAssault {
     }
 
     public void tick() {
-        if(this.attachedPlayer == null)
-            invalidate();
+        if(this.isFromNBT){
+            if(this.attachedPlayer == null) {
+                this.attachedPlayer = this.world.getServer().getPlayerManager().getPlayer(this.playerID);
+                if(!this.world.getServer().getPlayerManager().getPlayerList().isEmpty() && this.attachedPlayer == null) invalidate();
+                return;
+            }
+            if(this.wave == null){
+                this.wave = getWave(attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) + 1);
+                if (this.wave != null) SurvivalPlus.LOGGER.info("Wave restored");
+                return;
+            }
+            if(this.hostiles == null && this.waveSpawned){
+                ArrayList<HostileEntity> hostileList = new ArrayList<>();
+                for (UUID uuid : this.hostileIDs) {
+                    HostileEntity hostile = (HostileEntity) this.world.getEntity(uuid);
+                    if(hostile != null) hostileList.add(hostile);
+                }
+                this.hostiles = hostileList;
+                
+                if(!this.hostiles.isEmpty()) SurvivalPlus.LOGGER.info("Hostiles restored");
+                else invalidate();
 
-        if (this.hasStopped()) {
-            return;
+                for (HostileEntity hostile : this.hostiles) {
+                        IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
+                        hostile2.setBaseAssault(this);
+                        hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
+                }
+            }
         }
-        if (this.status == Status.ONGOING) {
-            boolean bl = this.active;
-            this.active = this.world.isChunkLoaded(this.center);
-            if (this.world.getDifficulty() == Difficulty.PEACEFUL) {
-                this.invalidate();
+            if (this.hasStopped()) {
                 return;
             }
-            if (bl != this.active) {
-                this.bar.setVisible(this.active);
-            }
-            if (!this.active) {
-                return;
-            }
-
-            ++this.ticksActive;
-            if(this.attachedPlayer.getHealth() <= 0 && !this.world.getBlockState(this.center).isIn(BlockTags.BEDS)){
-                this.status = Status.LOSS;
-            }
-            updateCenter();
-            if(this.waveSpawned && getCurrentHostilesHealth() <= 0){
-                this.status = Status.VICTORY;
-            }
-            if (this.ticksActive >= 48000L) {
-                this.invalidate();
-            }
-            int i = this.getHostileCount();
-            if (i == 0) {
-                if (this.preBaseAssaultTicks > 0) {
-                    if (this.preBaseAssaultTicks == 300 || this.preBaseAssaultTicks % 20 == 0) {
-                        this.updateBarToPlayers();
-                    }
-                    --this.preBaseAssaultTicks;
-                    this.bar.setPercent(MathHelper.clamp((float)(300 - this.preBaseAssaultTicks) / 300.0f, 0.0f, 1.0f));
-                } else if (this.preBaseAssaultTicks == 0 && this.hasStarted()) {
-                    this.preBaseAssaultTicks = 300;
-                    this.bar.setName(EVENT_TEXT);
+            if (this.status == Status.ONGOING) {
+                boolean bl = this.active;
+                this.active = this.world.isChunkLoaded(this.center);
+                if (this.world.getDifficulty() == Difficulty.PEACEFUL) {
+                    this.invalidate();
                     return;
                 }
-            }
-            if (this.ticksActive % 20L == 0L) {
-                if(this.waveSpawned) updateBar();
-                this.updateBarToPlayers();
-                if (i > 0) {
-                    if (i <= 5) {
-                        this.bar.setName(EVENT_TEXT.copy().append(" - ").append(Text.translatable(HOSTILES_REMAINING_TRANSLATION_KEY, i)));
+                if (bl != this.active) {
+                    this.bar.setVisible(this.active);
+                }
+                if (!this.active) {
+                    return;
+                }
+                ++this.ticksActive;
+                if (this.attachedPlayer.getHealth() <= 0 && !this.world.getBlockState(this.center).isIn(BlockTags.BEDS)) {
+                    this.status = Status.LOSS;
+                }
+                updateCenter();
+                if (this.waveSpawned && getCurrentHostilesHealth() <= 0) {
+                    this.status = Status.VICTORY;
+                }
+                if (this.ticksActive >= 48000L) {
+                    this.invalidate();
+                }
+                int i = this.getHostileCount();
+                if (i == 0) {
+                    if (this.preBaseAssaultTicks > 0) {
+                        if (this.preBaseAssaultTicks == 300 || this.preBaseAssaultTicks % 20 == 0) {
+                            this.updateBarToPlayers();
+                        }
+                        --this.preBaseAssaultTicks;
+                        this.bar.setPercent(MathHelper.clamp((float) (300 - this.preBaseAssaultTicks) / 300.0f, 0.0f, 1.0f));
+                    } else if (this.preBaseAssaultTicks == 0 && this.hasStarted()) {
+                        this.preBaseAssaultTicks = 300;
+                        this.bar.setName(EVENT_TEXT);
+                        return;
+                    }
+                }
+                if (this.ticksActive % 20L == 0L) {
+                    if (this.waveSpawned) updateBar();
+                    this.updateBarToPlayers();
+                    if (i > 0) {
+                        if (i <= 5) {
+                            this.bar.setName(EVENT_TEXT.copy().append(" - ").append(Text.translatable(HOSTILES_REMAINING_TRANSLATION_KEY, i)));
+                        } else {
+                            this.bar.setName(EVENT_TEXT);
+                        }
                     } else {
                         this.bar.setName(EVENT_TEXT);
-                    }
-                } else {
-                    this.bar.setName(EVENT_TEXT);
 
-                }
-            }
-        } else if (this.isFinished()) {
-            ((IServerPlayerChanger)this.attachedPlayer).resetTimeSinceLastBaseAssault();
-            ++this.finishCooldown;
-            if (this.finishCooldown >= 600) {
-                this.invalidate();
-                return;
-            }
-            if (this.finishCooldown % 20 == 0) {
-                this.updateBarToPlayers();
-                this.bar.setVisible(true);
-                if (this.hasWon()) {
-                    this.bar.setPercent(0.0f);
-                    this.bar.setName(VICTORY_TITLE);
-                    if(!this.winStatIncreased) {
-                        this.attachedPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON));
-                        this.winStatIncreased = true;
-                        if(attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) + 1 >= 12)
-                            generateNextWave();
                     }
-                } else {
-                    this.bar.setName(DEFEAT_TITLE);
+                }
+            } else if (this.isFinished()) {
+                ((IServerPlayerChanger) this.attachedPlayer).resetTimeSinceLastBaseAssault();
+                ++this.finishCooldown;
+                if (this.finishCooldown >= 600) {
+                    this.invalidate();
+                    return;
+                }
+                if (this.finishCooldown % 20 == 0) {
+                    this.updateBarToPlayers();
+                    this.bar.setVisible(true);
+                    if (this.hasWon()) {
+                        this.bar.setPercent(0.0f);
+                        this.bar.setName(VICTORY_TITLE);
+                        if (!this.winStatIncreased) {
+                            this.attachedPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON));
+                            this.winStatIncreased = true;
+                            if (attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) + 1 >= 12)
+                                generateNextWave();
+                        }
+                    } else {
+                        this.bar.setName(DEFEAT_TITLE);
+                    }
                 }
             }
-        }
-        int k = 0;
-        while (this.preBaseAssaultTicks == 0 && getHostileCount() == 0) {
-            float f = this.world.random.nextFloat();
-            BlockPos pos1 = getSpawnLocation(f);
-            BlockPos pos2 = getSpawnLocation(f);
-            BlockPos pos3 = getSpawnLocation(f);
-            if (pos1 != null && pos2 != null && pos3 != null) {
-                this.started = true;
-                this.spawnWave(pos1, pos2, pos3);
-            } else {
-                ++k;
+            int k = 0;
+            while (this.preBaseAssaultTicks == 0 && getHostileCount() == 0) {
+                float f = this.world.random.nextFloat();
+                BlockPos pos1 = getSpawnLocation(f);
+                BlockPos pos2 = getSpawnLocation(f);
+                BlockPos pos3 = getSpawnLocation(f);
+                if (pos1 != null && pos2 != null && pos3 != null) {
+                    this.started = true;
+                    this.hostiles = new ArrayList<>();
+                    this.spawnWave(pos1, pos2, pos3);
+                } else {
+                    ++k;
+                }
+                if (k <= 5) continue;
+                this.invalidate();
+                break;
             }
-            if (k <= 5) continue;
-            this.invalidate();
-            break;
-        }
     }
 
     private void updateCenter() {
-        Optional<Vec3d> op = PlayerEntity.findRespawnPosition(this.world, this.center,0.0f, false, true);
+        BlockPos spawnPoint = this.attachedPlayer.getSpawnPointPosition();
+        Optional<Vec3d> op = PlayerEntity.findRespawnPosition(this.world, spawnPoint,0.0f, false, true);
         if(op.isPresent()) {
-            this.center = this.attachedPlayer.getSpawnPointPosition();
+            this.center = spawnPoint;
             this.findPlayerInsteadOfBed = !this.world.getBlockState(this.center).isIn(BlockTags.BEDS);
         }
         else this.findPlayerInsteadOfBed = true;
-
     }
 
     @Nullable
@@ -385,12 +415,15 @@ public class BaseAssault {
     }
 
     public int getHostileCount() {
-        HostileEntity[] hostileArray = this.hostiles.toArray(new HostileEntity[this.hostiles.size()]);
-        int i = 0;
-        for(HostileEntity hostileEntity : hostileArray){
-            if(hostileEntity.isAlive()) i++;
+        if(this.hostiles != null) {
+            HostileEntity[] hostileArray = this.hostiles.toArray(new HostileEntity[this.hostiles.size()]);
+            int i = 0;
+            for (HostileEntity hostile : hostileArray) {
+                if (hostile != null && hostile.isAlive()) i++;
+            }
+            return i;
         }
-        return i;
+        else return 0;
     }
 
     private int nextId() {
@@ -459,7 +492,7 @@ public class BaseAssault {
         float f = 0.0f;
         HostileEntity[] hostilesArray = this.hostiles.toArray(new HostileEntity[this.hostiles.size()]);
         for (HostileEntity hostile : hostilesArray) {
-            if(!hostile.isAlive()) f += 0.0f;
+            if(hostile == null || !hostile.isAlive()) f += 0.0f;
             else f += hostile.getHealth();
         }
         return f;

@@ -85,7 +85,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     }
 
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "tick", at = @At("TAIL"))
     protected void injectTickHead(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         IWorldChanger oworld = (IWorldChanger) this.getServer().getOverworld();
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
