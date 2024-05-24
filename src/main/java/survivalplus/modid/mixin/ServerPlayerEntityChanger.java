@@ -47,12 +47,11 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     public boolean noRespawnPointPunishment(ServerPlayerEntity instance){
         BlockPos bpos = this.getSpawnPointPosition();
         boolean bl;
-
         if(bpos == null)
             bl = false;
         else
             bl = ServerPlayerEntity.findRespawnPosition(this.getServerWorld(), bpos, 0.0f, false, true).isPresent();
-
+        ((IServerPlayerChanger)this).resetTimeSinceLastBaseAssault();
         return !this.isSpectator() && !(this.isCreative() || bl);
     }
 
