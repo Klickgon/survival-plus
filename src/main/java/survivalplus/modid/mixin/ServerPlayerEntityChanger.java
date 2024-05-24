@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
+import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.world.baseassaults.BaseAssaultWaves;
 
 @Mixin(ServerPlayerEntity.class)
@@ -50,7 +51,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         if(bpos == null)
             bl = false;
         else
-            bl = ServerPlayerEntity.findRespawnPosition(this.getServerWorld(), bpos, 0.0f, false, true).isPresent();
+            bl = ServerPlayerEntity.findRespawnPosition(this.getServerWorld(), bpos, 0.0f, false, true).isPresent() || this.getWorld().getLevelProperties().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN);
         ((IServerPlayerChanger)this).resetTimeSinceLastBaseAssault();
         return !this.isSpectator() && !(this.isCreative() || bl);
     }

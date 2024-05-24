@@ -36,7 +36,6 @@ public abstract class PersistentProjectileChanger extends ProjectileEntity imple
 
     }
 
-
     public void setFlame2(ItemStack stack){
         if(stack.isOf(Items.BOW)) this.fromFlame2 = (EnchantmentHelper.getLevel(ModEnchantments.FLAME_TWO, stack) > 0);
     }
