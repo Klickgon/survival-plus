@@ -34,7 +34,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.ai.BuilderZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.movecontrols.BuilderZombieMoveControl;
 import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
@@ -181,7 +180,6 @@ public class BuilderZombieEntity
 
                 int pathYDiff = calcDiffY();
 
-                SurvivalPlus.LOGGER.info(String.valueOf(calcDiffY()));
                 if (pathYDiff >= 0) {
                     if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
                         world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());

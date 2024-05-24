@@ -17,7 +17,6 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.ModGamerules;
 
@@ -107,7 +106,6 @@ extends PersistentState {
     }
 
     public static BaseAssaultManager fromNbt(ServerWorld world, NbtCompound nbt) {
-        SurvivalPlus.LOGGER.info("BaseAssaultManager from NBT");
         BaseAssaultManager baManager = new BaseAssaultManager(world);
         baManager.nextAvailableId = nbt.getInt("NextAvailableID");
         baManager.currentTime = nbt.getInt("Tick");
@@ -123,7 +121,6 @@ extends PersistentState {
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
-        SurvivalPlus.LOGGER.info("BaseAssaultManager written to NBT");
         nbt.putInt("NextAvailableID", this.nextAvailableId);
         nbt.putInt("Tick", this.currentTime);
         NbtList nbtList = new NbtList();

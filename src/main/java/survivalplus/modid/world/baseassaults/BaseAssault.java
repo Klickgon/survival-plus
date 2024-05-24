@@ -28,7 +28,6 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.ai.BaseAssaultGoal;
 import survivalplus.modid.util.IHostileEntityChanger;
@@ -84,11 +83,9 @@ public class BaseAssault {
     }
 
     public BaseAssault(ServerWorld world, NbtCompound nbt) {
-        SurvivalPlus.LOGGER.info("BaseAssault initialised through NBT");
         this.isFromNBT = true;
         this.world = world;
         this.playerID = nbt.getUuid("playerID");
-        SurvivalPlus.LOGGER.info(this.playerID.toString());
         this.id = nbt.getInt("BAId");
         this.started = nbt.getBoolean("BAStarted");
         this.active = nbt.getBoolean("BAActive");
@@ -253,7 +250,6 @@ public class BaseAssault {
             }
             if(this.wave == null){
                 this.wave = getWave(attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) + 1);
-                if (this.wave != null) SurvivalPlus.LOGGER.info("Wave restored");
                 return;
             }
             if(this.hostiles == null && this.waveSpawned){
@@ -263,10 +259,7 @@ public class BaseAssault {
                     if(hostile != null) hostileList.add(hostile);
                 }
                 this.hostiles = hostileList;
-                
-                if(!this.hostiles.isEmpty()) SurvivalPlus.LOGGER.info("Hostiles restored");
-                else invalidate();
-
+                if(this.hostiles.isEmpty()) invalidate();
                 for (HostileEntity hostile : this.hostiles) {
                         IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
                         hostile2.setBaseAssault(this);
