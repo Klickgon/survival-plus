@@ -178,9 +178,7 @@ public class BuilderZombieEntity
                 BlockPos BlockUnder = getBlockPos().down(1);
                 BlockPos BlockUnder2 = getBlockPos().down(2);
 
-                int pathYDiff = calcDiffY();
-
-                if (pathYDiff >= 0) {
+                if (calcDiffY() >= 0) {
                     if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
                         world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);

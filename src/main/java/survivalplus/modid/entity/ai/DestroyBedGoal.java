@@ -61,8 +61,8 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
         BlockPos blockPos = this.DestroyMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
         if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 2)) {
-            world.removeBlock(blockPos2, false);
-            this.onDestroyBlock(world, blockPos2);
+            world.breakBlock(blockPos2, true);
+
         }
     }
 

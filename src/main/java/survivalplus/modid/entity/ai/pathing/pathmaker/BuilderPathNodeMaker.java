@@ -33,15 +33,13 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
     @Nullable
     protected PathNode getPathNode(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
         if (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null) {
-            BlockPos pos = new BlockPos(x, y, z);
+            BlockPos pos = new BlockPos(x, y + 1, z);
             if (this.entity.getWorld().getBlockState(pos).isIn(BlockTags.REPLACEABLE) && !this.entity.getWorld().getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE)) {
                 return this.getNodeWith(x, y, z, PathNodeType.WALKABLE, 8.0f);
             }
         }
         return super.getPathNode(x, y, z, maxYStep, prevFeetY, direction, nodeType);
     }
-
-
 
     @Override
     public int getSuccessors(PathNode[] successors, PathNode node) {
