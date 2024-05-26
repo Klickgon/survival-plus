@@ -22,7 +22,7 @@ import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.world.baseassaults.BaseAssault;
 
 @Mixin(HostileEntity.class)
-public class HostileEntityChanger extends PathAwareEntity implements IHostileEntityChanger {
+public abstract class HostileEntityChanger extends PathAwareEntity implements IHostileEntityChanger {
 
     @Unique
     public BaseAssault baseAssault;
@@ -48,7 +48,7 @@ public class HostileEntityChanger extends PathAwareEntity implements IHostileEnt
         while (blockPos.getY() > pos.getY()) {
             BlockState blockState = world.getBlockState(blockPos);
             if (blockState.isOpaqueFullCube(world, blockPos)) {
-                return !world.isSkyVisible(pos);
+                return HostileEntity.isSpawnDark((ServerWorldAccess) world, pos, world.random);
             }
             blockPos = blockPos.down();
         }
