@@ -108,6 +108,18 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             }
             d = this.getFeetY(new BlockPos(node.x, node.y, node.z));
 
+            if (this.isValidAdjacentSuccessor(pathNode10 = this.getPathNode(node.x - 1, node.y + 1, node.z, j, d, Direction.WEST, pathNodeType1), node)) {
+                successors[i++] = pathNode10;
+            }
+            if (this.isValidAdjacentSuccessor(pathNode11 = this.getPathNode(node.x + 1, node.y + 1, node.z, j, d, Direction.EAST, pathNodeType1), node)) {
+                successors[i++] = pathNode11;
+            }
+            if (this.isValidAdjacentSuccessor(pathNode12 = this.getPathNode(node.x, node.y + 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node)) {
+                successors[i++] = pathNode12;
+            }
+            if (this.isValidAdjacentSuccessor(pathNode13 = this.getPathNode(node.x, node.y - 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node)) {
+                successors[i++] = pathNode13;
+            }
             if (this.isValidAdjacentSuccessor(pathNode = this.getPathNode(node.x, node.y, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node)) {
                 successors[i++] = pathNode;
             }
@@ -134,18 +146,6 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             }
             if (this.isValidAdjacentSuccessor(pathNode9 = this.getPathNode(node.x, node.y + 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node)) {
                 successors[i++] = pathNode9;
-            }
-            if (this.isValidAdjacentSuccessor(pathNode10 = this.getPathNode(node.x - 1, node.y + 1, node.z, j, d, Direction.WEST, pathNodeType1), node)) {
-                successors[i++] = pathNode10;
-            }
-            if (this.isValidAdjacentSuccessor(pathNode11 = this.getPathNode(node.x + 1, node.y + 1, node.z, j, d, Direction.EAST, pathNodeType1), node)) {
-                successors[i++] = pathNode11;
-            }
-            if (this.isValidAdjacentSuccessor(pathNode12 = this.getPathNode(node.x, node.y + 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node)) {
-                successors[i++] = pathNode12;
-            }
-            if (this.isValidAdjacentSuccessor(pathNode13 = this.getPathNode(node.x, node.y - 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node)) {
-                successors[i++] = pathNode13;
             }
             if (this.isValidAdjacentSuccessor(pathNode14 = this.getPathNode(node.x - 1, node.y - 1, node.z, j, d, Direction.WEST, pathNodeType1), node)) {
                 successors[i++] = pathNode14;
