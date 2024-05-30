@@ -11,6 +11,8 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -45,9 +47,10 @@ public class BaseAssault {
     private static final Text VICTORY_TITLE = Text.translatable("event.survival-plus.victory.full");
     private static final Text DEFEAT_TITLE = Text.translatable("event.survival-plus.defeat.full");
     private static final String HOSTILES_REMAINING_TRANSLATION_KEY = "event.survival-plus.baseassault.hostiles_remaining";
-    private ArrayList<HostileEntity> hostiles;
+    private int requiredHostileCount;
+    private HostileEntity[] hostiles;
     private LinkedList<UUID> hostileIDs = new LinkedList<>();
-    private boolean isFromNBT;
+    private final boolean isFromNBT;
     private long ticksActive;
     private BlockPos center;
     private final ServerWorld world;
@@ -97,6 +100,7 @@ public class BaseAssault {
         this.status = Status.fromName(nbt.getString("baStatus"));
         this.waveSpawned = nbt.getBoolean("WaveSpawned");
         this.wave = nbt.getByteArray("Wave");
+        this.requiredHostileCount = nbt.getInt("HostileCount");
         this.findPlayerInsteadOfBed = nbt.getBoolean("findPlayer");
         if (nbt.contains("hostileIDs", NbtElement.LIST_TYPE)) {
             NbtList nbtList = nbt.getList("hostileIDs", NbtElement.INT_ARRAY_TYPE);
@@ -121,6 +125,7 @@ public class BaseAssault {
         nbt.putUuid("playerID", this.playerID);
         nbt.putBoolean("WaveSpawned", this.waveSpawned);
         nbt.putBoolean("findPlayer", this.findPlayerInsteadOfBed);
+        nbt.putInt("HostileCount", getHostileCount());
         NbtList nbtList = new NbtList();
         if(this.hostiles != null) {
             for (HostileEntity hostile : this.hostiles) {
@@ -259,8 +264,8 @@ public class BaseAssault {
                     HostileEntity hostile = (HostileEntity) this.world.getEntity(uuid);
                     if(hostile != null) hostileList.add(hostile);
                 }
-                this.hostiles = hostileList;
-                if(this.hostiles.isEmpty()) invalidate();
+                if(hostileList.size() != this.requiredHostileCount) return;
+                this.hostiles = hostileList.toArray(new HostileEntity[hostileList.size()]);
                 for (HostileEntity hostile : this.hostiles) {
                         IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
                         hostile2.setBaseAssault(this);
@@ -294,6 +299,11 @@ public class BaseAssault {
             }
             if (this.ticksActive >= 48000L) {
                 this.invalidate();
+            }
+            if (this.ticksActive >= 2000L && getHostileCount() <= 3) {
+                for(HostileEntity hostile : this.hostiles){
+                    if(hostile != null) hostile.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 3));
+                }
             }
             int i = this.getHostileCount();
             if (i == 0) {
@@ -356,8 +366,8 @@ public class BaseAssault {
             BlockPos pos3 = getSpawnLocation(f);
             if (pos1 != null && pos2 != null && pos3 != null) {
                 this.started = true;
-                this.hostiles = new ArrayList<>();
-                this.spawnWave(pos1, pos2, pos3);
+                ArrayList<HostileEntity> hostileList = new ArrayList<>();
+                this.spawnWave(pos1, pos2, pos3, hostileList);
             } else {
                 ++k;
             }
@@ -415,9 +425,8 @@ public class BaseAssault {
 
     public int getHostileCount() {
         if(this.hostiles != null) {
-            HostileEntity[] hostileArray = this.hostiles.toArray(new HostileEntity[this.hostiles.size()]);
             int i = 0;
-            for (HostileEntity hostile : hostileArray) {
+            for (HostileEntity hostile : this.hostiles) {
                 if (hostile != null && hostile.isAlive()) i++;
             }
             return i;
@@ -429,19 +438,20 @@ public class BaseAssault {
         return ++this.nextAvailableId;
     }
 
-    private void spawnWave(BlockPos pos1, BlockPos pos2, BlockPos pos3) {
+    private void spawnWave(BlockPos pos1, BlockPos pos2, BlockPos pos3, ArrayList<HostileEntity> list) {
         byte[] wave = this.wave;
-        spawnTypeOfHostile(wave[0], EntityType.ZOMBIE, pos1, pos2, pos3);
-        spawnTypeOfHostile(wave[1], EntityType.SPIDER, pos1, pos2, pos3);
-        spawnTypeOfHostile(wave[2], EntityType.SKELETON, pos1, pos2, pos3);
-        spawnTypeOfHostile(wave[3], EntityType.CREEPER, pos1, pos2, pos3);
-        spawnTypeOfHostile(wave[4], ModEntities.DIGGINGZOMBIE, pos1, pos2, pos3);
-        spawnTypeOfHostile(wave[5], ModEntities.LUMBERJACKZOMBIE, pos1, pos2, pos3);
-        spawnTypeOfHostile(wave[6], ModEntities.MINERZOMBIE, pos1, pos2, pos3);
-        spawnTypeOfHostile(wave[7], ModEntities.BUILDERZOMBIE, pos1, pos2, pos3);
-        spawnTypeOfHostile(wave[8], ModEntities.LEAPINGSPIDER, pos1, pos2, pos3);;
-        spawnTypeOfHostile(wave[9], ModEntities.REEPER, pos1, pos2, pos3);
-        spawnTypeOfHostile(wave[10], ModEntities.SCORCHEDSKELETON, pos1, pos2, pos3);
+        spawnTypeOfHostile(wave[0], EntityType.ZOMBIE, pos1, pos2, pos3, list);
+        spawnTypeOfHostile(wave[1], EntityType.SPIDER, pos1, pos2, pos3, list);
+        spawnTypeOfHostile(wave[2], EntityType.SKELETON, pos1, pos2, pos3, list);
+        spawnTypeOfHostile(wave[3], EntityType.CREEPER, pos1, pos2, pos3, list);
+        spawnTypeOfHostile(wave[4], ModEntities.DIGGINGZOMBIE, pos1, pos2, pos3, list);
+        spawnTypeOfHostile(wave[5], ModEntities.LUMBERJACKZOMBIE, pos1, pos2, pos3, list);
+        spawnTypeOfHostile(wave[6], ModEntities.MINERZOMBIE, pos1, pos2, pos3, list);
+        spawnTypeOfHostile(wave[7], ModEntities.BUILDERZOMBIE, pos1, pos2, pos3, list);
+        spawnTypeOfHostile(wave[8], ModEntities.LEAPINGSPIDER, pos1, pos2, pos3, list);
+        spawnTypeOfHostile(wave[9], ModEntities.REEPER, pos1, pos2, pos3, list);
+        spawnTypeOfHostile(wave[10], ModEntities.SCORCHEDSKELETON, pos1, pos2, pos3, list);
+        this.hostiles = list.toArray(new HostileEntity[list.size()]);
         this.totalHealth = getCurrentHostilesHealth();
         if(getHostileCount() > 0) this.waveSpawned = true;
         this.markDirty();
@@ -457,14 +467,14 @@ public class BaseAssault {
         };
     }
 
-    private void spawnTypeOfHostile(short count, EntityType hostile, BlockPos pos1, BlockPos pos2, BlockPos pos3){
+    private void spawnTypeOfHostile(byte count, EntityType hostile, BlockPos pos1, BlockPos pos2, BlockPos pos3, ArrayList<HostileEntity> list){
         for(int i = 0; i < count; i++){
-            addHostile((HostileEntity) hostile.create(this.world), posDiceRoll(pos1, pos2, pos3));
+            addHostile((HostileEntity) hostile.create(this.world), posDiceRoll(pos1, pos2, pos3), list);
         }
     }
 
 
-    public void addHostile(HostileEntity hostile, @Nullable BlockPos pos) {
+    public void addHostile(HostileEntity hostile, @Nullable BlockPos pos, ArrayList<HostileEntity> list) {
         IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
         hostile2.setBaseAssault(this);
             if (pos != null) {
@@ -473,7 +483,7 @@ public class BaseAssault {
                 hostile.setOnGround(true);
                 this.world.spawnEntityAndPassengers(hostile);
                 hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
-                this.hostiles.add(hostile);
+                list.add(hostile);
                 this.totalHealth += hostile.getHealth();
             }
         }
@@ -489,8 +499,7 @@ public class BaseAssault {
 
     public float getCurrentHostilesHealth() {
         float f = 0.0f;
-        HostileEntity[] hostilesArray = this.hostiles.toArray(new HostileEntity[this.hostiles.size()]);
-        for (HostileEntity hostile : hostilesArray) {
+        for (HostileEntity hostile : this.hostiles) {
             if(hostile != null && hostile.isAlive()) f += hostile.getHealth();
         }
         return f;
