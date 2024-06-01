@@ -16,6 +16,7 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
@@ -95,18 +96,16 @@ extends TrackTargetGoal {
         if(this.destroyBlockCooldownCounter <= 0){
             if(this.targetEntity != null && this.mob.getNavigation().getCurrentPath() != null){
                 World world = this.mob.getWorld();
-
-                float rawrotation = Math.abs(this.mob.getBodyYaw());
-                float rotation = (float) (rawrotation - 360 * (Math.floor(rawrotation / 360)));
-
                 BlockPos currentPos = this.mob.getBlockPos();
 
                 int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 
-                if (rotation > 315 || rotation <= 45)   this.facingBlock = currentPos.up().south();
-                else if (rotation <= 135)               this.facingBlock = currentPos.up().west();
-                else if (rotation <= 225)               this.facingBlock = currentPos.up().north();
-                else if (rotation <= 315)               this.facingBlock = currentPos.up().east();
+                Direction direction = Direction.fromRotation(this.mob.getBodyYaw());
+
+                if (direction == Direction.SOUTH)       this.facingBlock = currentPos.up().south();
+                else if (direction == Direction.WEST)   this.facingBlock = currentPos.up().west();
+                else if (direction == Direction.NORTH)  this.facingBlock = currentPos.up().north();
+                else if (direction == Direction.EAST)   this.facingBlock = currentPos.up().east();
 
 
                     if(DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {

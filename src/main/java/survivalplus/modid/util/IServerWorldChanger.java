@@ -9,4 +9,6 @@ public interface IServerWorldChanger {
     BaseAssault getBaseAssaultAt(BlockPos bpos);
 
     BaseAssaultManager getBaseAssaultManager();
+
+    boolean getEnoughTimeSinceRest();
 }

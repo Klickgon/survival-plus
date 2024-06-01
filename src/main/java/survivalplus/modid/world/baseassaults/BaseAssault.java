@@ -290,7 +290,7 @@ public class BaseAssault {
                 return;
             }
             ++this.ticksActive;
-            if (this.attachedPlayer.getHealth() <= 0 && !this.world.getBlockState(this.center).isIn(BlockTags.BEDS)) {
+            if (!this.attachedPlayer.isAlive() && !this.world.getBlockState(this.center).isIn(BlockTags.BEDS)) {
                 this.status = Status.LOSS;
             }
             updateCenter();
@@ -440,17 +440,11 @@ public class BaseAssault {
 
     private void spawnWave(BlockPos pos1, BlockPos pos2, BlockPos pos3, ArrayList<HostileEntity> list) {
         byte[] wave = this.wave;
-        spawnTypeOfHostile(wave[0], EntityType.ZOMBIE, pos1, pos2, pos3, list);
-        spawnTypeOfHostile(wave[1], EntityType.SPIDER, pos1, pos2, pos3, list);
-        spawnTypeOfHostile(wave[2], EntityType.SKELETON, pos1, pos2, pos3, list);
-        spawnTypeOfHostile(wave[3], EntityType.CREEPER, pos1, pos2, pos3, list);
-        spawnTypeOfHostile(wave[4], ModEntities.DIGGINGZOMBIE, pos1, pos2, pos3, list);
-        spawnTypeOfHostile(wave[5], ModEntities.LUMBERJACKZOMBIE, pos1, pos2, pos3, list);
-        spawnTypeOfHostile(wave[6], ModEntities.MINERZOMBIE, pos1, pos2, pos3, list);
-        spawnTypeOfHostile(wave[7], ModEntities.BUILDERZOMBIE, pos1, pos2, pos3, list);
-        spawnTypeOfHostile(wave[8], ModEntities.LEAPINGSPIDER, pos1, pos2, pos3, list);
-        spawnTypeOfHostile(wave[9], ModEntities.REEPER, pos1, pos2, pos3, list);
-        spawnTypeOfHostile(wave[10], ModEntities.SCORCHEDSKELETON, pos1, pos2, pos3, list);
+        EntityType[] entityTypes = {EntityType.ZOMBIE, EntityType.SPIDER, EntityType.SKELETON, EntityType.CREEPER, ModEntities.DIGGINGZOMBIE, ModEntities.LUMBERJACKZOMBIE,
+                ModEntities.MINERZOMBIE, ModEntities.BUILDERZOMBIE, ModEntities.LEAPINGSPIDER, ModEntities.REEPER, ModEntities.SCORCHEDSKELETON};
+        for(byte i = 0; i < 11; i++) {
+            spawnTypeOfHostile(wave[i], entityTypes[i], pos1, pos2, pos3, list);
+        }
         this.hostiles = list.toArray(new HostileEntity[list.size()]);
         this.totalHealth = getCurrentHostilesHealth();
         if(getHostileCount() > 0) this.waveSpawned = true;

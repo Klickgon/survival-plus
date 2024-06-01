@@ -23,7 +23,7 @@ import survivalplus.modid.util.IHostileEntityChanger;
 
 public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
-    private final Object2BooleanMap<Box> collidedBoxes = new Object2BooleanOpenHashMap<Box>();
+    private final Object2BooleanMap<Box> collidedBoxes = new Object2BooleanOpenHashMap<>();
 
     private TagKey<Block> blockTag;
 

@@ -9,8 +9,7 @@
     "PhantomSpawnerChanger",
     "ServerPlayerEntityChanger",
     "ServerWorldChanger",
-    "SleepFailureChanger",
-    "WorldChanger"
+    "SleepFailureChanger"
   ],
   "injectors": {
     "defaultRequire": 1

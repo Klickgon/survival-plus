@@ -31,7 +31,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
-import survivalplus.modid.util.IWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
 import survivalplus.modid.world.baseassaults.BaseAssault;
 import survivalplus.modid.world.baseassaults.BaseAssaultManager;
@@ -50,6 +49,9 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     @Unique
     public BaseAssaultManager baseAssaultManager;
 
+    @Unique
+    private boolean enoughTimeSinceRest;
+
     @Shadow public abstract List<ServerPlayerEntity> getPlayers();
 
     @Shadow @NotNull public abstract MinecraftServer getServer();
@@ -62,7 +64,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
     public long ticksleep(long timeOfDay) {
-        return this.properties.getTimeOfDay() + 7000L; // Changes the sleeping skip from a set time point to 6000 ticks after sleep start
+        return this.properties.getTimeOfDay() + 7000L; // Changes the sleeping skip from a set time point to 7000 ticks after sleep start
     }
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;resetWeather()V"))
@@ -87,14 +89,13 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
     @Inject(method = "tick", at = @At("TAIL"))
     protected void injectTickHead(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        IWorldChanger oworld = (IWorldChanger) this.getServer().getOverworld();
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.incrementStat(ModPlayerStats.TIME_SINCE_SLEEP); // increments and then checks if all players can sleep in this world
             if(serverPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP)) < 3000) {
-                oworld.setEnoughTimeSinceRest(false);
+                this.enoughTimeSinceRest = false;
                 break;
             }
-            oworld.setEnoughTimeSinceRest(true);
+            this.enoughTimeSinceRest = true;
         }
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             BlockPos bpos = serverPlayer.getSpawnPointPosition();
@@ -117,6 +118,10 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
     public BaseAssaultManager getBaseAssaultManager(){
         return this.baseAssaultManager;
+    }
+
+    public boolean getEnoughTimeSinceRest(){
+        return this.enoughTimeSinceRest;
     }
 
 }
