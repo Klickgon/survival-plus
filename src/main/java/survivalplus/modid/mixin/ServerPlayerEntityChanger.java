@@ -1,6 +1,5 @@
 package survivalplus.modid.mixin;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.entity.player.PlayerEntity;
@@ -58,16 +57,12 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     }
 
     @Inject(method = "trySleep", at = @At(value = "INVOKE", target = "Ljava/util/List;isEmpty()Z", shift = At.Shift.AFTER), cancellable = true)
-    public void sleepFailureInject(BlockPos pos, CallbackInfoReturnable<Either<PlayerEntity.SleepFailureReason, Unit>> cir){
+    public void sleepFailureInject(BlockPos pos, CallbackInfoReturnable<Either<SleepFailureReason, Unit>> cir){
         if(!this.isCreative() && ((IServerWorldChanger)this.getWorld()).getBaseAssaultAt(this.getBlockPos()) != null){
             cir.setReturnValue(Either.left(SleepFailureReason.NOT_SAFE));
         }
     }
 
-    @ModifyExpressionValue(method = "trySleep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isDay()Z"))
-    public boolean SleepCooldownChecker(boolean original){
-        return !((IServerWorldChanger)this.getServerWorld()).getEnoughTimeSinceRest();
-    }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
     public void nbtWriteInject(NbtCompound nbt, CallbackInfo ci){
