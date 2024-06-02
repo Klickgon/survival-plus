@@ -3,10 +3,14 @@ package survivalplus.modid.entity.ai;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.ReeperEntity;
 
 import java.util.EnumSet;
+import java.util.List;
 
 public class ReeperIgniteGoal extends Goal {
     private final ReeperEntity reeper;
@@ -44,7 +48,11 @@ public class ReeperIgniteGoal extends Goal {
             if (this.reeper.squaredDistanceTo(this.target) > 49.0) {
                 return;
             }
-            this.reeper.ignite();
+            Vec3d vec3d = Vec3d.ofBottomCenter(this.reeper.getBlockPos());
+            List<HostileEntity> list = this.reeper.getWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d.getX() - 3.0, vec3d.getY() - 3.0, vec3d.getZ() - 3.0, vec3d.getX() + 3.0, vec3d.getY() + 3.0, vec3d.getZ() + 3.0), hostileEntity -> true);
+            if (list.size() < 3) {
+                this.reeper.ignite();
+            }
         }
     }
 }

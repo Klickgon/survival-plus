@@ -30,7 +30,9 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
@@ -41,6 +43,7 @@ import survivalplus.modid.entity.ai.ReeperIgniteGoal;
 import survivalplus.modid.util.ModGamerules;
 
 import java.util.Collection;
+import java.util.List;
 
 public class ReeperEntity
         extends CreeperEntity
@@ -136,7 +139,11 @@ public class ReeperEntity
                 this.setFuseSpeed(1);
             }
             if (this.lostTarget || this.wasWithinDistance) {
-                this.setFuseSpeed(1);
+                Vec3d vec3d = Vec3d.ofBottomCenter(this.getBlockPos());
+                List<HostileEntity> list = this.getWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d.getX() - 3.0, vec3d.getY() - 3.0, vec3d.getZ() - 3.0, vec3d.getX() + 3.0, vec3d.getY() + 3.0, vec3d.getZ() + 3.0), hostileEntity -> true);
+                if (list.size() < 3) {
+                    this.setFuseSpeed(1);
+                }
             }
             LandPathNodeMaker pnm = (LandPathNodeMaker) this.getNavigation().getNodeMaker();
             BlockPos pos = this.getBlockPos();
