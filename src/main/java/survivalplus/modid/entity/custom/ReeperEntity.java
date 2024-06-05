@@ -177,7 +177,6 @@ public class ReeperEntity
         return pnt == PathNodeType.DOOR_WOOD_CLOSED || pnt == PathNodeType.DOOR_IRON_CLOSED;
     }
 
-
     @Override
     public void setTarget(@Nullable LivingEntity target) {
         if (target instanceof GoatEntity) {

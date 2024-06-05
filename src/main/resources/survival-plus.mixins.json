@@ -5,6 +5,7 @@
   "mixins": [
     "BowItemChanger",
     "HostileEntityChanger",
+    "MobChanger",
     "PersistentProjectileChanger",
     "PhantomSpawnerChanger",
     "ServerPlayerEntityChanger",
