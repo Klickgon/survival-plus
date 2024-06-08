@@ -63,7 +63,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     }
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
-    public long ticksleep(long timeOfDay) {
+    public long tickSleep(long timeOfDay) {
         return this.properties.getTimeOfDay() + 7000L; // Changes the sleeping skip from a set time point to 7000 ticks after sleep start
     }
 
