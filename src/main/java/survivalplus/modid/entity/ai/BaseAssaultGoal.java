@@ -104,13 +104,14 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
             } else stop();
         } else this.cooldown--;
 
-        if(!this.baseAssault.findPlayerInsteadOfBed && this.mob.getBlockPos().isWithinDistance(targetPos, 1.5)) {
-            BlockPos bedPos = tweakToProperBedPos(baseAssault.getCenter(), this.mob.getWorld());
+        if(!this.baseAssault.findPlayerInsteadOfBed) {
+            BlockPos bedPos = tweakToProperBedPos(baseAssault.getCenter(), mob.getWorld());
             if (bedPos != null && mob.getWorld().getBlockState(bedPos).isIn(BlockTags.BEDS)) {
-                if (mob instanceof CreeperEntity && !(mob instanceof ReeperEntity)) ((CreeperEntity) mob).ignite();
-                else if (mob instanceof ReeperEntity) ((ReeperEntity) mob).forceExplosion = true;
-                else mob.getWorld().breakBlock(bedPos, false);
-                stop();
+                if(this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
+                    if (mob instanceof ReeperEntity) ((ReeperEntity) mob).forceExplosion = true;
+                    else if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
+                    mob.getWorld().breakBlock(bedPos, true);
+                }
             }
         }
         if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){

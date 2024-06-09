@@ -13,6 +13,7 @@ import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.mob.AbstractSkeletonEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -269,7 +270,8 @@ public class BaseAssault {
                 for (HostileEntity hostile : this.hostiles) {
                         IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
                         hostile2.setBaseAssault(this);
-                        hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
+                        if (hostile instanceof AbstractSkeletonEntity) hostile2.getGoalSelector().add(4, new BaseAssaultGoal(hostile, 1.0));
+                        else hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
                 }
             }
         }
@@ -412,7 +414,7 @@ public class BaseAssault {
         World world = this.world;
         int y = this.center.getY();
         BlockPos pos = new BlockPos (x, y + 36, z);
-        while(world.getBlockState(pos.down()).isReplaceable() || !world.getBlockState(pos).isReplaceable() || !world.getBlockState(pos.up()).isAir()){
+        while(!(world.getBlockState(pos.down()).isOpaqueFullCube(world, pos.down()) && world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isReplaceable())){
             if(pos.getY() <= (y - 16)) break;
             pos = pos.down();
         }

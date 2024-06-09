@@ -48,7 +48,7 @@ public class DiggingZombieEntity
         extends ZombieEntity {
     private static final TrackedData<Integer> ZOMBIE_TYPE = DataTracker.registerData(DiggingZombieEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(DiggingZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.HARD;
+    private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.NORMAL;
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
     private boolean canBreakDoors;
     public BlockPos targetBedPos;
