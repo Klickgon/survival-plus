@@ -107,8 +107,8 @@ extends TrackTargetGoal {
                 else if (direction == Direction.NORTH)  this.facingBlock = currentPos.up().north();
                 else if (direction == Direction.EAST)   this.facingBlock = currentPos.up().east();
 
-
-                    if(DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {
+                if(checkOnSameXandZ()) {
+                    if (DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {
                         if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                             world.breakBlock(this.facingBlock, true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
@@ -118,36 +118,33 @@ extends TrackTargetGoal {
                         }
                     }
 
-                    if(DiffY < 0) {
+                    if (DiffY < 0) {
                         if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
                             world.breakBlock(this.facingBlock.down(), true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                        }
-                        else if(world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blockTag)){
+                        } else if (world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blockTag)) {
                             world.breakBlock(this.facingBlock.down(2), true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                        }
-                        else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                        } else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                             world.breakBlock(this.facingBlock, true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                         }
 
                     }
 
-                    if(DiffY > 0) {
+                    if (DiffY > 0) {
                         if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                             world.breakBlock(this.facingBlock, true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                        }
-                        else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
+                        } else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
                             world.breakBlock(this.mob.getBlockPos().up(2), true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
-                        }
-                        else if(world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)){
+                        } else if (world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)) {
                             world.breakBlock(this.facingBlock.up(), true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
                         }
                     }
+                }
             }
         }
         else this.destroyBlockCooldownCounter--;
@@ -155,13 +152,22 @@ extends TrackTargetGoal {
 
     private int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob
         Path path = this.mob.getNavigation().getCurrentPath();
-        if(path.getCurrentNodeIndex() + 1 < path.getLength()){
+        if(path == null || path.getCurrentNodeIndex() >= path.getLength()) return 0;
+        if(path.getCurrentNodeIndex() > 0){
             int currentnodeposY = path.getCurrentNodePos().getY();
-            int nextnodeposY = path.getNodePos(path.getCurrentNodeIndex() + 1).getY();
+            int lastnodeposY = path.getNodePos(path.getCurrentNodeIndex() - 1).getY();
 
-            return nextnodeposY - currentnodeposY;
+            return currentnodeposY - lastnodeposY;
         }
         else return 0;
+    }
+
+    private boolean checkOnSameXandZ(){ // Calculates if the current PathNode is on the same X and Y as the Facing block
+        Path path = this.mob.getNavigation().getCurrentPath();
+        if(path == null) return false;
+        if(path.getCurrentNodeIndex() > path.getLength() - 1) return false;
+        BlockPos pathNodePos = path.getCurrentNodePos();
+        return pathNodePos.getX() == this.facingBlock.getX() && pathNodePos.getZ() == this.facingBlock.getZ();
     }
 }
 
