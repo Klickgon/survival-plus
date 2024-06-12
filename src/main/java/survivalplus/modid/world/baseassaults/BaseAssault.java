@@ -335,7 +335,7 @@ public class BaseAssault {
                 }
             }
         } else if (this.isFinished()) {
-            ((IServerPlayerChanger) this.attachedPlayer).resetTimeSinceLastBaseAssault();
+            this.attachedPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT));
             ++this.finishCooldown;
             if (this.finishCooldown >= 600) {
                 this.invalidate();

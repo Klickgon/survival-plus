@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import survivalplus.modid.util.IServerPlayerChanger;
+import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
 import survivalplus.modid.world.baseassaults.BaseAssault;
@@ -75,7 +75,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     protected void resetTimeSinceSleepStat(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP));// Resets the "time since sleep" stat for every player once everyone wakes up
-            ((IServerPlayerChanger)serverPlayer).increaseTimeSinceLastBaseAssault(7000);
+            serverPlayer.increaseStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT, 7000);
             // also increases the time since last Base Assault by the time of day skipped through sleeping
         }
     }
@@ -106,7 +106,8 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
                     else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             } else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             this.baseAssaultManager.startBaseAssault(serverPlayer);
-            ((IServerPlayerChanger) serverPlayer).incrementTimeSinceLastBaseAssault();
+            SurvivalPlus.LOGGER.info("" + serverPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT)));
+            serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT));
         }
         baseAssaultManager.tick();
     }

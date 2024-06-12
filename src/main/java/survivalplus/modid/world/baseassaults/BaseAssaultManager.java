@@ -12,13 +12,14 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.stat.Stats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.ModGamerules;
+import survivalplus.modid.util.ModPlayerStats;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -76,7 +77,7 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return null;
         }
-        if(((IServerPlayerChanger)player).getTimeSinceLastBaseAssault() < 144000) {
+        if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT)) < 144000) {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();
