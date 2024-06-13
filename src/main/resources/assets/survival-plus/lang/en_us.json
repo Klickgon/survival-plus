@@ -29,5 +29,5 @@
     "stat.survival-plus.baseassaultswon": "Base Assaults Won",
     "stat.survival-plus.timesincesleep": "Time Since Last Full Sleep",
     "stat.survival-plus.timewithoutcustomrespawnpoint": "Time without Custom Respawn Point",
-    "stat.survival-plus.timesincelastbaseassault": "Time Since Last Base Assault"
+    "stat.survival-plus.timesincelastbaseassault": "Base Assault Timer"
 }
