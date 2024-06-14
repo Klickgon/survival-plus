@@ -91,21 +91,21 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         }
 
         if(this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
-            float rawrotation = Math.abs(this.mob.getBodyYaw());
-            float rotation = (float) (rawrotation - 360 * (Math.floor(rawrotation / 360)));
-
             BlockPos currentPos = this.DestroyMob.getBlockPos();
 
             int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 
             Direction direction = Direction.fromRotation(this.mob.getBodyYaw());
 
-            if (direction == Direction.SOUTH)       this.facingBlock = currentPos.up().south();
-            else if (direction == Direction.WEST)   this.facingBlock = currentPos.up().west();
-            else if (direction == Direction.NORTH)  this.facingBlock = currentPos.up().north();
-            else if (direction == Direction.EAST)   this.facingBlock = currentPos.up().east();
+            switch (direction){
+                case SOUTH -> this.facingBlock = currentPos.up().south();
+                case WEST -> this.facingBlock = currentPos.up().west();
+                case NORTH -> this.facingBlock = currentPos.up().north();
+                case EAST -> this.facingBlock = currentPos.up().east();
+                default -> this.facingBlock = null;
+            }
 
-            if(checkOnSameXandZ()) {
+            if(this.facingBlock != null && checkOnSameXandZ()) {
                 if (DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {
                     if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                         world.breakBlock(this.facingBlock, true);
@@ -149,11 +149,12 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     private int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob
         Path path = this.mob.getNavigation().getCurrentPath();
-        if(path.getCurrentNodeIndex() + 1 < path.getLength()){
+        if(path == null || path.getCurrentNodeIndex() >= path.getLength()) return 0;
+        if(path.getCurrentNodeIndex() > 0){
             int currentnodeposY = path.getCurrentNodePos().getY();
-            int nextnodeposY = path.getNodePos(path.getCurrentNodeIndex() + 1).getY();
+            int lastnodeposY = path.getNodePos(path.getCurrentNodeIndex() - 1).getY();
 
-            return nextnodeposY - currentnodeposY;
+            return currentnodeposY - lastnodeposY;
         }
         else return 0;
     }

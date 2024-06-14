@@ -102,13 +102,16 @@ extends TrackTargetGoal {
 
                 Direction direction = Direction.fromRotation(this.mob.getBodyYaw());
 
-                if (direction == Direction.SOUTH)       this.facingBlock = currentPos.up().south();
-                else if (direction == Direction.WEST)   this.facingBlock = currentPos.up().west();
-                else if (direction == Direction.NORTH)  this.facingBlock = currentPos.up().north();
-                else if (direction == Direction.EAST)   this.facingBlock = currentPos.up().east();
+                switch (direction){
+                    case SOUTH -> this.facingBlock = currentPos.up().south();
+                    case WEST -> this.facingBlock = currentPos.up().west();
+                    case NORTH -> this.facingBlock = currentPos.up().north();
+                    case EAST -> this.facingBlock = currentPos.up().east();
+                    default -> this.facingBlock = null;
+                }
 
-                if(checkOnSameXandZ()) {
-                    if (DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {
+                if(this.facingBlock != null && checkOnSameXandZ()) {
+                    if(DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {
                         if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                             world.breakBlock(this.facingBlock, true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
@@ -118,7 +121,7 @@ extends TrackTargetGoal {
                         }
                     }
 
-                    if (DiffY < 0) {
+                    if(DiffY < 0) {
                         if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
                             world.breakBlock(this.facingBlock.down(), true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;
@@ -132,7 +135,7 @@ extends TrackTargetGoal {
 
                     }
 
-                    if (DiffY > 0) {
+                    if(DiffY > 0) {
                         if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                             world.breakBlock(this.facingBlock, true);
                             this.destroyBlockCooldownCounter = destroyBlockCooldown;

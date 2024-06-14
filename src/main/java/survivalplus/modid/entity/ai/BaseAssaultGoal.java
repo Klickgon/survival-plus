@@ -101,16 +101,16 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
             } else if (this.baseAssault.getCenter() != null) {
                 this.targetPos = tweakToProperPos(baseAssault.getCenter(), this.mob.getWorld());
                 this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
-            } else stop();
+            } else return;
         } else this.cooldown--;
 
         if(!this.baseAssault.findPlayerInsteadOfBed) {
             BlockPos bedPos = tweakToProperBedPos(baseAssault.getCenter(), mob.getWorld());
-            if (bedPos != null && mob.getWorld().getBlockState(bedPos).isIn(BlockTags.BEDS)) {
+            if (bedPos != null) {
                 if(this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
                     if (mob instanceof ReeperEntity) ((ReeperEntity) mob).forceExplosion = true;
                     else if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
-                    mob.getWorld().breakBlock(bedPos, true);
+                    else mob.getWorld().breakBlock(bedPos, true);
                 }
             }
         }
@@ -123,12 +123,15 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
             Direction direction = Direction.fromRotation(this.mob.getBodyYaw());
 
-            if (direction == Direction.SOUTH)       this.facingBlock = currentPos.up().south();
-            else if (direction == Direction.WEST)   this.facingBlock = currentPos.up().west();
-            else if (direction == Direction.NORTH)  this.facingBlock = currentPos.up().north();
-            else if (direction == Direction.EAST)   this.facingBlock = currentPos.up().east();
+            switch (direction){
+                case SOUTH -> this.facingBlock = currentPos.up().south();
+                case WEST -> this.facingBlock = currentPos.up().west();
+                case NORTH -> this.facingBlock = currentPos.up().north();
+                case EAST -> this.facingBlock = currentPos.up().east();
+                default -> this.facingBlock = null;
+            }
 
-            if(checkOnSameXandZ()) {
+            if(this.facingBlock != null && checkOnSameXandZ()) {
                 if (DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {
                     if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                         world.breakBlock(this.facingBlock, true);
@@ -173,11 +176,12 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
     private int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob
         Path path = this.mob.getNavigation().getCurrentPath();
-        if(path.getCurrentNodeIndex() + 1 < path.getLength()){
+        if(path == null || path.getCurrentNodeIndex() >= path.getLength()) return 0;
+        if(path.getCurrentNodeIndex() > 0){
             int currentnodeposY = path.getCurrentNodePos().getY();
-            int nextnodeposY = path.getNodePos(path.getCurrentNodeIndex() + 1).getY();
+            int lastnodeposY = path.getNodePos(path.getCurrentNodeIndex() - 1).getY();
 
-            return nextnodeposY - currentnodeposY;
+            return currentnodeposY - lastnodeposY;
         }
         else return 0;
     }
@@ -192,7 +196,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
     @Nullable
     private BlockPos tweakToProperPos(BlockPos pos, BlockView world) {
-        BlockPos[] blockPoss = new BlockPos[]{pos.down(), pos.west(), pos.east(), pos.north(), pos.south(), pos.down().down()};
+        BlockPos[] blockPoss = new BlockPos[]{pos, pos.down(), pos.west(), pos.east(), pos.north(), pos.south(), pos.down().down(), pos.up()};
         for (BlockPos blockPos : blockPoss) {
             if (!world.getBlockState(blockPos).isIn(BlockTags.REPLACEABLE)) continue;
             return blockPos;
