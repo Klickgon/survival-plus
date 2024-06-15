@@ -5,11 +5,13 @@ import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
@@ -22,6 +24,8 @@ import survivalplus.modid.entity.custom.MinerZombieEntity;
 import survivalplus.modid.entity.custom.ReeperEntity;
 import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.world.baseassaults.BaseAssault;
+
+import java.util.Optional;
 
 
 public class BaseAssaultGoal extends MoveToTargetPosGoal {
@@ -70,9 +74,10 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         }
         if (this.mob.getWorld().getBlockState(this.baseAssault.getCenter()).isIn(BlockTags.BEDS)) {
             this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
-            BlockPos pos = tweakToProperPos(baseAssault.getCenter(), this.mob.getWorld());
-            if(pos != null){
-                this.targetPos = pos;
+            Optional<Vec3d> op = PlayerEntity.findRespawnPosition(this.mob.getServer().getOverworld(), baseAssault.getCenter(),0.0f,false, true);
+            if(op.isPresent()){
+                Vec3d vec = op.get();
+                this.targetPos = new BlockPos((int)vec.getX(), (int)vec.getY(), (int)vec.getZ());;
                 return true;
             }
         }
@@ -98,20 +103,20 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
             if (this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.attachedPlayer.getBlockPos() != null) {
                 this.targetPos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
                 this.cooldown = 30 + this.mob.getWorld().random.nextInt(15);
-            } else if (this.baseAssault.getCenter() != null) {
-                this.targetPos = tweakToProperPos(baseAssault.getCenter(), this.mob.getWorld());
-                this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
-            } else return;
+            } else {
+                if (this.baseAssault.getCenter() != null) {
+                    this.targetPos = this.baseAssault.getCenter();
+                    this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
+                } else return;
+            }
         } else this.cooldown--;
 
         if(!this.baseAssault.findPlayerInsteadOfBed) {
-            BlockPos bedPos = tweakToProperBedPos(baseAssault.getCenter(), mob.getWorld());
-            if (bedPos != null) {
-                if(this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
-                    if (mob instanceof ReeperEntity) ((ReeperEntity) mob).forceExplosion = true;
-                    else if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
-                    else mob.getWorld().breakBlock(bedPos, true);
-                }
+            BlockPos bedPos = baseAssault.getCenter();
+            if(this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
+                if (mob instanceof ReeperEntity) ((ReeperEntity) mob).forceExplosion = true;
+                else if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
+                else mob.getWorld().breakBlock(bedPos, true);
             }
         }
         if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
