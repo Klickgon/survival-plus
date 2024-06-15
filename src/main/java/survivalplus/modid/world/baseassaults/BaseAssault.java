@@ -386,11 +386,14 @@ public class BaseAssault {
     private void updateCenter() {
         BlockPos spawnPoint = this.attachedPlayer.getSpawnPointPosition();
         Optional<Vec3d> op = PlayerEntity.findRespawnPosition(this.world, spawnPoint,0.0f, false, true);
-        if(op.isPresent()) {
-            this.center = spawnPoint;
-            this.findPlayerInsteadOfBed = !this.world.getBlockState(this.center).isIn(BlockTags.BEDS);
+        if(op.isEmpty()){
+            this.findPlayerInsteadOfBed = true;
+            return;
         }
-        else this.findPlayerInsteadOfBed = true;
+        if(world.getBlockState(spawnPoint).isIn(BlockTags.BEDS)){
+            this.center = spawnPoint;
+        }
+        this.findPlayerInsteadOfBed = !this.world.getBlockState(this.center).isIn(BlockTags.BEDS);
     }
 
     @Nullable
