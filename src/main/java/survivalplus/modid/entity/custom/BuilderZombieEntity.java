@@ -24,7 +24,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -128,7 +127,7 @@ public class BuilderZombieEntity
 
     @Override
     public void tick() {
-        hasTargetBed = targetBedPos != null;
+        this.hasTargetBed = this.targetBedPos != null;
         if (!this.getWorld().isClient && this.isAlive() && !this.isAiDisabled()) {
             if (this.isConvertingInWater()) {
                 --this.ticksUntilWaterConversion;
@@ -193,11 +192,12 @@ public class BuilderZombieEntity
 
     public int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob
         Path path = this.getNavigation().getCurrentPath();
-        if(path != null && path.getCurrentNodeIndex() + 1 < path.getLength()){
+        if(path == null || path.getCurrentNodeIndex() >= path.getLength()) return 0;
+        if(path.getCurrentNodeIndex() > 0){
             int currentnodeposY = path.getCurrentNodePos().getY();
-            int nextnodeposY = path.getNodePos(path.getCurrentNodeIndex() + 1).getY();
+            int lastnodeposY = path.getNodePos(path.getCurrentNodeIndex() - 1).getY();
 
-            return nextnodeposY - currentnodeposY;
+            return currentnodeposY - lastnodeposY;
         }
         else return 0;
     }
@@ -206,7 +206,7 @@ public class BuilderZombieEntity
         if(world.getBlockState(BlockUnder).isAir()){
             return world.getBlockState(BlockUnder2).isAir();
         }
-        return world.getBlockState(BlockUnder).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(BlockUnder).isAir();
+        return world.getBlockState(BlockUnder).isReplaceable() && !world.getBlockState(BlockUnder).isAir();
     }
 
     private void setTicksUntilWaterConversion(int ticksUntilWaterConversion) {
@@ -379,13 +379,9 @@ public class BuilderZombieEntity
                 this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
             }
         }
-        this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Blocks.DIRT, DirtBlockCount()));
+        this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Blocks.DIRT, 1));
         this.applyAttributeModifiers(f);
         return entityData;
-    }
-
-    private int DirtBlockCount(){
-        return (int) (1 + Math.floor((12 * (Math.random()))));
     }
 
     public static boolean shouldBeBaby(Random random) {

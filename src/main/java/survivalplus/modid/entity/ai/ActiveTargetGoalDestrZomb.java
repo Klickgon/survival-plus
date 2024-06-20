@@ -153,7 +153,7 @@ extends TrackTargetGoal {
         else this.destroyBlockCooldownCounter--;
     }
 
-    private int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob
+    protected int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob
         Path path = this.mob.getNavigation().getCurrentPath();
         if(path == null || path.getCurrentNodeIndex() >= path.getLength()) return 0;
         if(path.getCurrentNodeIndex() > 0){
@@ -165,12 +165,13 @@ extends TrackTargetGoal {
         else return 0;
     }
 
-    private boolean checkOnSameXandZ(){ // Calculates if the current PathNode is on the same X and Y as the Facing block
+    protected boolean checkOnSameXandZ(){ // Calculates if the current PathNode is on the same X and Y as the Facing block
         Path path = this.mob.getNavigation().getCurrentPath();
         if(path == null) return false;
-        if(path.getCurrentNodeIndex() > path.getLength() - 1) return false;
+        if(path.getCurrentNodeIndex() >= path.getLength()) return true;
         BlockPos pathNodePos = path.getCurrentNodePos();
         return pathNodePos.getX() == this.facingBlock.getX() && pathNodePos.getZ() == this.facingBlock.getZ();
     }
+
 }
 

@@ -3,6 +3,7 @@ package survivalplus.modid.entity.ai.pathing.pathmaker;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNode;
@@ -80,7 +81,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     @Override
     public int getSuccessors(PathNode[] successors, PathNode node) {
-        if (this.entity.getTarget() != null || hasTargetBedPos(this.entity)) {
+        if (this.entity.getTarget() != null || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null) {
             PathNode pathNode16;
             PathNode pathNode15;
             PathNode pathNode14;
@@ -96,28 +97,27 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             PathNode pathNode4;
             PathNode pathNode3;
             PathNode pathNode2;
-            double d;
             PathNode pathNode;
+            double d;
             int i = 0;
             int j = 0;
             PathNodeType pathNodeType1 = this.getNodeType(this.entity, node.x, node.y, node.z);
             PathNodeType pathNodeType2 = this.getNodeType(this.entity, node.x, node.y + 1, node.z);
-            PathNodeType pathNodeType3 = this.getNodeType(this.entity, node.x, node.y + 2, node.z);
             if (this.entity.getPathfindingPenalty(pathNodeType2) >= 0.0f && pathNodeType1 != PathNodeType.STICKY_HONEY) {
                 j = MathHelper.floor(Math.max(1.0f, this.entity.getStepHeight()));
             }
             d = this.getFeetY(new BlockPos(node.x, node.y, node.z));
-
-            if (this.isValidAdjacentSuccessorUp(pathNode10 = this.getPathNode(node.x - 1, node.y + 1, node.z, j, d, Direction.WEST, pathNodeType1), node)) {
+            World world = this.entity.getWorld();
+            if (this.isValidAdjacentSuccessor(pathNode10 = this.getPathNode(node.x - 1, node.y + 1, node.z, j, d, Direction.WEST, pathNodeType1), node, world, node.x, node.y + 2, node.z)) {
                 successors[i++] = pathNode10;
             }
-            if (this.isValidAdjacentSuccessorUp(pathNode11 = this.getPathNode(node.x + 1, node.y + 1, node.z, j, d, Direction.EAST, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode11 = this.getPathNode(node.x + 1, node.y + 1, node.z, j, d, Direction.EAST, pathNodeType1), node, world, node.x, node.y + 2, node.z)) {
                 successors[i++] = pathNode11;
             }
-            if (this.isValidAdjacentSuccessorUp(pathNode12 = this.getPathNode(node.x, node.y + 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode12 = this.getPathNode(node.x, node.y + 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node, world, node.x, node.y + 2, node.z)) {
                 successors[i++] = pathNode12;
             }
-            if (this.isValidAdjacentSuccessorUp(pathNode13 = this.getPathNode(node.x, node.y + 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode13 = this.getPathNode(node.x, node.y + 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node, world, node.x, node.y + 2, node.z)) {
                 successors[i++] = pathNode13;
             }
             if (this.isValidAdjacentSuccessor(pathNode = this.getPathNode(node.x, node.y, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node)) {
@@ -144,16 +144,16 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             if (this.isValidDiagonalSuccessor(node, pathNode3, pathNode, pathNode8 = this.getPathNode(node.x + 1, node.y, node.z + 1, j, d, Direction.SOUTH, pathNodeType1))) {
                 successors[i++] = pathNode8;
             }
-            if (this.isValidAdjacentSuccessor(pathNode9 = this.getPathNode(node.x, node.y - 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode9 = this.getPathNode(node.x, node.y - 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node, world, node.x, node.y, node.z + 1)) {
                 successors[i++] = pathNode9;
             }
-            if (this.isValidAdjacentSuccessor(pathNode14 = this.getPathNode(node.x - 1, node.y - 1, node.z, j, d, Direction.WEST, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode14 = this.getPathNode(node.x - 1, node.y - 1, node.z, j, d, Direction.WEST, pathNodeType1), node, world, node.x - 1, node.y, node.z)) {
                 successors[i++] = pathNode14;
             }
-            if (this.isValidAdjacentSuccessor(pathNode15 = this.getPathNode(node.x + 1, node.y - 1, node.z, j, d, Direction.EAST, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode15 = this.getPathNode(node.x + 1, node.y - 1, node.z, j, d, Direction.EAST, pathNodeType1), node, world, node.x + 1, node.y, node.z)) {
                 successors[i++] = pathNode15;
             }
-            if (this.isValidAdjacentSuccessor(pathNode16 = this.getPathNode(node.x, node.y - 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode16 = this.getPathNode(node.x, node.y - 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node, world, node.x, node.y, node.z - 1)) {
                 successors[i++] = pathNode16;
             }
             return i;
@@ -161,7 +161,38 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
         else return super.getSuccessors(successors, node);
     }
 
-    protected boolean isValidAdjacentSuccessorUp(@Nullable PathNode node, PathNode successor1) {
-        return node != null && !node.visited && (node.penalty >= 0.0f || successor1.penalty < 0.0f) && this.getNodeType(this.entity, node.x, node.y + 1, node.z).getDefaultPenalty() >= 0.0f;
+    @Override
+    protected boolean isValidDiagonalSuccessor(PathNode xNode, @Nullable PathNode zNode, @Nullable PathNode xDiagNode, @Nullable PathNode zDiagNode) {
+        if (zDiagNode == null || xDiagNode == null || zNode == null) {
+            return false;
+        }
+        if (zDiagNode.visited) {
+            return false;
+        }
+        if (xDiagNode.y > xNode.y || zNode.y > xNode.y) {
+            return false;
+        }
+        if (zNode.type == PathNodeType.WALKABLE_DOOR || xDiagNode.type == PathNodeType.WALKABLE_DOOR || zDiagNode.type == PathNodeType.WALKABLE_DOOR) {
+            return false;
+        }
+        BlockPos xDiagPos = new BlockPos(xDiagNode.x, xDiagNode.y, xDiagNode.z);
+        BlockPos zDiagPos = new BlockPos(zDiagNode.x, zDiagNode.y, zDiagNode.z);
+        World world = this.entity.getWorld();
+        if(world.getBlockState(xDiagPos).isIn(blockTag) || world.getBlockState(xDiagPos.up()).isIn(blockTag)) return false;
+        if(world.getBlockState(zDiagPos).isIn(blockTag) || world.getBlockState(zDiagPos.up()).isIn(blockTag)) return false;
+        boolean bl = xDiagNode.type == PathNodeType.FENCE && zNode.type == PathNodeType.FENCE && (double)this.entity.getWidth() < 0.5;
+        return zDiagNode.penalty >= 0.0f && (xDiagNode.y < xNode.y || xDiagNode.penalty >= 0.0f || bl) && (zNode.y < xNode.y || zNode.penalty >= 0.0f || bl);
     }
+
+
+    protected boolean isValidAdjacentSuccessor(@Nullable PathNode node, PathNode successor1, World world, int x, int y, int z) {
+        return super.isValidAdjacentSuccessor(node, successor1) && isPassable(world, x, y, z);
+    }
+
+    protected boolean isPassable(World world, int x, int y, int z){
+        BlockPos bpos = new BlockPos(x, y, z);
+        BlockState bState = world.getBlockState(bpos);
+        return bState.isIn(blockTag) || this.getNodeType(this.entity, bpos).getDefaultPenalty() >= 0.0f;
+    }
+
 }

@@ -162,18 +162,18 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     private boolean checkOnSameXandZ(){ // Calculates if the current PathNode is on the same X and Y as the Facing block
         Path path = this.mob.getNavigation().getCurrentPath();
         if(path == null) return false;
-        if(path.getCurrentNodeIndex() > path.getLength() - 1) return false;
+        if(path.getCurrentNodeIndex() > path.getLength() - 1) return true;
         BlockPos pathNodePos = path.getCurrentNodePos();
         return pathNodePos.getX() == this.facingBlock.getX() && pathNodePos.getZ() == this.facingBlock.getZ();
     }
 
     @Nullable
     private BlockPos tweakToProperPos(BlockPos pos, BlockView world) {
-        BlockPos[] blockPoss;
         if (world.getBlockState(pos).isIn(this.BedGroup)) {
             return pos;
         }
-        for (BlockPos blockPos : blockPoss = new BlockPos[]{pos.west(), pos.east(), pos.north(), pos.south(), pos.up()}) {
+        BlockPos[] blockPoss = new BlockPos[]{pos.west(), pos.east(), pos.north(), pos.south(), pos.up()};
+        for (BlockPos blockPos : blockPoss) {
             if (!world.getBlockState(blockPos).isIn(this.BedGroup)) continue;
             return blockPos;
         }

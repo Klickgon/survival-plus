@@ -194,7 +194,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
     private boolean checkOnSameXandZ(){ // Calculates if the current PathNode is on the same X and Y as the Facing block
         Path path = this.mob.getNavigation().getCurrentPath();
         if(path == null) return false;
-        if(path.getCurrentNodeIndex() > path.getLength() - 1) return false;
+        if(path.getCurrentNodeIndex() > path.getLength() - 1) return true;
         BlockPos pathNodePos = path.getCurrentNodePos();
         return pathNodePos.getX() == this.facingBlock.getX() && pathNodePos.getZ() == this.facingBlock.getZ();
     }

@@ -87,8 +87,9 @@ public class BuilderZombieMoveControl extends MoveControl {
                 if(isDirtJumpRequired(bzombpos.down(), world)){
                     world.setBlockState(bzombpos.down(), Blocks.DIRT.getDefaultState());
                     world.playSound(null, bzombpos.down(), SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-                    DirtJumpcooldown = 20;
+                    DirtJumpcooldown = 10;
                 }
+                else DirtJumpcooldown--;
             }
             else DirtJumpcooldown--;
             if (this.entity.isOnGround()) {
