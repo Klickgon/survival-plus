@@ -1,6 +1,7 @@
 package survivalplus.modid.util;
 
 import net.minecraft.entity.ai.goal.GoalSelector;
+import net.minecraft.util.math.BlockPos;
 import survivalplus.modid.world.baseassaults.BaseAssault;
 
 public interface IHostileEntityChanger {
@@ -9,4 +10,6 @@ public interface IHostileEntityChanger {
     BaseAssault getBaseAssault();
 
     GoalSelector getGoalSelector();
+
+    BlockPos getCustomBlockPos();
 }

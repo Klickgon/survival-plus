@@ -122,7 +122,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
             World world = this.mob.getWorld();
 
-            BlockPos currentPos = this.mob.getBlockPos();
+            BlockPos currentPos = ((IHostileEntityChanger)this.mob).getCustomBlockPos();
 
             int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 

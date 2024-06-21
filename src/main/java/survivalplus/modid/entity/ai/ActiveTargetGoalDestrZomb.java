@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
+import survivalplus.modid.util.IHostileEntityChanger;
 
 import java.util.EnumSet;
 import java.util.function.Predicate;
@@ -96,7 +97,7 @@ extends TrackTargetGoal {
         if(this.destroyBlockCooldownCounter <= 0){
             if(this.targetEntity != null && this.mob.getNavigation().getCurrentPath() != null){
                 World world = this.mob.getWorld();
-                BlockPos currentPos = this.mob.getBlockPos();
+                BlockPos currentPos = ((IHostileEntityChanger)this.mob).getCustomBlockPos();
 
                 int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 

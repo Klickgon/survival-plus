@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
+import survivalplus.modid.util.IHostileEntityChanger;
 
 public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
@@ -91,7 +92,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         }
 
         if(this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
-            BlockPos currentPos = this.DestroyMob.getBlockPos();
+            BlockPos currentPos = ((IHostileEntityChanger)this.mob).getCustomBlockPos();
 
             int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 
