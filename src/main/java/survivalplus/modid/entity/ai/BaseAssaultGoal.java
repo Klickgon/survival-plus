@@ -5,13 +5,11 @@ import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
@@ -24,8 +22,6 @@ import survivalplus.modid.entity.custom.MinerZombieEntity;
 import survivalplus.modid.entity.custom.ReeperEntity;
 import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.world.baseassaults.BaseAssault;
-
-import java.util.Optional;
 
 
 public class BaseAssaultGoal extends MoveToTargetPosGoal {
@@ -40,7 +36,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
     public BaseAssaultGoal(HostileEntity mob, double speed) {
         super(mob, speed, 64, 12);
         this.baseAssault = ((IHostileEntityChanger) this.mob).getBaseAssault();
-        this.cooldown = 0;
+        this.cooldown = mob.getRandom().nextInt(40);
         if(mob.getClass() == MinerZombieEntity.class){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
             destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
@@ -72,14 +68,12 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                 return true;
             }
         }
-        if (this.mob.getWorld().getBlockState(this.baseAssault.getCenter()).isIn(BlockTags.BEDS)) {
+        BlockPos center = this.baseAssault.getCenter();
+        if (this.mob.getWorld().getBlockState(center).isIn(BlockTags.BEDS)) {
             this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
-            Optional<Vec3d> op = PlayerEntity.findRespawnPosition(this.mob.getServer().getOverworld(), baseAssault.getCenter(),0.0f,false, true);
-            if(op.isPresent()){
-                Vec3d vec = op.get();
-                this.targetPos = new BlockPos((int)vec.getX(), (int)vec.getY(), (int)vec.getZ());;
-                return true;
-            }
+            this.targetPos = center;
+            return true;
+
         }
         return false;
     }
@@ -91,6 +85,11 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
     }
 
     @Override
+    public boolean shouldContinue() {
+        return this.tryingTime <= 1200;
+    }
+
+    @Override
     public void start() {
         super.start();
     }
@@ -98,7 +97,11 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
     @Override
     public void tick() {
-        if(((IHostileEntityChanger) this.mob).getBaseAssault() == null) ((IHostileEntityChanger) this.mob).getGoalSelector().remove(this);
+        if(this.baseAssault == null || this.baseAssault.isFinished()){
+            stop();
+            ((IHostileEntityChanger) this.mob).getGoalSelector().remove(this);
+            return;
+        }
         if (this.cooldown < 0) {
             if (this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.attachedPlayer.getBlockPos() != null) {
                 this.targetPos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
@@ -107,7 +110,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                 if (this.baseAssault.getCenter() != null) {
                     this.targetPos = this.baseAssault.getCenter();
                     this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
-                } else return;
+                } else this.cooldown--;
             }
         } else this.cooldown--;
 

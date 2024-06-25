@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
@@ -20,6 +21,8 @@ import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
 import survivalplus.modid.util.IHostileEntityChanger;
+
+import java.util.List;
 
 public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
@@ -59,25 +62,30 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         if (!this.DestroyMob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
-        this.cooldown = 400 + this.mob.getWorld().random.nextInt(100);
+        this.cooldown = 20 + this.mob.getWorld().random.nextInt(10);
         return this.findTargetPos();
     }
 
     @Override
     public void stop() {
         super.stop();
-        if(this.DestroyMob.getClass() == MinerZombieEntity.class) ((MinerZombieEntity) this.DestroyMob).targetBedPos = null;
-        if(this.DestroyMob.getClass() == LumberjackZombieEntity.class) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = null;
-        if(this.DestroyMob.getClass() == DiggingZombieEntity.class) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = null;
+        if(DestroyMob instanceof MinerZombieEntity) ((MinerZombieEntity) this.DestroyMob).targetBedPos = null;
+        if(DestroyMob instanceof LumberjackZombieEntity) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = null;
+        if(DestroyMob instanceof DiggingZombieEntity) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = null;
         this.DestroyMob.fallDistance = 1.0f;
     }
 
     @Override
     public void start() {
         super.start();
-        if(this.DestroyMob.getClass() == MinerZombieEntity.class) ((MinerZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
-        if(this.DestroyMob.getClass() == LumberjackZombieEntity.class) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
-        if(this.DestroyMob.getClass() == DiggingZombieEntity.class) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
+        if(DestroyMob instanceof MinerZombieEntity) ((MinerZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
+        if(DestroyMob instanceof LumberjackZombieEntity) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
+        if(DestroyMob instanceof DiggingZombieEntity) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
+    }
+
+    @Override
+    public boolean shouldContinue() {
+        return this.tryingTime <= 1200 && !this.isTargetPos(this.mob.getWorld(), this.targetPos);
     }
 
 
@@ -89,6 +97,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
         if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 3)) {
             world.breakBlock(blockPos2, true);
+            this.stop();
         }
 
         if(this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
@@ -179,6 +188,25 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             return blockPos;
         }
         return null;
+    }
+
+    @Override
+    protected boolean findTargetPos() {
+        List<ServerPlayerEntity> list = this.mob.getServer().getPlayerManager().getPlayerList();
+        BlockPos temptargetpos = null;
+        BlockPos mobpos = this.mob.getBlockPos();
+        boolean bl = false;
+        for(ServerPlayerEntity player : list){
+            BlockPos spawnpos = player.getSpawnPointPosition();
+            if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 16) && this.mob.getWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
+                bl = true;
+                if(temptargetpos == null || spawnpos.getSquaredDistance(mobpos) < temptargetpos.getSquaredDistance(mobpos)){
+                    temptargetpos = spawnpos;
+                }
+            }
+        }
+        if (bl) this.targetPos = temptargetpos;
+        return bl;
     }
 
     @Override

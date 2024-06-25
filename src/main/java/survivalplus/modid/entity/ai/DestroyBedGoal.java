@@ -5,8 +5,7 @@ import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.BlockView;
@@ -16,6 +15,8 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class DestroyBedGoal extends MoveToTargetPosGoal {
 
@@ -38,7 +39,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
         if (!this.DestroyMob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
-        this.cooldown = 400 + this.mob.getWorld().random.nextInt(100);
+        this.cooldown = 20 + this.mob.getWorld().random.nextInt(10);
         return this.findTargetPos();
     }
 
@@ -53,6 +54,10 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
         super.start();
     }
 
+    @Override
+    public boolean shouldContinue() {
+        return this.tryingTime <= 1200 && !this.isTargetPos(this.mob.getWorld(), this.targetPos);
+    }
 
     @Override
     public void tick() {
@@ -62,7 +67,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
         if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 2)) {
             world.breakBlock(blockPos2, true);
-
+            this.stop();
         }
     }
 
@@ -79,16 +84,32 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
         return null;
     }
 
-    public void onDestroyBlock(World world, BlockPos pos) {
-        world.playSound(null, pos, SoundEvents.BLOCK_WOOL_BREAK, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-    }
     @Override
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos).isIn(this.BedGroup) && chunk.getBlockState(pos.up()).isAir() && chunk.getBlockState(pos.up(2)).isAir();
+            return chunk.getBlockState(pos).isIn(this.BedGroup) && chunk.getBlockState(pos.up()).isSolidBlock(chunk, pos.up()) && chunk.getBlockState(pos.up(2)).isSolidBlock(chunk, pos.up(2));
         }
         return false;
+    }
+
+    @Override
+    protected boolean findTargetPos() {
+        List<ServerPlayerEntity> list = this.mob.getServer().getPlayerManager().getPlayerList();
+        BlockPos temptargetpos = null;
+        BlockPos mobpos = this.mob.getBlockPos();
+        boolean bl = false;
+        for(ServerPlayerEntity player : list){
+            BlockPos spawnpos = player.getSpawnPointPosition();
+            if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 16) && this.mob.getWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
+                bl = true;
+                if(temptargetpos == null || spawnpos.getSquaredDistance(mobpos) < temptargetpos.getSquaredDistance(mobpos)){
+                    temptargetpos = spawnpos;
+                }
+            }
+        }
+        if (bl) this.targetPos = temptargetpos;
+        return bl;
     }
 
     @Override

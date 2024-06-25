@@ -20,7 +20,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
     private final Object2BooleanMap<Box> collidedBoxes = new Object2BooleanOpenHashMap<Box>();
 
     protected int verticalPathNodeCounter = 0;
-    protected static final int verticalNodePenalty = 3;
+    protected static final int verticalNodePenalty = 12;
 
     protected PathNode getNodeWith(int x, int y, int z, PathNodeType type, float penalty) {
         PathNode pathNode = this.getNode(x, y, z);
@@ -48,7 +48,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
     @Override
     public int getSuccessors(PathNode[] successors, PathNode node) {
-        if (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity)) {
+        if (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null) {
             boolean usedVerticalNodeAsSuccessor = false;
             PathNode pathNode16;
             PathNode pathNode15;
@@ -134,9 +134,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
                 this.verticalPathNodeCounter--;
                 successors[i++] = pathNode8;
             }
-            if(usedVerticalNodeAsSuccessor) {
-                this.verticalPathNodeCounter = verticalNodePenalty;
-            }
+            if(usedVerticalNodeAsSuccessor) this.verticalPathNodeCounter = verticalNodePenalty;
             else this.verticalPathNodeCounter--;
             return i;
         }
@@ -168,9 +166,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
     protected boolean canChooseVerticalNode(int x, int y, int z){
         boolean bl = !this.entity.getWorld().getBlockState(new BlockPos(x, y - 1, z)).isReplaceable();
-        if(bl){
-            return true;
-        }
+        if(bl) return true;
         else return this.verticalPathNodeCounter <= 0;
     }
 

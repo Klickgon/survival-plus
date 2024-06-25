@@ -27,15 +27,16 @@ import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.PlayerData;
+import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.ai.BaseAssaultGoal;
 import survivalplus.modid.util.IHostileEntityChanger;
-import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
 
@@ -100,6 +101,7 @@ public class BaseAssault {
         this.center = new BlockPos(nbt.getInt("baCX"), nbt.getInt("baCY"), nbt.getInt("baCZ"));
         this.status = Status.fromName(nbt.getString("baStatus"));
         this.waveSpawned = nbt.getBoolean("WaveSpawned");
+        this.winStatIncreased = nbt.getBoolean("WinStatIncreased");
         this.wave = nbt.getByteArray("Wave");
         this.requiredHostileCount = nbt.getInt("HostileCount");
         this.findPlayerInsteadOfBed = nbt.getBoolean("findPlayer");
@@ -125,6 +127,7 @@ public class BaseAssault {
         nbt.putByteArray("Wave", this.wave);
         nbt.putUuid("playerID", this.playerID);
         nbt.putBoolean("WaveSpawned", this.waveSpawned);
+        nbt.putBoolean("WinStatIncreased", this.winStatIncreased);
         nbt.putBoolean("findPlayer", this.findPlayerInsteadOfBed);
         nbt.putInt("HostileCount", getHostileCount());
         NbtList nbtList = new NbtList();
@@ -174,29 +177,33 @@ public class BaseAssault {
     }
 
     private byte [] getGeneratedWave(){
-        return ((IServerPlayerChanger)this.attachedPlayer).getGeneratedWave();
+        return PlayerData.getPlayerState(this.attachedPlayer).generatedWave;
     }
 
     private void generateNextWave(){
         byte[] wave = getGeneratedWave();
-        if(calcSumArray(wave) < 45){ // checks if the generated wave has less than 45 mobs in it
-            byte randomIndex = (byte) Math.rint(Math.random() * 10); // to increment the count of a random mob for the next wave
+        Random random = this.world.getRandom();
+        if(calcWaveSize(wave) < 45){ // checks if the generated wave has less than 45 mobs in it
+            SurvivalPlus.LOGGER.info("{}'s generated wave size is below 45, incrementing it.", this.attachedPlayer.getName().getString());
+            int randomIndex = random.nextInt(11); // to increment the count of a random mob for the next wave
             wave[randomIndex]++;
         }
         else { // if the wave has 45 mobs, one random mob gets replaced with a different one
-            byte randomIndex1 = (byte) Math.rint(Math.random() * 10);
+            SurvivalPlus.LOGGER.info("{}'s generated wave size is 45, shuffling.", this.attachedPlayer.getName().getString());
+            int randomIndex1 = random.nextInt(11);
             wave[randomIndex1]--;
-            byte randomIndex2 = (byte) Math.rint(Math.random() * 10);
+            int randomIndex2;
+            do randomIndex2 = random.nextInt(11);
+            while (randomIndex1 == randomIndex2);
             wave[randomIndex2]++;
         }
-        ((IServerPlayerChanger)this.attachedPlayer).setGeneratedWave(wave);
+        SurvivalPlus.LOGGER.info("{}'s new generated Wave: {}", this.attachedPlayer.getName().getString(), Arrays.toString(wave));
+        PlayerData.getPlayerState(this.attachedPlayer).generatedWave = wave;
     }
 
-    private int calcSumArray(byte[] array){
+    private static int calcWaveSize(byte[] array){
         int sum = 0;
-        for(byte num : array){
-            sum += num;
-        }
+        for(byte num : array) sum += num;
         return sum;
     }
 
@@ -335,7 +342,7 @@ public class BaseAssault {
                 }
             }
         } else if (this.isFinished()) {
-            this.attachedPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT));
+            PlayerData.getPlayerState(this.attachedPlayer).baseAssaultTimer = 0;
             ++this.finishCooldown;
             if (this.finishCooldown >= 600) {
                 this.invalidate();
@@ -350,7 +357,7 @@ public class BaseAssault {
                     if (!this.winStatIncreased) {
                         this.attachedPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON));
                         this.winStatIncreased = true;
-                        if (attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) >= 12){
+                        if (this.attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) >= 12){
                             dropXp();
                             generateNextWave();
                         }
@@ -380,20 +387,16 @@ public class BaseAssault {
     }
 
     protected void dropXp() {
-            ExperienceOrbEntity.spawn(this.world, this.attachedPlayer.getPos().add(0,0.5,0), calcSumArray(this.wave) * 4);
+            ExperienceOrbEntity.spawn(this.world, this.attachedPlayer.getPos().add(0,0.5,0), calcWaveSize(this.wave) * 5);
     }
 
     private void updateCenter() {
         BlockPos spawnPoint = this.attachedPlayer.getSpawnPointPosition();
-        Optional<Vec3d> op = PlayerEntity.findRespawnPosition(this.world, spawnPoint,0.0f, false, true);
-        if(op.isEmpty()){
-            this.findPlayerInsteadOfBed = true;
-            return;
-        }
-        if(world.getBlockState(spawnPoint).isIn(BlockTags.BEDS)){
+        if(spawnPoint == null || !world.getBlockState(spawnPoint).isIn(BlockTags.BEDS)) this.findPlayerInsteadOfBed = true;
+        else {
             this.center = spawnPoint;
+            this.findPlayerInsteadOfBed = false;
         }
-        this.findPlayerInsteadOfBed = !this.world.getBlockState(this.center).isIn(BlockTags.BEDS);
     }
 
     @Nullable
@@ -456,12 +459,12 @@ public class BaseAssault {
         this.markDirty();
     }
 
-    private static BlockPos posDiceRoll(BlockPos pos1, BlockPos pos2, BlockPos pos3){
-        byte b = (byte) (Math.rint(Math.random() * 2) + 1);
+    private BlockPos posDiceRoll(BlockPos pos1, BlockPos pos2, BlockPos pos3){
+        int b = this.world.getRandom().nextInt(3);
         return switch (b) {
-                case 1 -> pos1;
-                case 2 -> pos2;
-                case 3 -> pos3;
+                case 0 -> pos1;
+                case 1 -> pos2;
+                case 2 -> pos3;
             default -> throw new IllegalStateException("Unexpected diceroll value: " + b);
         };
     }
@@ -472,11 +475,10 @@ public class BaseAssault {
         }
     }
 
-
     public void addHostile(HostileEntity hostile, @Nullable BlockPos pos, ArrayList<HostileEntity> list) {
-        IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
-        hostile2.setBaseAssault(this);
             if (pos != null) {
+                IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
+                hostile2.setBaseAssault(this);
                 hostile.setPosition((double)pos.getX() + 0.5, (double)pos.getY() + 1.0, (double)pos.getZ() + 0.5);
                 hostile.initialize(this.world, this.world.getLocalDifficulty(pos), SpawnReason.EVENT, null, null);
                 hostile.setOnGround(true);

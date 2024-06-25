@@ -9,6 +9,7 @@ import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -29,13 +30,13 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     public DestrZombPathNodeMaker(Entity zomb){
         super();
-        if(zomb.getClass() == MinerZombieEntity.class){
+        if(zomb instanceof  MinerZombieEntity){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
         }
-        if(zomb.getClass() == LumberjackZombieEntity.class){
+        if(zomb instanceof  LumberjackZombieEntity){
             this.blockTag = LumberjackZombieEntity.BLOCKTAG;
         }
-        if(zomb.getClass() == DiggingZombieEntity.class){
+        if(zomb instanceof  DiggingZombieEntity){
             this.blockTag = DiggingZombieEntity.BLOCKTAG;
         }
     }
@@ -48,23 +49,23 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
     }
 
     private boolean hasTargetBedPos(MobEntity mob){
-        if(mob.getClass() == MinerZombieEntity.class){
+        if(mob instanceof MinerZombieEntity){
            return ((MinerZombieEntity) mob).targetBedPos != null;
         }
-        if(mob.getClass() == LumberjackZombieEntity.class){
+        if(mob instanceof LumberjackZombieEntity){
             return ((LumberjackZombieEntity) mob).targetBedPos != null;
         }
-        if(mob.getClass() == DiggingZombieEntity.class){
+        if(mob instanceof DiggingZombieEntity){
             return ((DiggingZombieEntity) mob).targetBedPos != null;
         }
-        else return false;
+        return false;
     }
 
 
     @Override
     @Nullable
     protected PathNode getPathNode(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        if (this.entity.getTarget() != null || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null) {
+        if (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null) {
             World world = this.entity.getWorld();
             BlockPos pos = new BlockPos(x, y, z);
             if (world.getBlockState(pos).isIn(this.blockTag)){
@@ -81,7 +82,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     @Override
     public int getSuccessors(PathNode[] successors, PathNode node) {
-        if (this.entity.getTarget() != null || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null) {
+        if (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null) {
             PathNode pathNode16;
             PathNode pathNode15;
             PathNode pathNode14;

@@ -4,7 +4,6 @@
 package survivalplus.modid.world.baseassaults;
 
 import com.google.common.collect.Maps;
-import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -12,14 +11,13 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.stat.Stats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.PlayerData;
 import survivalplus.modid.util.ModGamerules;
-import survivalplus.modid.util.ModPlayerStats;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +31,7 @@ extends PersistentState {
     private int nextAvailableId;
 
     public static Type<BaseAssaultManager> getPersistentStateType(ServerWorld world) {
-        return new Type<BaseAssaultManager>(() -> new BaseAssaultManager(world), nbt -> BaseAssaultManager.fromNbt(world, nbt), DataFixTypes.SAVED_DATA_RAIDS);
+        return new Type<BaseAssaultManager>(() -> new BaseAssaultManager(world), nbt -> BaseAssaultManager.fromNbt(world, nbt), null);
     }
 
     public BaseAssaultManager(ServerWorld world) {
@@ -77,12 +75,12 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return null;
         }
-        if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_LAST_BASEASSAULT)) < 144000) {
+        if(PlayerData.getPlayerState(player).baseAssaultTimer < 144000) {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();
         BlockPos spawnPos = player.getSpawnPointPosition();
-        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || world.getAmbientDarkness() < 4) {
+        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || this.world.getAmbientDarkness() < 4) {
             return null;
         }
         BaseAssault baseAssault = this.getOrCreateBaseAssault(player.getServerWorld(), spawnPos, player);
