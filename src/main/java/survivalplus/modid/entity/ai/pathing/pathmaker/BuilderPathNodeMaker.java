@@ -39,8 +39,9 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
         if (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null) {
             BlockPos pos = new BlockPos(x, y, z);
             World world = this.entity.getWorld();
-            if (world.getBlockState(pos).isIn(BlockTags.REPLACEABLE) && world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(pos.up()).isSolidBlock(world, pos.up())) {
-                return this.getNodeWith(x, y, z, PathNodeType.WALKABLE, 8.0f);
+            if (world.getBlockState(pos).isIn(BlockTags.REPLACEABLE) && world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE)) {
+                if (world.getBlockState(pos.up()).isReplaceable()) return this.getNodeWith(x, y, z, PathNodeType.WALKABLE, 8.0f);
+                else return null;
             }
         }
         return super.getPathNode(x, y, z, maxYStep, prevFeetY, direction, nodeType);
@@ -75,63 +76,56 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
                 j = MathHelper.floor(Math.max(1.0f, this.entity.getStepHeight()));
             }
             d = this.getFeetY(new BlockPos(node.x, node.y, node.z));
-            if (this.isValidAdjacentSuccessor(pathNode10 = this.getPathNode(node.x - 1, node.y + 1, node.z, j, d, Direction.WEST, pathNodeType1), node) && canChooseVerticalNode(node.x - 1, node.y + 1, node.z)) {
+            if (this.isValidAdjacentSuccessor(pathNode10 = this.getPathNode(node.x - 1, node.y + 1, node.z, j, d, Direction.WEST, pathNodeType1), node) && canChooseVerticalNode(node.x - 1, node.y + 1, node.z) && this.getNodeType(this.entity ,node.x, node.y + 2, node.z).getDefaultPenalty() >= 0.0f) {
                 usedVerticalNodeAsSuccessor = true;
                 successors[i++] = pathNode10;
             }
-            if (this.isValidAdjacentSuccessor(pathNode11 = this.getPathNode(node.x + 1, node.y + 1, node.z, j, d, Direction.EAST, pathNodeType1), node) && canChooseVerticalNode(node.x + 1, node.y + 1, node.z)) {
+            if (this.isValidAdjacentSuccessor(pathNode11 = this.getPathNode(node.x + 1, node.y + 1, node.z, j, d, Direction.EAST, pathNodeType1), node) && canChooseVerticalNode(node.x + 1, node.y + 1, node.z)  && this.getNodeType(this.entity ,node.x, node.y + 2, node.z).getDefaultPenalty() >= 0.0f) {
                 usedVerticalNodeAsSuccessor = true;
                 successors[i++] = pathNode11;
             }
-            if (this.isValidAdjacentSuccessor(pathNode12 = this.getPathNode(node.x, node.y + 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node) && canChooseVerticalNode(node.x, node.y + 1, node.z - 1)) {
+            if (this.isValidAdjacentSuccessor(pathNode12 = this.getPathNode(node.x, node.y + 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node) && canChooseVerticalNode(node.x, node.y + 1, node.z - 1)  && this.getNodeType(this.entity ,node.x, node.y + 2, node.z).getDefaultPenalty() >= 0.0f) {
                 usedVerticalNodeAsSuccessor = true;
                 successors[i++] = pathNode12;
             }
-            if (this.isValidAdjacentSuccessor(pathNode13 = this.getPathNode(node.x, node.y + 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node) && canChooseVerticalNode(node.x, node.y + 1, node.z + 1)) {
+            if (this.isValidAdjacentSuccessor(pathNode13 = this.getPathNode(node.x, node.y + 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node) && canChooseVerticalNode(node.x, node.y + 1, node.z + 1)  && this.getNodeType(this.entity ,node.x, node.y + 2, node.z).getDefaultPenalty() >= 0.0f) {
                 usedVerticalNodeAsSuccessor = true;
                 successors[i++] = pathNode13;
             }
-            if (this.isValidAdjacentSuccessor(pathNode9 = this.getPathNode(node.x, node.y - 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode9 = this.getPathNode(node.x, node.y - 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node) && this.getNodeType(this.entity, node.x, node.y + 1, node.z + 1).getDefaultPenalty() >= 0.0f) {
                 successors[i++] = pathNode9;
             }
-            if (this.isValidAdjacentSuccessor(pathNode14 = this.getPathNode(node.x - 1, node.y - 1, node.z, j, d, Direction.WEST, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode14 = this.getPathNode(node.x - 1, node.y - 1, node.z, j, d, Direction.WEST, pathNodeType1), node) && this.getNodeType(this.entity, node.x - 1, node.y + 1, node.z).getDefaultPenalty() >= 0.0f) {
                 successors[i++] = pathNode14;
             }
-            if (this.isValidAdjacentSuccessor(pathNode15 = this.getPathNode(node.x + 1, node.y - 1, node.z, j, d, Direction.EAST, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode15 = this.getPathNode(node.x + 1, node.y - 1, node.z, j, d, Direction.EAST, pathNodeType1), node) && this.getNodeType(this.entity, node.x + 1, node.y + 1, node.z).getDefaultPenalty() >= 0.0f) {
                 successors[i++] = pathNode15;
             }
-            if (this.isValidAdjacentSuccessor(pathNode16 = this.getPathNode(node.x, node.y - 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node)) {
+            if (this.isValidAdjacentSuccessor(pathNode16 = this.getPathNode(node.x, node.y - 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node) && this.getNodeType(this.entity, node.x, node.y + 1, node.z - 1).getDefaultPenalty() >= 0.0f) {
                 successors[i++] = pathNode16;
             }
             if (this.isValidAdjacentSuccessor(pathNode = this.getPathNode(node.x, node.y, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node)) {
                 successors[i++] = pathNode;
             }
             if (this.isValidAdjacentSuccessor(pathNode2 = this.getPathNode(node.x - 1, node.y, node.z, j, d, Direction.WEST, pathNodeType1), node)) {
-                this.verticalPathNodeCounter--;
                 successors[i++] = pathNode2;
             }
             if (this.isValidAdjacentSuccessor(pathNode3 = this.getPathNode(node.x + 1, node.y, node.z, j, d, Direction.EAST, pathNodeType1), node)) {
-                this.verticalPathNodeCounter--;
                 successors[i++] = pathNode3;
             }
             if (this.isValidAdjacentSuccessor(pathNode4 = this.getPathNode(node.x, node.y, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node)) {
-                this.verticalPathNodeCounter--;
                 successors[i++] = pathNode4;
             }
             if (this.isValidDiagonalSuccessor(node, pathNode2, pathNode4, pathNode5 = this.getPathNode(node.x - 1, node.y, node.z - 1, j, d, Direction.NORTH, pathNodeType1))) {
-                this.verticalPathNodeCounter--;
                 successors[i++] = pathNode5;
             }
             if (this.isValidDiagonalSuccessor(node, pathNode3, pathNode4, pathNode6 = this.getPathNode(node.x + 1, node.y, node.z - 1, j, d, Direction.NORTH, pathNodeType1))) {
-                this.verticalPathNodeCounter--;
                 successors[i++] = pathNode6;
             }
             if (this.isValidDiagonalSuccessor(node, pathNode2, pathNode, pathNode7 = this.getPathNode(node.x - 1, node.y, node.z + 1, j, d, Direction.SOUTH, pathNodeType1))) {
-                this.verticalPathNodeCounter--;
                 successors[i++] = pathNode7;
             }
             if (this.isValidDiagonalSuccessor(node, pathNode3, pathNode, pathNode8 = this.getPathNode(node.x + 1, node.y, node.z + 1, j, d, Direction.SOUTH, pathNodeType1))) {
-                this.verticalPathNodeCounter--;
                 successors[i++] = pathNode8;
             }
             if(usedVerticalNodeAsSuccessor) this.verticalPathNodeCounter = verticalNodePenalty;

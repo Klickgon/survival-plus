@@ -192,14 +192,14 @@ public class BuilderZombieEntity
 
     public int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob
         Path path = this.getNavigation().getCurrentPath();
-        if(path == null || path.getCurrentNodeIndex() >= path.getLength()) return 0;
+        if(path == null || path.getCurrentNodeIndex() >= path.getLength()) return -1;
         if(path.getCurrentNodeIndex() > 0){
             int currentnodeposY = path.getCurrentNodePos().getY();
             int lastnodeposY = path.getNodePos(path.getCurrentNodeIndex() - 1).getY();
 
             return currentnodeposY - lastnodeposY;
         }
-        else return 0;
+        else return -1;
     }
 
     private boolean canPlaceDirt (World world, BlockPos BlockUnder, BlockPos BlockUnder2){

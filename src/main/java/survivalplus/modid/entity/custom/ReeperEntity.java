@@ -38,6 +38,7 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.entity.ai.ActiveTargetGoalReeper;
 import survivalplus.modid.entity.ai.ReeperDestroyBedGoal;
 import survivalplus.modid.entity.ai.ReeperIgniteGoal;
 import survivalplus.modid.util.ModGamerules;
@@ -75,7 +76,7 @@ public class ReeperEntity
         this.goalSelector.add(5, new WanderAroundFarGoal(this, 0.8));
         this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(6, new LookAroundGoal(this));
-        this.targetSelector.add(1, new ActiveTargetGoal<PlayerEntity>((MobEntity)this, PlayerEntity.class, false));
+        this.targetSelector.add(1, new ActiveTargetGoalReeper<>((MobEntity)this, PlayerEntity.class, false));
         this.targetSelector.add(2, new RevengeGoal(this, new Class[0]));
     }
 

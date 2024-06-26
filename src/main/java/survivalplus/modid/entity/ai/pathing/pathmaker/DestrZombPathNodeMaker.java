@@ -70,7 +70,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             BlockPos pos = new BlockPos(x, y, z);
             if (world.getBlockState(pos).isIn(this.blockTag)){
                 if(!world.getBlockState(pos.up()).isIn(this.blockTag) && !world.getBlockState(pos.up()).isReplaceable())
-                    return getNodeWith(x, y, z, PathNodeType.BLOCKED, PathNodeType.BLOCKED.getDefaultPenalty());
+                    return null;
                 if(!world.getBlockState(pos.down()).isReplaceable())
                     return getNodeWith(x, y, z, PathNodeType.WALKABLE, 8.0f);
             }
