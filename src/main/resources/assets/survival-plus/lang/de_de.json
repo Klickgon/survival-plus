@@ -28,6 +28,5 @@
     "gamerule.inventoryDropWithNoSpawn": "Kein Inventar Verlust bei Tod ohne eigenen Spawnpunkt",
     "stat.survival-plus.baseassaultswon": "Basen Angriffe gewonnen",
     "stat.survival-plus.timesincesleep": "Zeit seit letzten Aufwachen",
-    "stat.survival-plus.timewithoutcustomrespawnpoint": "Zeit ohne eigenen Spawnpunkt",
-    "stat.survival-plus.timesincelastbaseassault": "Basen Angriff Timer"
+    "stat.survival-plus.timewithoutcustomrespawnpoint": "Zeit ohne eigenen Spawnpunkt"
 }

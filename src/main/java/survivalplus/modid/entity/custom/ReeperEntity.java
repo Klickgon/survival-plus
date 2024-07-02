@@ -3,7 +3,8 @@ package survivalplus.modid.entity.custom;
 import net.minecraft.client.render.entity.feature.SkinOverlayOwner;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
+import net.minecraft.entity.ai.pathing.Path;
+import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -57,12 +58,13 @@ public class ReeperEntity
     private int fuseTime = 30;
     private int explosionRadius = 3;
     public BlockPos targetBedPos;
-    public boolean forceExplosion = false;
+    public boolean hadTarget = false;
     private boolean lostTarget = false;
     public boolean wasWithinDistance = false;
 
     public ReeperEntity(EntityType<? extends HostileEntity> entityType, World world) {
         super((EntityType<? extends CreeperEntity>) entityType, world);
+        this.navigation.getNodeMaker().setCanOpenDoors(true);
     }
 
     @Override
@@ -83,7 +85,6 @@ public class ReeperEntity
     public static DefaultAttributeContainer.Builder createReeperAttributes() {
         return HostileEntity.createHostileAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.20);
     }
-
 
     @Override
     public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
@@ -132,32 +133,30 @@ public class ReeperEntity
     @Override
     public void tick() {
         if (this.isAlive()) {
-            if(!this.forceExplosion && this.getTarget() != null) this.forceExplosion = true;
-            if(this.forceExplosion && this.getTarget() == null) this.lostTarget = true;
+            if(!this.hadTarget && this.getTarget() != null) this.hadTarget = true;
+            if(this.hadTarget && this.getTarget() == null) this.lostTarget = true;
             int i;
             this.lastFuseTime = this.currentFuseTime;
             if (this.isIgnited()) {
                 this.setFuseSpeed(1);
             }
-            if (this.lostTarget || this.wasWithinDistance) {
-                Vec3d vec3d = Vec3d.ofBottomCenter(this.getBlockPos());
-                List<HostileEntity> list = this.getWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d.getX() - 3.0, vec3d.getY() - 3.0, vec3d.getZ() - 3.0, vec3d.getX() + 3.0, vec3d.getY() + 3.0, vec3d.getZ() + 3.0), hostileEntity -> true);
-                if (list.size() < 3) {
-                    this.setFuseSpeed(1);
+            if (this.lostTarget) {
+                if(this.wasWithinDistance){
+                    this.igniteWithEntityCheck();
+                }
+                else {
+                    this.hadTarget = false;
+                    this.lostTarget = false;
                 }
             }
-            LandPathNodeMaker pnm = (LandPathNodeMaker) this.getNavigation().getNodeMaker();
-            BlockPos pos = this.getBlockPos();
-            int x = pos.getX();
-            int y = pos.getY();
-            int z = pos.getZ();
-            PathNodeType pnt1 = pnm.getNodeType(this.getWorld(), x + 1, y, z, this);
-            PathNodeType pnt2 = pnm.getNodeType(this.getWorld(), x, y, z + 1, this);
-            PathNodeType pnt3 = pnm.getNodeType(this.getWorld(), x - 1, y, z, this);
-            PathNodeType pnt4 = pnm.getNodeType(this.getWorld(), x, y, z - 1, this);
-            if(isNodeTypeClosedDoor(pnt1) || isNodeTypeClosedDoor(pnt2) || isNodeTypeClosedDoor(pnt3) || isNodeTypeClosedDoor(pnt4)) {
-                this.setFuseSpeed(1);
+            Path path = this.getNavigation().getCurrentPath();
+            if(path != null && path.getLength() > path.getCurrentNodeIndex()){
+                PathNode pathNode = path.getCurrentNode();
+                if(pathNode != null && isNodeTypeClosedDoor(this.getNavigation().getNodeMaker().getDefaultNodeType(this.getWorld(), pathNode.x, pathNode.y, pathNode.z))){
+                    this.igniteWithEntityCheck();
+                }
             }
+
             if ((i = this.getFuseSpeed()) > 0 && this.currentFuseTime == 0) {
                 this.playSound(SoundEvents.ENTITY_CREEPER_PRIMED, 1.0f, 0.5f);
                 this.emitGameEvent(GameEvent.PRIME_FUSE);
@@ -204,6 +203,14 @@ public class ReeperEntity
 
     public float getClientFuseTime(float timeDelta) {
         return MathHelper.lerp(timeDelta, (float)this.lastFuseTime, (float)this.currentFuseTime) / (float)(this.fuseTime - 2);
+    }
+
+    private void igniteWithEntityCheck(){
+        Vec3d vec3d = Vec3d.ofBottomCenter(this.getBlockPos());
+        List<HostileEntity> list = this.getWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d.getX() - 3.0, vec3d.getY() - 3.0, vec3d.getZ() - 3.0, vec3d.getX() + 3.0, vec3d.getY() + 3.0, vec3d.getZ() + 3.0), hostileEntity -> true);
+        if (list.size() < 3) {
+            this.setFuseSpeed(1);
+        }
     }
 
     public int getFuseSpeed() {

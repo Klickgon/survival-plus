@@ -30,10 +30,9 @@ public abstract class PersistentProjectileChanger extends ProjectileEntity imple
 
     @Inject(method = "onEntityHit", at = @At(value = "HEAD"))
     public void flameInjection(EntityHitResult entityHitResult, CallbackInfo ci){
-        if(fromFlame2) { // Checks if the Bow it was shot from has the Flame II enchantment, if yes, it places a fire block at the entity hit
-            this.getOwner().getWorld().setBlockState(entityHitResult.getEntity().getBlockPos(), Blocks.FIRE.getDefaultState());
+        if(this.fromFlame2 && this.isOnFire()) { // Checks if the Bow it was shot from has the Flame II enchantment, if yes, it places a fire block at the entity hit
+            this.getWorld().setBlockState(entityHitResult.getEntity().getBlockPos(), Blocks.FIRE.getDefaultState());
         }
-
     }
 
     public void setFlame2(ItemStack stack){

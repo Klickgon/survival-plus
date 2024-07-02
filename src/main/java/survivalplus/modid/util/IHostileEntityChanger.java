@@ -11,5 +11,5 @@ public interface IHostileEntityChanger {
 
     GoalSelector getGoalSelector();
 
-    BlockPos getCustomBlockPos();
+    BlockPos getElevatedBlockPos();
 }

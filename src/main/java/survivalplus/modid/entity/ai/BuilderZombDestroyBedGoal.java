@@ -102,6 +102,7 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
         BlockPos mobpos = this.mob.getBlockPos();
         boolean bl = false;
         for(ServerPlayerEntity player : list){
+            if(player.isCreative() || player.isSpectator()) continue;
             BlockPos spawnpos = player.getSpawnPointPosition();
             if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 16) && this.mob.getWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
                 bl = true;

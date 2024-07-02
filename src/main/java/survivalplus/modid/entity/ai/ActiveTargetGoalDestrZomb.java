@@ -97,7 +97,7 @@ extends TrackTargetGoal {
         if(this.destroyBlockCooldownCounter <= 0){
             if(this.targetEntity != null && this.mob.getNavigation().getCurrentPath() != null){
                 World world = this.mob.getWorld();
-                BlockPos currentPos = ((IHostileEntityChanger)this.mob).getCustomBlockPos();
+                BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();
 
                 int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 

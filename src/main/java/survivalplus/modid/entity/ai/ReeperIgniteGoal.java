@@ -17,8 +17,6 @@ public class ReeperIgniteGoal extends Goal {
     @Nullable
     private LivingEntity target;
 
-
-
     public ReeperIgniteGoal(ReeperEntity reeper) {
         this.reeper = reeper;
         this.setControls(EnumSet.of(Control.MOVE));
@@ -36,7 +34,6 @@ public class ReeperIgniteGoal extends Goal {
 
     public void stop() {
         this.target = null;
-
     }
 
     public boolean shouldRunEveryTick() {

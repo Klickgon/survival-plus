@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.2.1 (FabricMC 53fa44c9).
- */
 package survivalplus.modid.entity.custom;
 
 import net.minecraft.block.Blocks;
@@ -8,18 +5,12 @@ import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.SkeletonEntity;
-import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.entity.passive.TurtleEntity;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -47,22 +38,13 @@ extends SkeletonEntity {
 
     public ScorchedSkeletonEntity(EntityType<? extends ScorchedSkeletonEntity> entityType, World world) {
         super((EntityType<? extends SkeletonEntity>)entityType, world);
-        smokeParticleCooldown = (int) Math.rint(Math.random() * 10) + 10;
+        smokeParticleCooldown = this.getRandom().nextInt(11) + 10;
     }
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(2, new AvoidSunlightGoal(this));
-        this.goalSelector.add(3, new EscapeSunlightGoal(this, 1.0));
-        this.goalSelector.add(3, new FleeEntityGoal<WolfEntity>(this, WolfEntity.class, 6.0f, 1.0, 1.2));
+        super.initGoals();
         this.goalSelector.add(4, new DestroyBedGoal(this, 1.0, 8));
-        this.goalSelector.add(5, new WanderAroundFarGoal(this, 1.0));
-        this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
-        this.goalSelector.add(6, new LookAroundGoal(this));
-        this.targetSelector.add(1, new RevengeGoal(this, new Class[0]));
-        this.targetSelector.add(2, new ActiveTargetGoal<PlayerEntity>((MobEntity)this, PlayerEntity.class, false));
-        this.targetSelector.add(3, new ActiveTargetGoal<IronGolemEntity>((MobEntity)this, IronGolemEntity.class, true));
-        this.targetSelector.add(3, new ActiveTargetGoal<TurtleEntity>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
     }
 
     @Override
@@ -76,7 +58,7 @@ extends SkeletonEntity {
         if (this.getWorld().isClient) {
             if(smokeParticleCooldown <= 0) {
                 getWorld().addParticle(ParticleTypes.SMOKE, this.getX(), this.getY() + 1.99, this.getZ(), 0, 0, 0);
-                smokeParticleCooldown = (int) Math.rint(Math.random() * 10) + 10;
+                smokeParticleCooldown = this.getRandom().nextInt(11) + 10;
             }
             else smokeParticleCooldown--;
         }

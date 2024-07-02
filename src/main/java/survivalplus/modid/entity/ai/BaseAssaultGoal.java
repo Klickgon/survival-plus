@@ -117,7 +117,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         if(!this.baseAssault.findPlayerInsteadOfBed) {
             BlockPos bedPos = baseAssault.getCenter();
             if(this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
-                if (mob instanceof ReeperEntity) ((ReeperEntity) mob).forceExplosion = true;
+                if (mob instanceof ReeperEntity) ((ReeperEntity) mob).hadTarget = true;
                 else if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
                 else mob.getWorld().breakBlock(bedPos, true);
             }
@@ -125,7 +125,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
             World world = this.mob.getWorld();
 
-            BlockPos currentPos = ((IHostileEntityChanger)this.mob).getCustomBlockPos();
+            BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();
 
             int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 

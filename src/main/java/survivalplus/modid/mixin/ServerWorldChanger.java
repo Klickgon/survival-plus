@@ -64,7 +64,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     }
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
-    public long tickSleep(long timeOfDay) {
+    public long tickSleepSkip(long timeOfDay) {
         return this.properties.getTimeOfDay() + 7000L; // Changes the sleeping skip from a set time point to 7000 ticks after sleep start
     }
 
@@ -82,21 +82,21 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    public void BAMconstructInject(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, boolean debugWorld, long seed, List spawners, boolean shouldTickTime, RandomSequencesState randomSequencesState, CallbackInfo ci){
+    public void constructorInject(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, boolean debugWorld, long seed, List spawners, boolean shouldTickTime, RandomSequencesState randomSequencesState, CallbackInfo ci){
         ServerWorld sworld = this.toServerWorld();
         this.baseAssaultManager = sworld.getPersistentStateManager().getOrCreate(BaseAssaultManager.getPersistentStateType(sworld), BaseAssaultManager.nameFor(sworld.getDimensionEntry()));
     }
 
 
     @Inject(method = "tick", at = @At("TAIL"))
-    protected void injectTickHead(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+    protected void injectTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+        this.enoughTimeSinceRest = true;
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.incrementStat(ModPlayerStats.TIME_SINCE_SLEEP); // increments and then checks if all players can sleep in this world
-            if(serverPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP)) < 3000) {
+            if(serverPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP)) < 4000) {
                 this.enoughTimeSinceRest = false;
                 break;
             }
-            this.enoughTimeSinceRest = true;
         }
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             BlockPos bpos = serverPlayer.getSpawnPointPosition();

@@ -101,7 +101,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         }
 
         if(this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
-            BlockPos currentPos = ((IHostileEntityChanger)this.mob).getCustomBlockPos();
+            BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();
 
             int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 
@@ -197,6 +197,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         BlockPos mobpos = this.mob.getBlockPos();
         boolean bl = false;
         for(ServerPlayerEntity player : list){
+            if(player.isCreative() || player.isSpectator()) continue;
             BlockPos spawnpos = player.getSpawnPointPosition();
             if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 16) && this.mob.getWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
                 bl = true;

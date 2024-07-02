@@ -1,7 +1,6 @@
 package survivalplus.modid.mixin;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.GoalSelector;
@@ -69,10 +68,7 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
         return this.goalSelector;
     }
 
-    public BlockPos getCustomBlockPos(){
-        BlockPos pos = this.getBlockPos();
-        World world = this.getWorld();
-        if(world.getBlockState(pos) == Blocks.DIRT_PATH.getDefaultState()) return pos.up();
-        else return pos;
+    public BlockPos getElevatedBlockPos(){
+        return new BlockPos(this.getBlockX(), (int) Math.rint(this.getY() + 0.4), this.getBlockZ());
     }
 }
