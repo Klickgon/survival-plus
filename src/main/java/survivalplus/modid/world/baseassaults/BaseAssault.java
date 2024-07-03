@@ -409,7 +409,7 @@ public class BaseAssault {
             int l = this.center.getZ() + MathHelper.floor(MathHelper.sin(fl) * 32.0f * i) + this.world.random.nextInt(10);
             int m = calculateSpawnY(k, l);
             mutable.set(k, m, l);
-            i -= 0.07f;
+            i -= 0.03f;
             if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, mutable, EntityType.SPIDER) && (!this.world.getBlockState((BlockPos)mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir())) continue;
             return mutable;
         }
