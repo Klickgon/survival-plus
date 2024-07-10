@@ -1,7 +1,15 @@
 package survivalplus.modid;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Items;
+import net.minecraft.loot.LootPool;
+import net.minecraft.loot.entry.ItemEntry;
+import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
+import net.minecraft.loot.provider.number.UniformLootNumberProvider;
+import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import survivalplus.modid.enchantments.ModEnchantments;
@@ -17,6 +25,12 @@ public class SurvivalPlus implements ModInitializer {
 	public static final String MOD_ID = "survival-plus";
 
     public static final Logger LOGGER = LoggerFactory.getLogger("survival-plus");
+
+	private static final Identifier FROG_LOOT_TABLE_ID = EntityType.FROG.getLootTableId();
+
+	private static final Identifier GOAT_LOOT_TABLE_ID = EntityType.GOAT.getLootTableId();
+
+	private static final Identifier SNIFFER_LOOT_TABLE_ID = EntityType.SNIFFER.getLootTableId();
 
 	@Override
 	public void onInitialize() {
@@ -46,5 +60,33 @@ public class SurvivalPlus implements ModInitializer {
 
 		ModGamerules.registerModGamerules();
 		ModPlayerStats.registerModPlayerStats();
+
+		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
+			if(source.isBuiltin()){
+				if (FROG_LOOT_TABLE_ID.equals(id)) {
+					LootPool.Builder poolBuilder = LootPool.builder().with(ItemEntry.builder(Items.SLIME_BALL))
+							.rolls(new UniformLootNumberProvider(new ConstantLootNumberProvider(0.0f), new ConstantLootNumberProvider(1.0f)));
+					tableBuilder.pool(poolBuilder);
+				}
+				if (GOAT_LOOT_TABLE_ID.equals(id)) {
+					LootPool.Builder poolBuilder = LootPool.builder().with(ItemEntry.builder(Items.WHITE_WOOL))
+							.rolls(new UniformLootNumberProvider(new ConstantLootNumberProvider(0.0f), new ConstantLootNumberProvider(1.0f)));
+					tableBuilder.pool(poolBuilder);
+				}
+				if (SNIFFER_LOOT_TABLE_ID.equals(id)) {
+					LootPool.Builder poolBuilder = LootPool.builder()
+							.with(ItemEntry.builder(Items.MOSSY_STONE_BRICKS)).with(ItemEntry.builder(Items.MOSSY_COBBLESTONE)).rolls(new UniformLootNumberProvider(new ConstantLootNumberProvider(0.0f), new ConstantLootNumberProvider(1.0f)));
+					tableBuilder.pool(poolBuilder);
+
+					poolBuilder = LootPool.builder()
+							.with(ItemEntry.builder(Items.MOSS_BLOCK)).rolls(new UniformLootNumberProvider(new ConstantLootNumberProvider(0.0f), new ConstantLootNumberProvider(1.0f)));
+					tableBuilder.pool(poolBuilder);
+
+					poolBuilder = LootPool.builder()
+							.with(ItemEntry.builder(Items.RED_WOOL)).rolls(new UniformLootNumberProvider(new ConstantLootNumberProvider(0.0f), new ConstantLootNumberProvider(2.0f)));
+					tableBuilder.pool(poolBuilder);
+				}
+			}
+		});
 	}
 }
