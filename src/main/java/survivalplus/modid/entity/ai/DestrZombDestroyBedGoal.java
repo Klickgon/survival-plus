@@ -154,10 +154,10 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
                 }
             }
         }
-        else this.destroyBlockCooldownCounter--;
+        this.destroyBlockCooldownCounter--;
     }
 
-    private int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob
+    private int calcDiffY(){ // Calculates the height difference between the current and the last pathnode of the mob
         Path path = this.mob.getNavigation().getCurrentPath();
         if(path == null || path.getCurrentNodeIndex() >= path.getLength()) return 0;
         if(path.getCurrentNodeIndex() > 0){

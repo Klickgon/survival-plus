@@ -110,9 +110,10 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                 if (this.baseAssault.getCenter() != null) {
                     this.targetPos = this.baseAssault.getCenter();
                     this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
-                } else this.cooldown--;
+                }
             }
-        } else this.cooldown--;
+        }
+        this.cooldown--;
 
         if(!this.baseAssault.findPlayerInsteadOfBed) {
             BlockPos bedPos = baseAssault.getCenter();
@@ -178,7 +179,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                 }
             }
         }
-        else this.destroyBlockCooldownCounter--;
+        this.destroyBlockCooldownCounter--;
         super.tick();
     }
 

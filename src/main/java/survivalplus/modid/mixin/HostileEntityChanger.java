@@ -69,6 +69,6 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
     }
 
     public BlockPos getElevatedBlockPos(){
-        return new BlockPos(this.getBlockX(), (int) Math.rint(this.getY() + 0.4), this.getBlockZ());
+        return new BlockPos(this.getBlockX(), (int) Math.rint(this.getY() + 0.1), this.getBlockZ());
     }
 }

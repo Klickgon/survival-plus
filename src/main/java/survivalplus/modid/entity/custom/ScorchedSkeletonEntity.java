@@ -11,6 +11,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.SkeletonEntity;
+import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -18,11 +19,13 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.enchantments.ModEnchantments;
+import survivalplus.modid.entity.ai.AdvancedBowAttackGoal;
 import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.util.ModGamerules;
 
@@ -36,8 +39,10 @@ extends SkeletonEntity {
     private int conversionTime;
     private int smokeParticleCooldown;
 
-    public ScorchedSkeletonEntity(EntityType<? extends ScorchedSkeletonEntity> entityType, World world) {
-        super((EntityType<? extends SkeletonEntity>)entityType, world);
+    private final AdvancedBowAttackGoal<ScorchedSkeletonEntity> bowAttackGoal = new AdvancedBowAttackGoal<>(this, 1.0, 20, 15.0f);
+
+    public ScorchedSkeletonEntity(EntityType<ScorchedSkeletonEntity> entityType, World world) {
+        super(entityType, world);
         smokeParticleCooldown = this.getRandom().nextInt(11) + 10;
     }
 
@@ -152,6 +157,23 @@ extends SkeletonEntity {
     private void setConversionTime(int time) {
         this.conversionTime = time;
         this.setConverting(true);
+    }
+
+    @Override
+    public void updateAttackType() {
+        if (this.getWorld() == null || this.getWorld().isClient) {
+            return;
+        }
+        this.goalSelector.remove(this.bowAttackGoal);
+        ItemStack itemStack = this.getStackInHand(ProjectileUtil.getHandPossiblyHolding(this, Items.BOW));
+        if (itemStack.isOf(Items.BOW)) {
+            int i = 20;
+            if (this.getWorld().getDifficulty() != Difficulty.HARD) {
+                i = 40;
+            }
+            this.bowAttackGoal.setAttackInterval(i);
+            this.goalSelector.add(4, this.bowAttackGoal);
+        }
     }
 
 

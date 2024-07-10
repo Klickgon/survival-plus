@@ -151,7 +151,7 @@ extends TrackTargetGoal {
                 }
             }
         }
-        else this.destroyBlockCooldownCounter--;
+        this.destroyBlockCooldownCounter--;
     }
 
     protected int calcDiffY(){ // Calculates the height difference between the current and the next pathnode of the mob

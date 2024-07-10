@@ -20,7 +20,7 @@ import survivalplus.modid.util.IHostileEntityChanger;
 
 public class BuilderZombieMoveControl extends MoveControl {
 
-    private int DirtJumpcooldown = 10;
+    private int dirtJumpcooldown = 10;
 
     public BuilderZombieMoveControl(BuilderZombieEntity entity) {
         super(entity);
@@ -34,7 +34,6 @@ public class BuilderZombieMoveControl extends MoveControl {
 
     @Override
     public void tick() {
-
         if (this.state == State.STRAFE) {
             float n;
             float f = (float)this.entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
@@ -82,22 +81,21 @@ public class BuilderZombieMoveControl extends MoveControl {
             World world = this.entity.getWorld();
             BuilderZombieEntity bzomb = (BuilderZombieEntity) this.entity;
             IHostileEntityChanger bzomb2 = (IHostileEntityChanger) this.entity;
-            if(DirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
+            if(this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
                 BlockPos bzombpos = bzomb.getBlockPos();
-                if(isDirtJumpRequired(bzombpos.down(), world)){
+                if (isDirtJumpRequired(bzombpos.down(), world)) {
                     world.setBlockState(bzombpos.down(), Blocks.DIRT.getDefaultState());
                     world.playSound(null, bzombpos.down(), SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-                    DirtJumpcooldown = 10;
+                    this.dirtJumpcooldown = 10;
                 }
-                else DirtJumpcooldown--;
             }
-            else DirtJumpcooldown--;
             if (this.entity.isOnGround()) {
                 this.state = State.WAIT;
             }
         } else {
             this.entity.setForwardSpeed(0.0f);
         }
+        this.dirtJumpcooldown--;
     }
 
     private boolean isDirtJumpRequired(BlockPos pos, World world){

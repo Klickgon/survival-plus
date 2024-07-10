@@ -22,8 +22,6 @@ public abstract class SleepFailureChanger {
         if(this.equals(NOT_POSSIBLE_NOW)) cir.setReturnValue(Text.translatable("block.survival-plus.bed.sleepcooldown"));
         // Changes the text translatable tag of the NOT_POSSIBLE_NOW SleepFailureReason from "you can only sleep during the day"
         // to "you already slept recently"
-
-        // (you won't believe how hard it was to figure out)
     }
 
 }

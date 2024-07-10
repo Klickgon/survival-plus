@@ -208,7 +208,7 @@ public class ReeperEntity
     private void igniteWithEntityCheck(){
         Vec3d vec3d = Vec3d.ofBottomCenter(this.getBlockPos());
         List<HostileEntity> list = this.getWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d.getX() - 3.0, vec3d.getY() - 3.0, vec3d.getZ() - 3.0, vec3d.getX() + 3.0, vec3d.getY() + 3.0, vec3d.getZ() + 3.0), hostileEntity -> true);
-        if (list.size() < 3) {
+        if (list.size() < 4) {
             this.setFuseSpeed(1);
         }
     }
