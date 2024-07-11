@@ -39,6 +39,7 @@ import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.ai.ActiveTargetGoalDestrZomb;
 import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
+import survivalplus.modid.entity.ai.DestroyerZombAttackGoal;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
 import survivalplus.modid.util.ModGamerules;
 
@@ -74,7 +75,7 @@ public class LumberjackZombieEntity
     }
 
     protected void initCustomGoals() {
-        this.goalSelector.add(2, new ZombieAttackGoal(this, 1.0, false));
+        this.goalSelector.add(2, new DestroyerZombAttackGoal(this, 1.0, false));
         this.goalSelector.add(6, new MoveThroughVillageGoal(this, 1.0, true, 4, this::canBreakDoors));
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(1, new RevengeGoal(this, new Class[0]).setGroupRevenge(ZombifiedPiglinEntity.class));
