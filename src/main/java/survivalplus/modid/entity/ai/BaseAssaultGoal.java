@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
@@ -117,7 +118,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
         if(!this.baseAssault.findPlayerInsteadOfBed) {
             BlockPos bedPos = baseAssault.getCenter();
-            if(this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
+            if(this.mob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
                 if (mob instanceof ReeperEntity) ((ReeperEntity) mob).hadTarget = true;
                 else if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
                 else mob.getWorld().breakBlock(bedPos, true);

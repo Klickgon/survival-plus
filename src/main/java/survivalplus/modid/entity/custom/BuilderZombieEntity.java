@@ -172,7 +172,7 @@ public class BuilderZombieEntity
 
             LivingEntity target = getTarget();
             IHostileEntityChanger bzomb = (IHostileEntityChanger) this;
-            if (DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
+            if (this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
                 World world = this.getWorld();
                 BlockPos BlockUnder = getBlockPos().down(1);
                 BlockPos BlockUnder2 = getBlockPos().down(2);
@@ -181,11 +181,11 @@ public class BuilderZombieEntity
                     if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
                         world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-                        DirtPlaceCooldown = 1;
+                        DirtPlaceCooldown = 2;
                     }
                 }
             }
-            else DirtPlaceCooldown--;
+            DirtPlaceCooldown--;
         }
         super.tickMovement();
     }

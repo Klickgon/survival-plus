@@ -42,34 +42,34 @@ public class AdvancedBowAttackGoal<T extends AbstractSkeletonEntity>
 
     @Override
     public boolean canStart() {
-        if (((MobEntity)this.actor).getTarget() == null) {
+        if (this.actor.getTarget() == null) {
             return false;
         }
         return this.isHoldingBow();
     }
 
     protected boolean isHoldingBow() {
-        return ((LivingEntity)this.actor).isHolding(Items.BOW);
+        return this.actor.isHolding(Items.BOW);
     }
 
     @Override
     public boolean shouldContinue() {
-        return (this.canStart() || !((MobEntity)this.actor).getNavigation().isIdle()) && this.isHoldingBow();
+        return (this.canStart() || !this.actor.getNavigation().isIdle()) && this.isHoldingBow();
     }
 
     @Override
     public void start() {
         super.start();
-        ((MobEntity)this.actor).setAttacking(true);
+        this.actor.setAttacking(true);
     }
 
     @Override
     public void stop() {
         super.stop();
-        ((MobEntity)this.actor).setAttacking(false);
+        this.actor.setAttacking(false);
         this.targetSeeingTicker = 0;
         this.cooldown = -1;
-        ((LivingEntity)this.actor).clearActiveItem();
+        this.actor.clearActiveItem();
     }
 
     @Override
@@ -80,29 +80,29 @@ public class AdvancedBowAttackGoal<T extends AbstractSkeletonEntity>
     @Override
     public void tick() {
         boolean bl2;
-        LivingEntity livingEntity = ((MobEntity)this.actor).getTarget();
+        LivingEntity livingEntity = this.actor.getTarget();
         if (livingEntity == null) {
             return;
         }
-        double d = ((Entity)this.actor).squaredDistanceTo(livingEntity.getX(), livingEntity.getY(), livingEntity.getZ());
-        boolean bl = ((MobEntity)this.actor).getVisibilityCache().canSee(livingEntity);
+        double d = this.actor.squaredDistanceTo(livingEntity.getX(), livingEntity.getY(), livingEntity.getZ());
+        boolean bl = this.actor.getVisibilityCache().canSee(livingEntity);
         boolean bl3 = bl2 = this.targetSeeingTicker > 0;
         if (bl != bl2) {
             this.targetSeeingTicker = 0;
         }
         this.targetSeeingTicker = bl ? ++this.targetSeeingTicker : --this.targetSeeingTicker;
         if (d > (double)this.squaredRange || this.targetSeeingTicker < 20) {
-            ((MobEntity)this.actor).getNavigation().startMovingTo(livingEntity, this.speed);
+            this.actor.getNavigation().startMovingTo(livingEntity, this.speed);
             this.combatTicks = -1;
         } else {
-            ((MobEntity)this.actor).getNavigation().stop();
+            this.actor.getNavigation().stop();
             ++this.combatTicks;
         }
         if (this.combatTicks >= 20) {
-            if ((double)((LivingEntity)this.actor).getRandom().nextFloat() < 0.3) {
+            if ((double) this.actor.getRandom().nextFloat() < 0.3) {
                 boolean bl4 = this.movingToLeft = !this.movingToLeft;
             }
-            if ((double)((LivingEntity)this.actor).getRandom().nextFloat() < 0.3) {
+            if ((double) this.actor.getRandom().nextFloat() < 0.3) {
                 this.backward = !this.backward;
             }
             this.combatTicks = 0;
@@ -113,27 +113,27 @@ public class AdvancedBowAttackGoal<T extends AbstractSkeletonEntity>
             } else if (d < (double)(this.squaredRange * 0.25f)) {
                 this.backward = true;
             }
-            ((MobEntity)this.actor).getMoveControl().strafeTo(this.backward ? -0.5f : 0.5f, this.movingToLeft ? 0.5f : -0.5f);
-            Entity entity = ((Entity)this.actor).getControllingVehicle();
+            this.actor.getMoveControl().strafeTo(this.backward ? -0.5f : 0.5f, this.movingToLeft ? 0.5f : -0.5f);
+            Entity entity = this.actor.getControllingVehicle();
             if (entity instanceof MobEntity) {
                 MobEntity mobEntity = (MobEntity)entity;
                 mobEntity.lookAtEntity(livingEntity, 30.0f, 30.0f);
             }
-            ((MobEntity)this.actor).lookAtEntity(livingEntity, 30.0f, 30.0f);
+            this.actor.lookAtEntity(livingEntity, 30.0f, 30.0f);
         } else {
-            ((MobEntity)this.actor).getLookControl().lookAt(livingEntity, 30.0f, 30.0f);
+            this.actor.getLookControl().lookAt(livingEntity, 30.0f, 30.0f);
         }
-        if (((LivingEntity)this.actor).isUsingItem()) {
+        if (this.actor.isUsingItem()) {
             int i;
             if (!bl && this.targetSeeingTicker < -60) {
-                ((LivingEntity)this.actor).clearActiveItem();
-            } else if (bl && (i = ((LivingEntity)this.actor).getItemUseTime()) >= 20 && isNoHostileEntityInCrossfire()) {
-                ((LivingEntity)this.actor).clearActiveItem();
+                this.actor.clearActiveItem();
+            } else if (bl && (i = this.actor.getItemUseTime()) >= 20 && isNoHostileEntityInCrossfire()) {
+                this.actor.clearActiveItem();
                 ((RangedAttackMob)this.actor).shootAt(livingEntity, BowItem.getPullProgress(i));
                 this.cooldown = this.attackInterval;
             }
         } else if (--this.cooldown <= 0 && this.targetSeeingTicker >= -60) {
-            ((LivingEntity)this.actor).setCurrentHand(ProjectileUtil.getHandPossiblyHolding(this.actor, Items.BOW));
+            this.actor.setCurrentHand(ProjectileUtil.getHandPossiblyHolding(this.actor, Items.BOW));
         }
     }
 

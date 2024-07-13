@@ -14,6 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import survivalplus.modid.entity.custom.BuilderZombieEntity;
 import survivalplus.modid.util.IHostileEntityChanger;
@@ -81,7 +82,7 @@ public class BuilderZombieMoveControl extends MoveControl {
             World world = this.entity.getWorld();
             BuilderZombieEntity bzomb = (BuilderZombieEntity) this.entity;
             IHostileEntityChanger bzomb2 = (IHostileEntityChanger) this.entity;
-            if(this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
+            if(this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
                 BlockPos bzombpos = bzomb.getBlockPos();
                 if (isDirtJumpRequired(bzombpos.down(), world)) {
                     world.setBlockState(bzombpos.down(), Blocks.DIRT.getDefaultState());

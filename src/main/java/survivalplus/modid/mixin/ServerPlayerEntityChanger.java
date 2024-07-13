@@ -56,7 +56,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity{
 
     @Inject(method = "onDeath", at = @At(value = "TAIL"))
     private void statReset(DamageSource damageSource, CallbackInfo ci){
-        PlayerData.getPlayerState(this).baseAssaultTimer = Math.max(PlayerData.getPlayerState(this).baseAssaultTimer - 48000, 0);
+        PlayerData.getPlayerState(this).baseAssaultTimer = Math.max(Math.min(PlayerData.getPlayerState(this).baseAssaultTimer, 144000) - 48000, 0);
         this.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP));
         this.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
     }

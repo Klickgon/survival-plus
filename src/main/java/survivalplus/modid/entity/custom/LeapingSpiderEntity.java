@@ -45,10 +45,7 @@ import survivalplus.modid.util.ModGamerules;
 
 public class LeapingSpiderEntity
 extends HostileEntity {
-    /**
-     * The tracked flags of spiders. Only has the {@code 1} bit for {@linkplain
-     * #isClimbingWall() wall climbing}.
-     */
+
     private static final TrackedData<Byte> SPIDER_FLAGS = DataTracker.registerData(LeapingSpiderEntity.class, TrackedDataHandlerRegistry.BYTE);
     public boolean isLeaping;
 

@@ -17,6 +17,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
@@ -94,7 +95,7 @@ extends TrackTargetGoal {
 
     @Override
     public void tick() {
-        if(this.destroyBlockCooldownCounter <= 0){
+        if(this.mob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.destroyBlockCooldownCounter <= 0){
             if(this.targetEntity != null && this.mob.getNavigation().getCurrentPath() != null){
                 World world = this.mob.getWorld();
                 BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();
