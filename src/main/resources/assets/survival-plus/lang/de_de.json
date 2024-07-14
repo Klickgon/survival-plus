@@ -25,8 +25,9 @@
     "itemgroup.survival-plus": "Survival Plus Gegenstands Gruppe",
     "gamerule.disableBaseassaults": "Basen Angriffe deaktivieren",
     "gamerule.doMobSpawnProgression": "Kreaturen Spawn Fortschritt",
-    "gamerule.inventoryDropWithNoSpawn": "Kein Inventar Verlust bei Tod ohne eigenen Spawnpunkt",
+    "gamerule.inventoryDropWithNoSpawn": "Kein Inventar Verlust bei Tod ohne eigenen Wiedereinstiegspunkt",
     "stat.survival-plus.baseassaultswon": "Basen Angriffe gewonnen",
     "stat.survival-plus.timesincesleep": "Zeit seit letzten Aufwachen",
-    "stat.survival-plus.timewithoutcustomrespawnpoint": "Zeit ohne eigenen Spawnpunkt"
+    "stat.survival-plus.timewithoutcustomrespawnpoint": "Zeit ohne Wiedereinstiegspunkt",
+    "block.survival-plus.set_spawn_temp": "Temporärer Wiedereinstiegspunkt gesetzt"
 }

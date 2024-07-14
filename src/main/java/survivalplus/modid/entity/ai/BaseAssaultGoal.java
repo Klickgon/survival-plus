@@ -124,7 +124,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                 else mob.getWorld().breakBlock(bedPos, true);
             }
         }
-        if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
+        if(this.mob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
             World world = this.mob.getWorld();
 
             BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();
@@ -142,40 +142,40 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
             }
 
             if(this.facingBlock != null && checkOnSameXandZ()) {
-                if (DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {
+                if(DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {
                     if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
                         world.breakBlock(this.facingBlock, true);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     } else if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down()).getHardness(world, this.facingBlock.down());
                         world.breakBlock(this.facingBlock.down(), true);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     }
                 }
 
-                if (DiffY < 0) {
+                if(DiffY < 0) {
                     if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down()).getHardness(world, this.facingBlock.down());
                         world.breakBlock(this.facingBlock.down(), true);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     } else if (world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blockTag)) {
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down(2)).getHardness(world, this.facingBlock.down(2));
                         world.breakBlock(this.facingBlock.down(2), true);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     } else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
                         world.breakBlock(this.facingBlock, true);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     }
 
                 }
 
-                if (DiffY > 0) {
+                if(DiffY > 0) {
                     if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
                         world.breakBlock(this.facingBlock, true);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     } else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.mob.getBlockPos().up(2)).getHardness(world, this.mob.getBlockPos().up(2));
                         world.breakBlock(this.mob.getBlockPos().up(2), true);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     } else if (world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)) {
+                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.up()).getHardness(world, this.facingBlock.up());
                         world.breakBlock(this.facingBlock.up(), true);
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown;
                     }
                 }
             }

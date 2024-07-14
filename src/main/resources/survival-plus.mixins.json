@@ -9,6 +9,7 @@
     "MobChanger",
     "PersistentProjectileChanger",
     "PhantomSpawnerChanger",
+    "PlayerManagerChanger",
     "RespawnAnchorChanger",
     "ServerPlayerEntityChanger",
     "ServerWorldChanger",
