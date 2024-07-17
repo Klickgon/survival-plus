@@ -3,7 +3,6 @@ package survivalplus.modid.entity.ai.pathing.pathmaker;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNode;
@@ -69,14 +68,13 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
         if (this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             World world = this.entity.getWorld();
             BlockPos pos = new BlockPos(x, y, z);
-            if (world.getBlockState(pos).isIn(this.blockTag)){
-                if(!world.getBlockState(pos.up()).isIn(this.blockTag) && !world.getBlockState(pos.up()).isReplaceable())
-                    return null;
-                if(!world.getBlockState(pos.down()).isReplaceable())
-                    return getNodeWith(x, y, z, PathNodeType.WALKABLE, 8.0f);
+            if (world.getBlockState(pos).isIn(this.blockTag) || world.getBlockState(pos).isReplaceable()){
+                if(world.getBlockState(pos.up()).isIn(this.blockTag) || world.getBlockState(pos.up()).isReplaceable()) {
+                    if(world.getBlockState(pos.down()).isSolidBlock(world, pos.down()))
+                        return getNodeWith(x, y, z, PathNodeType.WALKABLE, 8.0f);
+                }
+                else return null;
             }
-            if(world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isIn(this.blockTag))
-                return getNodeWith(x, y, z, PathNodeType.WALKABLE, 8.0f);
         }
         return super.getPathNode(x, y, z, maxYStep, prevFeetY, direction, nodeType);
     }
@@ -110,16 +108,16 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             }
             d = this.getFeetY(new BlockPos(node.x, node.y, node.z));
             World world = this.entity.getWorld();
-            if (this.isValidAdjacentSuccessor(pathNode10 = this.getPathNode(node.x - 1, node.y + 1, node.z, j, d, Direction.WEST, pathNodeType1), node, world, node.x, node.y + 2, node.z)) {
+            if (this.isValidAdjacentSuccessor(pathNode10 = this.getPathNode(node.x - 1, node.y + 1, node.z, j, d, Direction.WEST, pathNodeType1), node, world, node.x, node.y + 2, node.z) && isPassable(world,node.x - 1, node.y + 1, node.z)) {
                 successors[i++] = pathNode10;
             }
-            if (this.isValidAdjacentSuccessor(pathNode11 = this.getPathNode(node.x + 1, node.y + 1, node.z, j, d, Direction.EAST, pathNodeType1), node, world, node.x, node.y + 2, node.z)) {
+            if (this.isValidAdjacentSuccessor(pathNode11 = this.getPathNode(node.x + 1, node.y + 1, node.z, j, d, Direction.EAST, pathNodeType1), node, world, node.x, node.y + 2, node.z) && isPassable(world,node.x + 1, node.y + 1, node.z)) {
                 successors[i++] = pathNode11;
             }
-            if (this.isValidAdjacentSuccessor(pathNode12 = this.getPathNode(node.x, node.y + 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node, world, node.x, node.y + 2, node.z)) {
+            if (this.isValidAdjacentSuccessor(pathNode12 = this.getPathNode(node.x, node.y + 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node, world, node.x, node.y + 2, node.z) && isPassable(world, node.x, node.y + 1, node.z - 1)) {
                 successors[i++] = pathNode12;
             }
-            if (this.isValidAdjacentSuccessor(pathNode13 = this.getPathNode(node.x, node.y + 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node, world, node.x, node.y + 2, node.z)) {
+            if (this.isValidAdjacentSuccessor(pathNode13 = this.getPathNode(node.x, node.y + 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node, world, node.x, node.y + 2, node.z) && isPassable(world, node.x, node.y + 1, node.z + 1)) {
                 successors[i++] = pathNode13;
             }
             if (this.isValidAdjacentSuccessor(pathNode = this.getPathNode(node.x, node.y, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node)) {
@@ -146,16 +144,16 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             if (this.isValidDiagonalSuccessor(node, pathNode3, pathNode, pathNode8 = this.getPathNode(node.x + 1, node.y, node.z + 1, j, d, Direction.SOUTH, pathNodeType1))) {
                 successors[i++] = pathNode8;
             }
-            if (this.isValidAdjacentSuccessor(pathNode9 = this.getPathNode(node.x, node.y - 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node, world, node.x, node.y, node.z + 1)) {
+            if (this.isValidAdjacentSuccessor(pathNode9 = this.getPathNode(node.x, node.y - 1, node.z + 1, j, d, Direction.SOUTH, pathNodeType1), node, world, node.x, node.y, node.z + 1) && isPassable(world,node.x, node.y - 1, node.z + 1)) {
                 successors[i++] = pathNode9;
             }
-            if (this.isValidAdjacentSuccessor(pathNode14 = this.getPathNode(node.x - 1, node.y - 1, node.z, j, d, Direction.WEST, pathNodeType1), node, world, node.x - 1, node.y, node.z)) {
+            if (this.isValidAdjacentSuccessor(pathNode14 = this.getPathNode(node.x - 1, node.y - 1, node.z, j, d, Direction.WEST, pathNodeType1), node, world, node.x - 1, node.y, node.z) && isPassable(world,node.x - 1, node.y - 1, node.z)) {
                 successors[i++] = pathNode14;
             }
-            if (this.isValidAdjacentSuccessor(pathNode15 = this.getPathNode(node.x + 1, node.y - 1, node.z, j, d, Direction.EAST, pathNodeType1), node, world, node.x + 1, node.y, node.z)) {
+            if (this.isValidAdjacentSuccessor(pathNode15 = this.getPathNode(node.x + 1, node.y - 1, node.z, j, d, Direction.EAST, pathNodeType1), node, world, node.x + 1, node.y, node.z) && isPassable(world,node.x + 1, node.y - 1, node.z)) {
                 successors[i++] = pathNode15;
             }
-            if (this.isValidAdjacentSuccessor(pathNode16 = this.getPathNode(node.x, node.y - 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node, world, node.x, node.y, node.z - 1)) {
+            if (this.isValidAdjacentSuccessor(pathNode16 = this.getPathNode(node.x, node.y - 1, node.z - 1, j, d, Direction.NORTH, pathNodeType1), node, world, node.x, node.y, node.z - 1) && isPassable(world, node.x, node.y - 1, node.z - 1)) {
                 successors[i++] = pathNode16;
             }
             return i;
@@ -186,15 +184,13 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
         return zDiagNode.penalty >= 0.0f && (xDiagNode.y < xNode.y || xDiagNode.penalty >= 0.0f || bl) && (zNode.y < xNode.y || zNode.penalty >= 0.0f || bl);
     }
 
-
     protected boolean isValidAdjacentSuccessor(@Nullable PathNode node, PathNode successor1, World world, int x, int y, int z) {
         return super.isValidAdjacentSuccessor(node, successor1) && isPassable(world, x, y, z);
     }
 
     protected boolean isPassable(World world, int x, int y, int z){
-        BlockPos bpos = new BlockPos(x, y, z);
-        BlockState bState = world.getBlockState(bpos);
-        return bState.isIn(blockTag) || this.getNodeType(this.entity, bpos).getDefaultPenalty() >= 0.0f;
+        BlockPos pos = new BlockPos(x, y, z);
+        return world.getBlockState(pos).isIn(blockTag) || !world.getBlockState(pos).isFullCube(world, pos);
     }
 
 }

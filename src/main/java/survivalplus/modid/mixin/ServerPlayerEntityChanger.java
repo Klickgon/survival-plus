@@ -27,6 +27,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalplus.modid.PlayerData;
+import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.util.ModPlayerStats;
@@ -34,7 +35,7 @@ import survivalplus.modid.util.ModPlayerStats;
 import static net.minecraft.block.RespawnAnchorBlock.CHARGES;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityChanger extends PlayerEntity{
+public abstract class ServerPlayerEntityChanger extends PlayerEntity implements IServerPlayerChanger {
 
     public ServerPlayerEntityChanger(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(world, pos, yaw, gameProfile);
@@ -159,6 +160,10 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity{
     private boolean isValidRespawnAnchor(BlockPos pos, World world){
         BlockState state = world.getBlockState(pos);
         return state.isOf(Blocks.RESPAWN_ANCHOR) && state.get(CHARGES) > 0;
+    }
+
+    public BlockPos getMainSpawnPoint(){
+        return this.spawnPointPosition;
     }
 
 }

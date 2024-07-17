@@ -20,6 +20,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
@@ -102,6 +103,7 @@ extends TrackTargetGoal {
 
                 int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 
+
                 Direction direction = Direction.fromRotation(this.mob.getBodyYaw());
 
                 switch (direction){
@@ -113,7 +115,8 @@ extends TrackTargetGoal {
                 }
 
                 if(this.facingBlock != null && checkOnSameXandZ()) {
-                    if(DiffY == 0 && (!world.getBlockState(this.facingBlock).isReplaceable() || !world.getBlockState(this.facingBlock.down()).isReplaceable())) {
+                    SurvivalPlus.LOGGER.info("{}, {}", DiffY, direction);
+                    if(DiffY == 0) {
                         if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                             this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
                             world.breakBlock(this.facingBlock, true);
@@ -141,12 +144,14 @@ extends TrackTargetGoal {
                         if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                             this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
                             world.breakBlock(this.facingBlock, true);
-                        } else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
-                            this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.mob.getBlockPos().up(2)).getHardness(world, this.mob.getBlockPos().up(2));
-                            world.breakBlock(this.mob.getBlockPos().up(2), true);
-                        } else if (world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)) {
+                        }
+                        else if (world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)) {
                             this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.up()).getHardness(world, this.facingBlock.up());
                             world.breakBlock(this.facingBlock.up(), true);
+                        }
+                        else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.mob.getBlockPos().up(2)).getHardness(world, this.mob.getBlockPos().up(2));
+                            world.breakBlock(this.mob.getBlockPos().up(2), true);
                         }
                     }
                 }

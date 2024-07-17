@@ -26,7 +26,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
@@ -42,6 +41,7 @@ import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.DestroyerZombAttackGoal;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
 import survivalplus.modid.util.ModGamerules;
+import survivalplus.modid.util.ModTags;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
@@ -55,7 +55,7 @@ public class LumberjackZombieEntity
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
     private boolean canBreakDoors;
     public BlockPos targetBedPos;
-    public static final TagKey<Block> BLOCKTAG = BlockTags.AXE_MINEABLE;
+    public static final TagKey<Block> BLOCKTAG = ModTags.Blocks.LUMBERJACKZOMBIE_MINABLE;
     public static final int defaultCooldown = 10;
     private int inWaterTime;
     private int ticksUntilWaterConversion;

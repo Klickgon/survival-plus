@@ -17,6 +17,7 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.PlayerData;
+import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.ModGamerules;
 
 import java.util.Iterator;
@@ -79,7 +80,7 @@ extends PersistentState {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();
-        BlockPos spawnPos = player.getSpawnPointPosition();
+        BlockPos spawnPos = ((IServerPlayerChanger) player).getMainSpawnPoint();
         if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || this.world.getAmbientDarkness() < 4) {
             return null;
         }

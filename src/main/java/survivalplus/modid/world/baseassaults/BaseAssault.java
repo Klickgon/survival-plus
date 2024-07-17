@@ -37,6 +37,7 @@ import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.ai.BaseAssaultGoal;
 import survivalplus.modid.util.IHostileEntityChanger;
+import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
 
@@ -299,7 +300,7 @@ public class BaseAssault {
                 return;
             }
             ++this.ticksActive;
-            if (!this.attachedPlayer.isAlive() && !this.world.getBlockState(this.center).isIn(BlockTags.BEDS)) {
+            if (!this.attachedPlayer.isAlive() && PlayerEntity.findRespawnPosition(world, this.attachedPlayer.getSpawnPointPosition(), 0.0f, false, true).isEmpty()) {
                 this.status = Status.LOSS;
             }
             updateCenter();
@@ -309,7 +310,7 @@ public class BaseAssault {
             if (this.ticksActive >= 48000L) {
                 this.invalidate();
             }
-            if (this.ticksActive >= 2000L && getHostileCount() <= 3) {
+            if (this.ticksActive >= 2000L && getHostileCount() <= 5) {
                 for(HostileEntity hostile : this.hostiles){
                     if(hostile != null) hostile.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 3));
                 }
@@ -391,7 +392,7 @@ public class BaseAssault {
     }
 
     private void updateCenter() {
-        BlockPos spawnPoint = this.attachedPlayer.getSpawnPointPosition();
+        BlockPos spawnPoint = ((IServerPlayerChanger)this.attachedPlayer).getMainSpawnPoint();
         if(spawnPoint == null || !world.getBlockState(spawnPoint).isIn(BlockTags.BEDS)) this.findPlayerInsteadOfBed = true;
         else {
             this.center = spawnPoint;
