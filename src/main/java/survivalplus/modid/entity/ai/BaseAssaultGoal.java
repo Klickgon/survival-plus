@@ -17,7 +17,6 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
@@ -143,7 +142,6 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
             }
 
             if(this.facingBlock != null && checkOnSameXandZ()) {
-                SurvivalPlus.LOGGER.info("{}, {}", DiffY, direction);
                 if(DiffY == 0) {
                     if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);

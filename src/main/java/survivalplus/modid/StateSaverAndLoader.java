@@ -2,7 +2,6 @@ package survivalplus.modid;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
@@ -29,7 +28,7 @@ public class StateSaverAndLoader extends PersistentState {
                 playerNbt.putInt("tempSpawnPositionY", playerData.tempSpawnPosition.getY());
                 playerNbt.putInt("tempSpawnPositionZ", playerData.tempSpawnPosition.getZ());
             }
-            Identifier.CODEC.encodeStart(NbtOps.INSTANCE, playerData.tempSpawnDimension.getValue()).resultOrPartial(SurvivalPlus.LOGGER::error).ifPresent(encoded -> nbt.put("tempSpawnDimension", (NbtElement)encoded));
+            Identifier.CODEC.encodeStart(NbtOps.INSTANCE, playerData.tempSpawnDimension.getValue()).resultOrPartial(SurvivalPlus.LOGGER::error).ifPresent(encoded -> playerNbt.put("tempSpawnDimension", encoded));
             playerNbt.putFloat("tempSpawnAngle", playerData.tempSpawnAngle);
             playerNbt.putBoolean("tempSpawnForced", playerData.tempSpawnForced);
 
@@ -38,7 +37,7 @@ public class StateSaverAndLoader extends PersistentState {
                 playerNbt.putInt("mainSpawnPositionY", playerData.mainSpawnPosition.getY());
                 playerNbt.putInt("mainSpawnPositionZ", playerData.mainSpawnPosition.getZ());
             }
-            Identifier.CODEC.encodeStart(NbtOps.INSTANCE, playerData.mainSpawnDimension.getValue()).resultOrPartial(SurvivalPlus.LOGGER::error).ifPresent(encoded -> nbt.put("mainSpawnDimension", (NbtElement)encoded));
+            Identifier.CODEC.encodeStart(NbtOps.INSTANCE, playerData.mainSpawnDimension.getValue()).resultOrPartial(SurvivalPlus.LOGGER::error).ifPresent(encoded -> playerNbt.put("mainSpawnDimension", encoded));
             playerNbt.putFloat("mainSpawnAngle", playerData.mainSpawnAngle);
             playerNbt.putBoolean("mainSpawnForced", playerData.mainSpawnForced);
 
@@ -57,29 +56,33 @@ public class StateSaverAndLoader extends PersistentState {
         playersNbt.getKeys().forEach(key -> {
             UUID uuid = UUID.fromString(key);
             PlayerData playerData = new PlayerData();
-            if(playersNbt.contains("baseAssaultTimer")) playerData.baseAssaultTimer = playersNbt.getCompound(key).getInt("baseAssaultTimer");
-            if(playersNbt.contains("generatedWave")) playerData.generatedWave = playersNbt.getCompound(key).getByteArray("generatedWave");
-            if(playersNbt.contains("tempSpawnPositionX") && playersNbt.contains("tempSpawnPositionY") && playersNbt.contains("tempSpawnPositionZ")) {
-                int x = playersNbt.getCompound(key).getInt("tempSpawnPositionX");
-                int y = playersNbt.getCompound(key).getInt("tempSpawnPositionY");
-                int z = playersNbt.getCompound(key).getInt("tempSpawnPositionZ");
+            NbtCompound compound = playersNbt.getCompound(key);
+            playerData.baseAssaultTimer = compound.getInt("baseAssaultTimer");
+            if(compound.contains("generatedWave")) playerData.generatedWave = compound.getByteArray("generatedWave");
+
+            if(compound.contains("tempSpawnPositionX") && compound.contains("tempSpawnPositionY") && compound.contains("tempSpawnPositionZ")) {
+                int x = compound.getInt("tempSpawnPositionX");
+                int y = compound.getInt("tempSpawnPositionY");
+                int z = compound.getInt("tempSpawnPositionZ");
                 playerData.tempSpawnPosition = new BlockPos(x, y, z);
             }
-            if(playersNbt.contains("tempSpawnAngle")) playerData.tempSpawnAngle = playersNbt.getCompound(key).getFloat("tempSpawnAngle");
-            if(playersNbt.contains("tempSpawnForced")) playerData.tempSpawnForced = playersNbt.getCompound(key).getBoolean("tempSpawnForced");
-            if(playersNbt.contains("tempSpawnDimension"))
-                World.CODEC.parse(NbtOps.INSTANCE, playersNbt.get("tempSpawnDimension")).resultOrPartial(SurvivalPlus.LOGGER::error).orElse(World.OVERWORLD);
 
-            if(playersNbt.contains("mainSpawnPositionX") && playersNbt.contains("mainSpawnPositionY") && playersNbt.contains("mainSpawnPositionZ")) {
-                int x = playersNbt.getCompound(key).getInt("mainSpawnPositionX");
-                int y = playersNbt.getCompound(key).getInt("mainSpawnPositionY");
-                int z = playersNbt.getCompound(key).getInt("mainSpawnPositionZ");
+            playerData.tempSpawnAngle = compound.getFloat("tempSpawnAngle");
+            playerData.tempSpawnForced = compound.getBoolean("tempSpawnForced");
+
+            World.CODEC.parse(NbtOps.INSTANCE, compound.get("tempSpawnDimension")).resultOrPartial(SurvivalPlus.LOGGER::error).orElse(World.OVERWORLD);
+
+            if(compound.contains("mainSpawnPositionX") && compound.contains("mainSpawnPositionY") && compound.contains("mainSpawnPositionZ")) {
+                int x = compound.getInt("mainSpawnPositionX");
+                int y = compound.getInt("mainSpawnPositionY");
+                int z = compound.getInt("mainSpawnPositionZ");
                 playerData.mainSpawnPosition = new BlockPos(x, y, z);
             }
-            if(playersNbt.contains("mainSpawnAngle")) playerData.mainSpawnAngle = playersNbt.getCompound(key).getFloat("mainSpawnAngle");
-            if(playersNbt.contains("mainSpawnForced")) playerData.mainSpawnForced = playersNbt.getCompound(key).getBoolean("mainSpawnForced");
-            if(playersNbt.contains("mainSpawnDimension"))
-                World.CODEC.parse(NbtOps.INSTANCE, playersNbt.get("mainSpawnDimension")).resultOrPartial(SurvivalPlus.LOGGER::error).orElse(World.OVERWORLD);
+
+            playerData.mainSpawnAngle = compound.getFloat("mainSpawnAngle");
+            playerData.mainSpawnForced = compound.getBoolean("mainSpawnForced");
+
+            World.CODEC.parse(NbtOps.INSTANCE, compound.get("mainSpawnDimension")).resultOrPartial(SurvivalPlus.LOGGER::error).orElse(World.OVERWORLD);
 
             state.players.put(uuid, playerData);
         });

@@ -20,7 +20,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
@@ -115,7 +114,6 @@ extends TrackTargetGoal {
                 }
 
                 if(this.facingBlock != null && checkOnSameXandZ()) {
-                    SurvivalPlus.LOGGER.info("{}, {}", DiffY, direction);
                     if(DiffY == 0) {
                         if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                             this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);

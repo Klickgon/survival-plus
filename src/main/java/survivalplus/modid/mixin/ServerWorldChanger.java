@@ -31,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import survivalplus.modid.PlayerData;
 import survivalplus.modid.StateSaverAndLoader;
+import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
 import survivalplus.modid.world.baseassaults.BaseAssault;
@@ -107,7 +108,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
                     else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             } else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             this.baseAssaultManager.startBaseAssault(serverPlayer);
-            PlayerData.getPlayerState(serverPlayer).baseAssaultTimer++;
+            SurvivalPlus.LOGGER.info("" + PlayerData.getPlayerState(serverPlayer).baseAssaultTimer++);
         }
         baseAssaultManager.tick();
     }
