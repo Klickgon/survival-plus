@@ -108,7 +108,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
                     else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             } else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             this.baseAssaultManager.startBaseAssault(serverPlayer);
-            SurvivalPlus.LOGGER.info("" + PlayerData.getPlayerState(serverPlayer).baseAssaultTimer++);
+            PlayerData.getPlayerState(serverPlayer).baseAssaultTimer++;
         }
         baseAssaultManager.tick();
     }
