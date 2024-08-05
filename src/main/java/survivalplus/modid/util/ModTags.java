@@ -13,6 +13,8 @@ public class ModTags {
 
         public static final TagKey<Block> LUMBERJACKZOMBIE_MINABLE = createTag("lumberjackzombie_mineable");
 
+        public static final TagKey<Block> DIGGINGZOMBIE_MINABLE = createTag("diggingzombie_mineable");
+
         private static TagKey<Block> createTag(String name){
             return TagKey.of(RegistryKeys.BLOCK, new Identifier(SurvivalPlus.MOD_ID, name));
         }
