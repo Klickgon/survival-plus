@@ -4,6 +4,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import survivalplus.modid.PlayerData;
 import survivalplus.modid.StateSaverAndLoader;
-import survivalplus.modid.SurvivalPlus;
+import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
 import survivalplus.modid.world.baseassaults.BaseAssault;
@@ -108,7 +109,9 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
                     else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             } else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             this.baseAssaultManager.startBaseAssault(serverPlayer);
-            SurvivalPlus.LOGGER.info("" + PlayerData.getPlayerState(serverPlayer).baseAssaultTimer++);
+            BlockPos spawnPoint = ((IServerPlayerChanger) serverPlayer).getMainSpawnPoint();
+            if(spawnPoint != null && this.getBlockState(spawnPoint).isIn(BlockTags.BEDS) && serverPlayer.getPos().squaredDistanceTo(spawnPoint.toCenterPos()) < 9216)
+                PlayerData.getPlayerState(serverPlayer).baseAssaultTimer++;
         }
         baseAssaultManager.tick();
     }

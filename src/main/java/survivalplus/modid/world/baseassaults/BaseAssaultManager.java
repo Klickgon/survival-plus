@@ -32,7 +32,7 @@ extends PersistentState {
     private int nextAvailableId;
 
     public static Type<BaseAssaultManager> getPersistentStateType(ServerWorld world) {
-        return new Type<BaseAssaultManager>(() -> new BaseAssaultManager(world), nbt -> BaseAssaultManager.fromNbt(world, nbt), null);
+        return new Type<>(() -> new BaseAssaultManager(world), nbt -> BaseAssaultManager.fromNbt(world, nbt), null);
     }
 
     public BaseAssaultManager(ServerWorld world) {
@@ -76,7 +76,7 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return null;
         }
-        if(PlayerData.getPlayerState(player).baseAssaultTimer < 144000) {
+        if(PlayerData.getPlayerState(player).baseAssaultTimer < 100000) {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();

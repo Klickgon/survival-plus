@@ -34,12 +34,12 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
     @Inject(method = "canSpawnInDark", at = @At("RETURN"), cancellable = true)
     private static void SpawnDayReq(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir){
         // Blocks hostile Entity Spawns during the first day on the surface, but mobs can still spawn underground during the first day
-        boolean afterOneDay;
+        boolean firstNightRestriction;
         if (world.getLevelProperties().getTimeOfDay() <= 24000L) {
-            afterOneDay = firstNightSpawnRestriction(pos, world.toServerWorld());
+            firstNightRestriction = firstNightSpawnRestriction(pos, world.toServerWorld());
         }
-        else afterOneDay = true;
-        cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (afterOneDay || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
+        else firstNightRestriction = true;
+        cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (firstNightRestriction || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
     }
 
     @Unique
@@ -48,11 +48,11 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
         while (blockPos.getY() > pos.getY()) {
             BlockState blockState = world.getBlockState(blockPos);
             if (blockState.isOpaqueFullCube(world, blockPos)) {
-                return HostileEntity.isSpawnDark((ServerWorldAccess) world, pos, world.random);
+                return true;
             }
             blockPos = blockPos.down();
         }
-        return false;
+        return world.random.nextBoolean();
     }
 
     @Override

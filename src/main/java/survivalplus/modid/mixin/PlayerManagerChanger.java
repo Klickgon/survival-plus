@@ -16,7 +16,7 @@ public class PlayerManagerChanger {
 
     @Redirect(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;setSpawnPoint(Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/util/math/BlockPos;FZZ)V"))
     private void setSpawnPointRedirect(ServerPlayerEntity instance, RegistryKey<World> dimension, @Nullable BlockPos pos, float angle, boolean forced, boolean sendMessage){
-        PlayerData pdata = PlayerData.getPlayerState(instance); // Necessary so the player has a non Respawn Anchor block spawnpoint after death due to it actually not saved after death
+        PlayerData pdata = PlayerData.getPlayerState(instance); // Necessary so the player has a non Respawn Anchor block spawnpoint after death due to it actually not being saved after death
         instance.setSpawnPoint(pdata.mainSpawnDimension, pdata.mainSpawnPosition, pdata.mainSpawnAngle, pdata.mainSpawnForced, false);
     }
 }

@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.ai.ActiveTargetGoalDestrZomb;
 import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.DestroyerZombAttackGoal;
+import survivalplus.modid.entity.ai.movecontrols.DestroyerZombieMoveControl;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
 import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.util.ModTags;
@@ -60,14 +61,15 @@ public class MinerZombieEntity
 
     public MinerZombieEntity(EntityType<? extends ZombieEntity> entityType, World world) {
         super(entityType, world);
-        this.navigation = new DestroyZombieNavigation((ZombieEntity) this, this.getWorld());
+        this.navigation = new DestroyZombieNavigation(this, this.getWorld());
+        this.moveControl = new DestroyerZombieMoveControl(this);
     }
 
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 8));
-        this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
+        this.goalSelector.add(4, new DestrZombDestroyBedGoal(this, 1.0, 8));
+        this.goalSelector.add(5, new DestroyEggGoal(this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));
         this.initCustomGoals();
@@ -77,11 +79,11 @@ public class MinerZombieEntity
         this.goalSelector.add(2, new DestroyerZombAttackGoal(this, 1.0, false));
         this.goalSelector.add(6, new MoveThroughVillageGoal(this, 1.0, true, 4, this::canBreakDoors));
         this.goalSelector.add(7, new WanderAroundFarGoal(this, 1.0));
-        this.targetSelector.add(1, new RevengeGoal(this, new Class[0]).setGroupRevenge(ZombifiedPiglinEntity.class));
-        this.targetSelector.add(2, new ActiveTargetGoalDestrZomb<PlayerEntity>((MobEntity)this, PlayerEntity.class, false));
-        this.targetSelector.add(3, new ActiveTargetGoal<MerchantEntity>((MobEntity)this, MerchantEntity.class, false));
-        this.targetSelector.add(3, new ActiveTargetGoal<IronGolemEntity>((MobEntity)this, IronGolemEntity.class, true));
-        this.targetSelector.add(5, new ActiveTargetGoal<TurtleEntity>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
+        this.targetSelector.add(1, new RevengeGoal(this).setGroupRevenge(ZombifiedPiglinEntity.class));
+        this.targetSelector.add(2, new ActiveTargetGoalDestrZomb<>(this, PlayerEntity.class, false));
+        this.targetSelector.add(3, new ActiveTargetGoal<>(this, MerchantEntity.class, false));
+        this.targetSelector.add(3, new ActiveTargetGoal<>(this, IronGolemEntity.class, true));
+        this.targetSelector.add(5, new ActiveTargetGoal<>(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
     }
 
     public static DefaultAttributeContainer.Builder createZombieAttributes() {
