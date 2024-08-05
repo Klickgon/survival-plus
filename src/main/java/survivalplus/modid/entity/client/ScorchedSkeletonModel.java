@@ -9,8 +9,8 @@ import net.minecraft.client.model.*;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.CrossbowPosing;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.render.entity.model.SkeletonEntityModel;
+import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -19,8 +19,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 
 @Environment(value=EnvType.CLIENT)
-public class ScorchedSkeletonModel<T extends MobEntity>
-extends BipedEntityModel<T> {
+public class ScorchedSkeletonModel<T extends MobEntity & RangedAttackMob>
+extends SkeletonEntityModel<T> {
     public ScorchedSkeletonModel(ModelPart modelPart) {
         super(modelPart);
     }
@@ -39,9 +39,9 @@ extends BipedEntityModel<T> {
     public void animateModel(T mobEntity, float f, float g, float h) {
         this.rightArmPose = ArmPose.EMPTY;
         this.leftArmPose = ArmPose.EMPTY;
-        ItemStack itemStack = ((LivingEntity)mobEntity).getStackInHand(Hand.MAIN_HAND);
-        if (itemStack.isOf(Items.BOW) && ((MobEntity)mobEntity).isAttacking()) {
-            if (((MobEntity)mobEntity).getMainArm() == Arm.RIGHT) {
+        ItemStack itemStack = mobEntity.getStackInHand(Hand.MAIN_HAND);
+        if (itemStack.isOf(Items.BOW) && mobEntity.isAttacking()) {
+            if (mobEntity.getMainArm() == Arm.RIGHT) {
                 this.rightArmPose = ArmPose.BOW_AND_ARROW;
             } else {
                 this.leftArmPose = ArmPose.BOW_AND_ARROW;
@@ -53,8 +53,8 @@ extends BipedEntityModel<T> {
     @Override
     public void setAngles(T mobEntity, float f, float g, float h, float i, float j) {
         super.setAngles(mobEntity, f, g, h, i, j);
-        ItemStack itemStack = ((LivingEntity)mobEntity).getMainHandStack();
-        if (((MobEntity)mobEntity).isAttacking() && (itemStack.isEmpty() || !itemStack.isOf(Items.BOW))) {
+        ItemStack itemStack = mobEntity.getMainHandStack();
+        if (mobEntity.isAttacking() && (itemStack.isEmpty() || !itemStack.isOf(Items.BOW))) {
             float k = MathHelper.sin(this.handSwingProgress * (float)Math.PI);
             float l = MathHelper.sin((1.0f - (1.0f - this.handSwingProgress) * (1.0f - this.handSwingProgress)) * (float)Math.PI);
             this.rightArm.roll = 0.0f;
@@ -69,13 +69,5 @@ extends BipedEntityModel<T> {
         }
     }
 
-    @Override
-    public void setArmAngle(Arm arm, MatrixStack matrices) {
-        float f = arm == Arm.RIGHT ? 1.0f : -1.0f;
-        ModelPart modelPart = this.getArm(arm);
-        modelPart.pivotX += f;
-        modelPart.rotate(matrices);
-        modelPart.pivotX -= f;
-    }
 }
 

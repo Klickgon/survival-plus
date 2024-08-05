@@ -7,36 +7,19 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
-import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.render.entity.model.SpiderEntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
 @Environment(value=EnvType.CLIENT)
 public class LeapingSpiderModel<T extends Entity>
-extends SinglePartEntityModel<T> {
-    /**
-     * The key of the first model part of the body, whose value is {@value}.
-     */
+extends SpiderEntityModel<T> {
+
     private static final String BODY0 = "body0";
-    /**
-     * The key of the second model part of the body, whose value is {@value}.
-     */
     private static final String BODY1 = "body1";
-    /**
-     * The key of the right middle front leg model part, whose value is {@value}.
-     */
     private static final String RIGHT_MIDDLE_FRONT_LEG = "right_middle_front_leg";
-    /**
-     * The key of the left middle front leg model part, whose value is {@value}.
-     */
     private static final String LEFT_MIDDLE_FRONT_LEG = "left_middle_front_leg";
-    /**
-     * The key of the right middle hind leg model part, whose value is {@value}.
-     */
     private static final String RIGHT_MIDDLE_HIND_LEG = "right_middle_hind_leg";
-    /**
-     * The key of the left middle hind leg model part, whose value is {@value}.
-     */
     private static final String LEFT_MIDDLE_HIND_LEG = "left_middle_hind_leg";
     private final ModelPart root;
     private final ModelPart head;
@@ -50,6 +33,7 @@ extends SinglePartEntityModel<T> {
     private final ModelPart leftFrontLeg;
 
     public LeapingSpiderModel(ModelPart root) {
+        super(root);
         this.root = root;
         this.head = root.getChild(EntityModelPartNames.HEAD);
         this.rightHindLeg = root.getChild(EntityModelPartNames.RIGHT_HIND_LEG);
@@ -65,7 +49,6 @@ extends SinglePartEntityModel<T> {
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();
         ModelPartData modelPartData = modelData.getRoot();
-        int i = 15;
         modelPartData.addChild(EntityModelPartNames.HEAD, ModelPartBuilder.create().uv(32, 4).cuboid(-4.0f, -4.0f, -8.0f, 8.0f, 8.0f, 8.0f), ModelTransform.pivot(0.0f, 15.0f, -3.0f));
         modelPartData.addChild(BODY0, ModelPartBuilder.create().uv(0, 0).cuboid(-3.0f, -3.0f, -3.0f, 6.0f, 6.0f, 6.0f), ModelTransform.pivot(0.0f, 15.0f, 0.0f));
         modelPartData.addChild(BODY1, ModelPartBuilder.create().uv(0, 12).cuboid(-5.0f, -4.0f, -6.0f, 10.0f, 8.0f, 12.0f), ModelTransform.pivot(0.0f, 15.0f, 9.0f));
@@ -91,7 +74,6 @@ extends SinglePartEntityModel<T> {
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
         this.head.yaw = headYaw * ((float)Math.PI / 180);
         this.head.pitch = headPitch * ((float)Math.PI / 180);
-        float f = 0.7853982f;
         this.rightHindLeg.roll = -0.7853982f;
         this.leftHindLeg.roll = 0.7853982f;
         this.rightMiddleLeg.roll = -0.58119464f;
@@ -100,8 +82,6 @@ extends SinglePartEntityModel<T> {
         this.leftMiddleFrontLeg.roll = 0.58119464f;
         this.rightFrontLeg.roll = -0.7853982f;
         this.leftFrontLeg.roll = 0.7853982f;
-        float g = -0.0f;
-        float h = 0.3926991f;
         this.rightHindLeg.yaw = 0.7853982f;
         this.leftHindLeg.yaw = -0.7853982f;
         this.rightMiddleLeg.yaw = 0.3926991f;
@@ -119,21 +99,21 @@ extends SinglePartEntityModel<T> {
         float o = Math.abs(MathHelper.sin(limbAngle * 0.6662f + 1.5707964f) * 0.4f) * limbDistance;
         float p = Math.abs(MathHelper.sin(limbAngle * 0.6662f + 4.712389f) * 0.4f) * limbDistance;
         this.rightHindLeg.yaw += i;
-        this.leftHindLeg.yaw += -i;
+        this.leftHindLeg.yaw -= i;
         this.rightMiddleLeg.yaw += j;
-        this.leftMiddleLeg.yaw += -j;
+        this.leftMiddleLeg.yaw -= j;
         this.rightMiddleFrontLeg.yaw += k;
-        this.leftMiddleFrontLeg.yaw += -k;
+        this.leftMiddleFrontLeg.yaw -= k;
         this.rightFrontLeg.yaw += l;
-        this.leftFrontLeg.yaw += -l;
+        this.leftFrontLeg.yaw -= l;
         this.rightHindLeg.roll += m;
-        this.leftHindLeg.roll += -m;
+        this.leftHindLeg.roll -= m;
         this.rightMiddleLeg.roll += n;
-        this.leftMiddleLeg.roll += -n;
+        this.leftMiddleLeg.roll -= n;
         this.rightMiddleFrontLeg.roll += o;
-        this.leftMiddleFrontLeg.roll += -o;
+        this.leftMiddleFrontLeg.roll -= o;
         this.rightFrontLeg.roll += p;
-        this.leftFrontLeg.roll += -p;
+        this.leftFrontLeg.roll -= p;
     }
 }
 

@@ -1,20 +1,20 @@
 package survivalplus.modid.entity.client;
 
 import net.minecraft.client.model.*;
-import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.render.entity.model.CreeperEntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
-public class ReeperModel<T extends Entity> extends SinglePartEntityModel<T> {
+public class ReeperModel<T extends Entity> extends CreeperEntityModel<T> {
     private final ModelPart root;
     private final ModelPart head;
     private final ModelPart leftHindLeg;
     private final ModelPart rightHindLeg;
     private final ModelPart leftFrontLeg;
     private final ModelPart rightFrontLeg;
-    private static final int HEAD_AND_BODY_Y_PIVOT = 6;
 
     public ReeperModel(ModelPart root) {
+        super(root);
         this.root = root;
         this.head = root.getChild("head");
         this.rightHindLeg = root.getChild("right_hind_leg");
