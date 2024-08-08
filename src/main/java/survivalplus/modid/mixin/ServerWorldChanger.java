@@ -32,7 +32,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import survivalplus.modid.PlayerData;
 import survivalplus.modid.StateSaverAndLoader;
-import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
@@ -118,7 +117,6 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
                 else if(distance < 65536)
                     playerData.baseAssaultTimer = Math.min(195000, playerData.baseAssaultTimer + 1);
             }
-            if(getTime() % 200 == 0) SurvivalPlus.LOGGER.info("" + PlayerData.getPlayerState(serverPlayer).baseAssaultTimer);
         }
         baseAssaultManager.tick();
     }
