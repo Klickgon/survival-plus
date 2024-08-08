@@ -57,7 +57,7 @@ public class LumberjackZombieEntity
     private boolean canBreakDoors;
     public BlockPos targetBedPos;
     public static final TagKey<Block> BLOCKTAG = ModTags.Blocks.LUMBERJACKZOMBIE_MINABLE;
-    public static final int defaultCooldown = 10;
+    public static final int defaultCooldown = 12;
     private int inWaterTime;
     private int ticksUntilWaterConversion;
 
@@ -273,7 +273,7 @@ public class LumberjackZombieEntity
     }
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
-        int FullDaysRequired = 15;
+        int FullDaysRequired = 21;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
         return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= FullDaysRequired) && canSpawnInDark(type, world, spawnReason, pos, random);
     }

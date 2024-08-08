@@ -21,6 +21,8 @@
     "minecraft:suspicious_sand",
     "minecraft:suspicious_gravel",
     "#minecraft:concrete_powder",
-    "minecraft:torch"
+    "minecraft:torch",
+    "minecraft:soul_torch",
+    "minecraft:redstone_torch"
   ]
 }

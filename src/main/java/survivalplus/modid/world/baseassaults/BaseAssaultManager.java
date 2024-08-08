@@ -76,12 +76,15 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return null;
         }
-        if(PlayerData.getPlayerState(player).baseAssaultTimer < 100000) {
+        if(PlayerData.getPlayerState(player).baseAssaultTimer < 200000) {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();
         BlockPos spawnPos = ((IServerPlayerChanger) player).getMainSpawnPoint();
         if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || this.world.getAmbientDarkness() < 4) {
+            return null;
+        }
+        if(Math.abs(playerPos.getY() - spawnPos.getY()) > 16){
             return null;
         }
         BaseAssault baseAssault = this.getOrCreateBaseAssault(player.getServerWorld(), spawnPos, player);

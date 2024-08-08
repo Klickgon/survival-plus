@@ -32,6 +32,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import survivalplus.modid.PlayerData;
 import survivalplus.modid.StateSaverAndLoader;
+import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
@@ -78,7 +79,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     protected void resetTimeSinceSleepStat(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP));// Resets the "time since sleep" stat for every player once everyone wakes up
-            StateSaverAndLoader.getPlayerState(serverPlayer).baseAssaultTimer += 7000;
+            StateSaverAndLoader.getPlayerState(serverPlayer).baseAssaultTimer += 14000;
             // also increases the time since last Base Assault by the time of day skipped through sleeping
         }
     }
@@ -104,14 +105,20 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
             BlockPos bpos = serverPlayer.getSpawnPointPosition();
                 if(bpos != null){
                     Optional<Vec3d> result = PlayerEntity.findRespawnPosition(serverPlayer.getServerWorld(), bpos, 0.0f, false, true);
-                    if (result.isPresent())
-                        serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
-                    else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
+                    if (result.isEmpty())
+                        serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             } else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             this.baseAssaultManager.startBaseAssault(serverPlayer);
             BlockPos spawnPoint = ((IServerPlayerChanger) serverPlayer).getMainSpawnPoint();
-            if(spawnPoint != null && this.getBlockState(spawnPoint).isIn(BlockTags.BEDS) && serverPlayer.getPos().squaredDistanceTo(spawnPoint.toCenterPos()) < 9216)
-                PlayerData.getPlayerState(serverPlayer).baseAssaultTimer++;
+            if(spawnPoint != null && this.getBlockState(spawnPoint).isIn(BlockTags.BEDS)){
+                double distance = serverPlayer.getPos().squaredDistanceTo(spawnPoint.toCenterPos());
+                PlayerData playerData = PlayerData.getPlayerState(serverPlayer);
+                if(distance < 9216)
+                    playerData.baseAssaultTimer += 2;
+                else if(distance < 65536)
+                    playerData.baseAssaultTimer = Math.min(195000, playerData.baseAssaultTimer + 1);
+            }
+            if(getTime() % 200 == 0) SurvivalPlus.LOGGER.info("" + PlayerData.getPlayerState(serverPlayer).baseAssaultTimer);
         }
         baseAssaultManager.tick();
     }

@@ -55,7 +55,7 @@ public class DiggingZombieEntity
     private boolean canBreakDoors;
     public BlockPos targetBedPos;
     public static final TagKey<Block> BLOCKTAG = ModTags.Blocks.DIGGINGZOMBIE_MINABLE;
-    public static final int defaultCooldown = 5;
+    public static final int defaultCooldown = 10;
     private int inWaterTime;
     private int ticksUntilWaterConversion;
 
@@ -241,7 +241,7 @@ public class DiggingZombieEntity
     }
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
-        int FullDaysRequired = 7;
+        int FullDaysRequired = 12;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
         return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= FullDaysRequired) && canSpawnInDark(type, world, spawnReason, pos, random);
     }

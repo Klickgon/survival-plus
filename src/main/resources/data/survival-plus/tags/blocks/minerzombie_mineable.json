@@ -324,6 +324,8 @@
     "minecraft:mud_brick_stairs",
     "minecraft:mud_brick_slab",
     "minecraft:packed_mud",
-    "minecraft:torch"
+    "minecraft:torch",
+    "minecraft:soul_torch",
+    "minecraft:redstone_torch"
   ]
 }
