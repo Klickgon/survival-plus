@@ -35,7 +35,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     private int destroyBlockCooldownCounter;
 
     public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
-        super(mob, speed, 16, maxYDifference);
+        super(mob, speed, 32, maxYDifference);
         this.DestroyMob = mob;
         this.cooldown = 0;
         if(mob.getClass() == MinerZombieEntity.class){
@@ -201,7 +201,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         for(ServerPlayerEntity player : list){
             if(player.isCreative() || player.isSpectator()) continue;
             BlockPos spawnpos = player.getSpawnPointPosition();
-            if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 16) && this.mob.getWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
+            if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 32) && this.mob.getWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
                 bl = true;
                 if(temptargetpos == null || spawnpos.getSquaredDistance(mobpos) < temptargetpos.getSquaredDistance(mobpos)){
                     temptargetpos = spawnpos;
