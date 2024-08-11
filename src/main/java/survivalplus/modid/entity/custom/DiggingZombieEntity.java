@@ -7,7 +7,6 @@ import net.minecraft.entity.ai.NavigationConditions;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -17,20 +16,16 @@ import net.minecraft.entity.mob.*;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.TurtleEntity;
-import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import org.jetbrains.annotations.Nullable;
@@ -92,10 +87,10 @@ public class DiggingZombieEntity
     }
 
     @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.getDataTracker().startTracking(ZOMBIE_TYPE, 0);
-        this.getDataTracker().startTracking(CONVERTING_IN_WATER, false);
+    protected void initDataTracker(DataTracker.Builder builder) {
+        super.initDataTracker(builder);
+        builder.add(ZOMBIE_TYPE, 0);
+        builder.add(CONVERTING_IN_WATER, false);
     }
 
     public boolean isConvertingInWater() {
@@ -190,45 +185,6 @@ public class DiggingZombieEntity
 
 
     @Override
-    public boolean damage(DamageSource source, float amount) {
-        if (!super.damage(source, amount)) {
-            return false;
-        }
-        if (!(this.getWorld() instanceof ServerWorld)) {
-            return false;
-        }
-        ServerWorld serverWorld = (ServerWorld)this.getWorld();
-        LivingEntity livingEntity = this.getTarget();
-        if (livingEntity == null && source.getAttacker() instanceof LivingEntity) {
-            livingEntity = (LivingEntity)source.getAttacker();
-        }
-        if (livingEntity != null && this.getWorld().getDifficulty() == Difficulty.HARD && (double)this.random.nextFloat() < this.getAttributeValue(EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS) && this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING)) {
-            int i = MathHelper.floor(this.getX());
-            int j = MathHelper.floor(this.getY());
-            int k = MathHelper.floor(this.getZ());
-            ZombieEntity zombieEntity = new ZombieEntity(this.getWorld());
-            for (int l = 0; l < 50; ++l) {
-                int m = i + MathHelper.nextInt(this.random, 7, 40) * MathHelper.nextInt(this.random, -1, 1);
-                int n = j + MathHelper.nextInt(this.random, 7, 40) * MathHelper.nextInt(this.random, -1, 1);
-                int o = k + MathHelper.nextInt(this.random, 7, 40) * MathHelper.nextInt(this.random, -1, 1);
-                BlockPos blockPos = new BlockPos(m, n, o);
-                EntityType<?> entityType = zombieEntity.getType();
-                SpawnRestriction.Location location = SpawnRestriction.getLocation(entityType);
-                if (!SpawnHelper.canSpawn(location, this.getWorld(), blockPos, entityType) || !SpawnRestriction.canSpawn(entityType, serverWorld, SpawnReason.REINFORCEMENT, blockPos, this.getWorld().random)) continue;
-                zombieEntity.setPosition(m, n, o);
-                if (this.getWorld().isPlayerInRange(m, n, o, 7.0) || !this.getWorld().doesNotIntersectEntities(zombieEntity) || !this.getWorld().isSpaceEmpty(zombieEntity) || this.getWorld().containsFluid(zombieEntity.getBoundingBox())) continue;
-                zombieEntity.setTarget(livingEntity);
-                zombieEntity.initialize(serverWorld, this.getWorld().getLocalDifficulty(zombieEntity.getBlockPos()), SpawnReason.REINFORCEMENT, null, null);
-                serverWorld.spawnEntityAndPassengers(zombieEntity);
-                this.getAttributeInstance(EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS).addPersistentModifier(new EntityAttributeModifier("Zombie reinforcement caller charge", -0.05f, EntityAttributeModifier.Operation.ADDITION));
-                zombieEntity.getAttributeInstance(EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS).addPersistentModifier(new EntityAttributeModifier("Zombie reinforcement callee charge", -0.05f, EntityAttributeModifier.Operation.ADDITION));
-                break;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public boolean tryAttack(Entity target) {
         boolean bl = super.tryAttack(target);
         if (bl) {
@@ -267,34 +223,7 @@ public class DiggingZombieEntity
         }
     }
 
-    @Override
-    public boolean onKilledOther(ServerWorld world, LivingEntity other) {
-        boolean bl = super.onKilledOther(world, other);
-        if ((world.getDifficulty() == Difficulty.NORMAL || world.getDifficulty() == Difficulty.HARD) && other instanceof VillagerEntity) {
-            VillagerEntity villagerEntity = (VillagerEntity)other;
-            if (world.getDifficulty() != Difficulty.HARD && this.random.nextBoolean()) {
-                return bl;
-            }
-            ZombieVillagerEntity zombieVillagerEntity = villagerEntity.convertTo(EntityType.ZOMBIE_VILLAGER, false);
-            if (zombieVillagerEntity != null) {
-                zombieVillagerEntity.initialize(world, world.getLocalDifficulty(zombieVillagerEntity.getBlockPos()), SpawnReason.CONVERSION, new ZombieEntity.ZombieData(false, true), null);
-                zombieVillagerEntity.setVillagerData(villagerEntity.getVillagerData());
-                zombieVillagerEntity.setGossipData(villagerEntity.getGossip().serialize(NbtOps.INSTANCE));
-                zombieVillagerEntity.setOfferData(villagerEntity.getOffers().toNbt());
-                zombieVillagerEntity.setXp(villagerEntity.getExperience());
-                if (!this.isSilent()) {
-                    world.syncWorldEvent(null, WorldEvents.ZOMBIE_INFECTS_VILLAGER, this.getBlockPos(), 0);
-                }
-                bl = false;
-            }
-        }
-        return bl;
-    }
 
-    @Override
-    protected float getActiveEyeHeight(EntityPose pose, EntityDimensions dimensions) {
-        return this.isBaby() ? 0.93f : 1.74f;
-    }
 
     @Override
     public boolean canPickupItem(ItemStack stack) {
@@ -314,9 +243,9 @@ public class DiggingZombieEntity
 
     @Override
     @Nullable
-    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
+    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         Random random = world.getRandom();
-        entityData = super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
+        entityData = super.initialize(world, difficulty, spawnReason, entityData);
         float f = difficulty.getClampedLocalDifficulty();
         this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
         if (entityData == null) {
@@ -347,19 +276,6 @@ public class DiggingZombieEntity
         return false;
     }
 
-    protected void applyAttributeModifiers(float chanceMultiplier) {
-        this.initAttributes();
-        this.getAttributeInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE).addPersistentModifier(new EntityAttributeModifier("Random spawn bonus", this.random.nextDouble() * (double)0.05f, EntityAttributeModifier.Operation.ADDITION));
-        double d = this.random.nextDouble() * 1.5 * (double)chanceMultiplier;
-        if (d > 1.0) {
-            this.getAttributeInstance(EntityAttributes.GENERIC_FOLLOW_RANGE).addPersistentModifier(new EntityAttributeModifier("Random zombie-spawn bonus", d, EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
-        }
-        if (this.random.nextFloat() < chanceMultiplier * 0.05f) {
-            this.getAttributeInstance(EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS).addPersistentModifier(new EntityAttributeModifier("Leader zombie bonus", this.random.nextDouble() * 0.25 + 0.5, EntityAttributeModifier.Operation.ADDITION));
-            this.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).addPersistentModifier(new EntityAttributeModifier("Leader zombie bonus", this.random.nextDouble() * 3.0 + 1.0, EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
-            this.setCanBreakDoors(this.shouldBreakDoors());
-        }
-    }
 
     @Override
     protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {

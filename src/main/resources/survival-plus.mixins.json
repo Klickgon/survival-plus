@@ -10,6 +10,7 @@
     "PersistentProjectileChanger",
     "PhantomSpawnerChanger",
     "PlayerManagerChanger",
+    "RangedWeaponChanger",
     "RespawnAnchorChanger",
     "ServerPlayerEntityChanger",
     "ServerWorldChanger",

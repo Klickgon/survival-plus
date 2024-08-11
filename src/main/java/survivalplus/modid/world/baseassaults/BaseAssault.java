@@ -29,7 +29,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.PlayerData;
@@ -411,7 +410,7 @@ public class BaseAssault {
             int m = calculateSpawnY(k, l);
             mutable.set(k, m, l);
             i -= 0.03f;
-            if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, mutable, EntityType.SPIDER) && (!this.world.getBlockState((BlockPos)mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir())) continue;
+            if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnRestriction.getLocation(EntityType.RAVAGER).isSpawnPositionOk(this.world, mutable, EntityType.RAVAGER) && (!this.world.getBlockState(mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir())) continue;
             return mutable;
         }
         return null;
@@ -481,7 +480,7 @@ public class BaseAssault {
                 IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
                 hostile2.setBaseAssault(this);
                 hostile.setPosition((double)pos.getX() + 0.5, (double)pos.getY() + 1.0, (double)pos.getZ() + 0.5);
-                hostile.initialize(this.world, this.world.getLocalDifficulty(pos), SpawnReason.EVENT, null, null);
+                hostile.initialize(this.world, this.world.getLocalDifficulty(pos), SpawnReason.EVENT, null);
                 hostile.setOnGround(true);
                 this.world.spawnEntityAndPassengers(hostile);
                 hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));

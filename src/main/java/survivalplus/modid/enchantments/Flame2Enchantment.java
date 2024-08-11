@@ -2,28 +2,19 @@ package survivalplus.modid.enchantments;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.enchantment.FlameEnchantment;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.registry.tag.ItemTags;
 
-public class Flame2Enchantment extends FlameEnchantment {
+public class Flame2Enchantment extends Enchantment {
 
-    public Flame2Enchantment(Rarity weight, EquipmentSlot... slotTypes) {
-        super(weight, slotTypes);
-    }
-
-    @Override
-    public int getMinLevel() {
-        return 2;
-    }
-
-    @Override
-    public int getMaxLevel() {
-        return 2;
+    public Flame2Enchantment() {
+        super(Enchantment.properties(ItemTags.BOW_ENCHANTABLE, 1, 1, Enchantment.constantCost(30),
+                Enchantment.constantCost(55), 5, EquipmentSlot.MAINHAND));
     }
 
     @Override
     protected boolean canAccept(Enchantment other) {
         if(other == Enchantments.FLAME) return false;
-        else return this != other;
+        return this != other;
     }
 }

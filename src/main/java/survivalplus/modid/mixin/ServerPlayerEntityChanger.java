@@ -9,8 +9,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.stat.Stat;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
@@ -53,10 +51,6 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
 
     @Shadow public abstract void increaseStat(Stat<?> stat, int amount);
 
-    @Shadow public abstract void playSound(SoundEvent event, SoundCategory category, float volume, float pitch);
-
-    @Shadow public abstract void setSpawnPoint(RegistryKey<World> dimension, @Nullable BlockPos pos, float angle, boolean forced, boolean sendMessage);
-
     @Shadow private @Nullable BlockPos spawnPointPosition;
 
     @Shadow private RegistryKey<World> spawnPointDimension;
@@ -94,7 +88,8 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     private void tempSpawnPositionImplementation(CallbackInfoReturnable<BlockPos> cir){
         ServerWorld world = this.getServerWorld();
         BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent()) cir.setReturnValue(tempSpawnPos);
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent())
+            cir.setReturnValue(tempSpawnPos);
     }
 
     @Inject(method = "getSpawnPointDimension", at = @At(value = "HEAD"), cancellable = true)
@@ -102,8 +97,9 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         ServerWorld world = this.getServerWorld();
         PlayerData pdata = PlayerData.getPlayerState(this);
         BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent())
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent()) {
             cir.setReturnValue(pdata.tempSpawnDimension);
+        }
     }
 
     @Inject(method = "getSpawnAngle", at = @At(value = "HEAD"), cancellable = true)
@@ -111,7 +107,8 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         ServerWorld world = this.getServerWorld();
         PlayerData pdata = PlayerData.getPlayerState(this);
         BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent()) cir.setReturnValue(pdata.tempSpawnAngle);
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent())
+            cir.setReturnValue(pdata.tempSpawnAngle);
     }
 
     @Inject(method = "isSpawnForced", at = @At(value = "HEAD"), cancellable = true)
@@ -119,7 +116,8 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         ServerWorld world = this.getServerWorld();
         PlayerData pdata = PlayerData.getPlayerState(this);
         BlockPos tempSpawnPos = pdata.tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent()) cir.setReturnValue(pdata.tempSpawnForced);
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent())
+            cir.setReturnValue(pdata.tempSpawnForced);
     }
 
     @Inject(method = "setSpawnPoint", at = @At(value = "HEAD"), cancellable = true)
@@ -138,12 +136,6 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
                 pdata.tempSpawnForced = forced;
                 ci.cancel();
             }
-        }
-        else {
-            pdata.tempSpawnPosition = null;
-            pdata.tempSpawnDimension = World.OVERWORLD;
-            pdata.tempSpawnAngle = 0.0f;
-            pdata.tempSpawnForced = false;
         }
     }
 

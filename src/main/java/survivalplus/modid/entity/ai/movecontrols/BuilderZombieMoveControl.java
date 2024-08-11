@@ -16,6 +16,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import survivalplus.modid.entity.ai.pathing.pathmaker.BuilderPathNodeMaker;
 import survivalplus.modid.entity.custom.BuilderZombieEntity;
 import survivalplus.modid.util.IHostileEntityChanger;
 
@@ -30,7 +31,7 @@ public class BuilderZombieMoveControl extends MoveControl {
     private boolean isPosWalkable(float x, float z) {
         PathNodeMaker pathNodeMaker;
         EntityNavigation entityNavigation = this.entity.getNavigation();
-        return entityNavigation == null || (pathNodeMaker = entityNavigation.getNodeMaker()) == null || pathNodeMaker.getDefaultNodeType(this.entity.getWorld(), MathHelper.floor(this.entity.getX() + (double)x), this.entity.getBlockY(), MathHelper.floor(this.entity.getZ() + (double)z)) == PathNodeType.WALKABLE;
+        return entityNavigation == null || (pathNodeMaker = entityNavigation.getNodeMaker()) == null || pathNodeMaker.getDefaultNodeType(((BuilderPathNodeMaker)entityNavigation.getNodeMaker()).getPathContext(), MathHelper.floor(this.entity.getX() + (double)x), this.entity.getBlockY(), MathHelper.floor(this.entity.getZ() + (double)z)) == PathNodeType.WALKABLE;
     }
 
     @Override

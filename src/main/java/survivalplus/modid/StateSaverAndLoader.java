@@ -3,6 +3,7 @@ package survivalplus.modid;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -16,9 +17,10 @@ import java.util.UUID;
 public class StateSaverAndLoader extends PersistentState {
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+
         NbtCompound playersNbt = new NbtCompound();
-        players.forEach((uuid, playerData) -> {
+        this.players.forEach((uuid, playerData) -> {
             NbtCompound playerNbt = new NbtCompound();
 
             playerNbt.putInt("baseAssaultTimer", playerData.baseAssaultTimer);
@@ -50,7 +52,7 @@ public class StateSaverAndLoader extends PersistentState {
 
     public HashMap<UUID, PlayerData> players = new HashMap<>();
 
-    public static StateSaverAndLoader createFromNbt(NbtCompound tag) {
+    public static StateSaverAndLoader createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
         StateSaverAndLoader state = new StateSaverAndLoader();
         NbtCompound playersNbt = tag.getCompound("players");
         playersNbt.getKeys().forEach(key -> {

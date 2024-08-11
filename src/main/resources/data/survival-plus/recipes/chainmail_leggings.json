@@ -15,7 +15,8 @@
     "X X"
   ],
   "result": {
-    "item": "minecraft:chainmail_leggings"
+    "count": 1,
+    "id": "minecraft:chainmail_leggings"
   },
   "show_notification": true
 }

@@ -20,19 +20,12 @@ import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.GoatEntity;
 import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.ServerWorldAccess;
@@ -97,14 +90,6 @@ public class ReeperEntity
     }
 
     @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.dataTracker.startTracking(FUSE_SPEED, -1);
-        this.dataTracker.startTracking(CHARGED, false);
-        this.dataTracker.startTracking(IGNITED, false);
-    }
-
-    @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         if (this.dataTracker.get(CHARGED).booleanValue()) {
@@ -131,6 +116,14 @@ public class ReeperEntity
     }
 
     @Override
+    protected void initDataTracker(DataTracker.Builder builder) {
+        super.initDataTracker(builder);
+        builder.add(FUSE_SPEED, -1);
+        builder.add(CHARGED, false);
+        builder.add(IGNITED, false);
+    }
+
+    @Override
     public void tick() {
         if (this.isAlive()) {
             if(!this.hadTarget && this.getTarget() != null) this.hadTarget = true;
@@ -152,7 +145,7 @@ public class ReeperEntity
             Path path = this.getNavigation().getCurrentPath();
             if(path != null && path.getLength() > path.getCurrentNodeIndex()){
                 PathNode pathNode = path.getCurrentNode();
-                if(pathNode != null && isNodeTypeClosedDoor(this.getNavigation().getNodeMaker().getDefaultNodeType(this.getWorld(), pathNode.x, pathNode.y, pathNode.z))){
+                if(pathNode != null && isNodeTypeClosedDoor(this.getNavigation().getNodeMaker().getDefaultNodeType(this, new BlockPos(pathNode.x, pathNode.y, pathNode.z)))){
                     this.igniteWithEntityCheck();
                 }
             }
@@ -185,25 +178,6 @@ public class ReeperEntity
         super.setTarget(target);
     }
 
-    @Override
-    protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
-        net.minecraft.entity.mob.CreeperEntity creeperEntity;
-        super.dropEquipment(source, lootingMultiplier, allowDrops);
-        Entity entity = source.getAttacker();
-        if (entity != this && entity instanceof net.minecraft.entity.mob.CreeperEntity && (creeperEntity = (net.minecraft.entity.mob.CreeperEntity)entity).shouldDropHead()) {
-            creeperEntity.onHeadDropped();
-            this.dropItem(Items.CREEPER_HEAD);
-        }
-    }
-
-    @Override
-    public boolean shouldRenderOverlay() {
-        return this.dataTracker.get(CHARGED);
-    }
-
-    public float getClientFuseTime(float timeDelta) {
-        return MathHelper.lerp(timeDelta, (float)this.lastFuseTime, (float)this.currentFuseTime) / (float)(this.fuseTime - 2);
-    }
 
     private void igniteWithEntityCheck(){
         Vec3d vec3d = Vec3d.ofBottomCenter(this.getBlockPos());
@@ -211,14 +185,6 @@ public class ReeperEntity
         if (list.size() < 4) {
             this.setFuseSpeed(1);
         }
-    }
-
-    public int getFuseSpeed() {
-        return this.dataTracker.get(FUSE_SPEED);
-    }
-
-    public void setFuseSpeed(int fuseSpeed) {
-        this.dataTracker.set(FUSE_SPEED, fuseSpeed);
     }
 
     @Override
@@ -233,24 +199,6 @@ public class ReeperEntity
         return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= FullDaysRequired) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
-    @Override
-    protected ActionResult interactMob(PlayerEntity player, Hand hand) {
-        ItemStack itemStack = player.getStackInHand(hand);
-        if (itemStack.isIn(ItemTags.CREEPER_IGNITERS)) {
-            SoundEvent soundEvent = itemStack.isOf(Items.FIRE_CHARGE) ? SoundEvents.ITEM_FIRECHARGE_USE : SoundEvents.ITEM_FLINTANDSTEEL_USE;
-            this.getWorld().playSound(player, this.getX(), this.getY(), this.getZ(), soundEvent, this.getSoundCategory(), 1.0f, this.random.nextFloat() * 0.4f + 0.8f);
-            if (!this.getWorld().isClient) {
-                this.ignite();
-                if (!itemStack.isDamageable()) {
-                    itemStack.decrement(1);
-                } else {
-                    itemStack.damage(1, player, playerx -> playerx.sendToolBreakStatus(hand));
-                }
-            }
-            return ActionResult.success(this.getWorld().isClient);
-        }
-        return super.interactMob(player, hand);
-    }
 
     private void explode() {
         if (!this.getWorld().isClient) {

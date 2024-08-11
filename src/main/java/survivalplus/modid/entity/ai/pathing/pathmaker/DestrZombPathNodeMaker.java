@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
+import net.minecraft.entity.ai.pathing.PathContext;
 import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.mob.MobEntity;
@@ -101,8 +102,8 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             double d;
             int i = 0;
             int j = 0;
-            PathNodeType pathNodeType1 = this.getNodeType(this.entity, node.x, node.y, node.z);
-            PathNodeType pathNodeType2 = this.getNodeType(this.entity, node.x, node.y + 1, node.z);
+            PathNodeType pathNodeType1 = this.getNodeType(this.context, node.x, node.y, node.z, this.entity);
+            PathNodeType pathNodeType2 = this.getNodeType(this.context, node.x, node.y + 1, node.z, this.entity);
             if (this.entity.getPathfindingPenalty(pathNodeType2) >= 0.0f && pathNodeType1 != PathNodeType.STICKY_HONEY) {
                 j = MathHelper.floor(Math.max(1.0f, this.entity.getStepHeight()));
             }
@@ -161,7 +162,6 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
         return super.getSuccessors(successors, node);
     }
 
-    @Override
     protected boolean isValidDiagonalSuccessor(PathNode xNode, @Nullable PathNode zNode, @Nullable PathNode xDiagNode, @Nullable PathNode zDiagNode) {
         if (zDiagNode == null || xDiagNode == null || zNode == null) {
             return false;
@@ -191,6 +191,10 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
     protected boolean isPassable(World world, int x, int y, int z){
         BlockPos pos = new BlockPos(x, y, z);
         return world.getBlockState(pos).isIn(blockTag) || !world.getBlockState(pos).isFullCube(world, pos);
+    }
+
+    public PathContext getPathContext(){
+        return this.context;
     }
 
 }

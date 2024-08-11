@@ -15,6 +15,7 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.util.IServerPlayerChanger;
 
 import java.util.List;
 
@@ -101,7 +102,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
         boolean bl = false;
         for(ServerPlayerEntity player : list){
             if(player.isCreative() || player.isSpectator()) continue;
-            BlockPos spawnpos = player.getSpawnPointPosition();
+            BlockPos spawnpos = ((IServerPlayerChanger)player).getMainSpawnPoint();
             if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 32) && this.mob.getWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
                 bl = true;
                 if(temptargetpos == null || spawnpos.getSquaredDistance(mobpos) < temptargetpos.getSquaredDistance(mobpos)){

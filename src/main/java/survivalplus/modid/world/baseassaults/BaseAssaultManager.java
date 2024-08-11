@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -32,7 +33,7 @@ extends PersistentState {
     private int nextAvailableId;
 
     public static Type<BaseAssaultManager> getPersistentStateType(ServerWorld world) {
-        return new Type<>(() -> new BaseAssaultManager(world), nbt -> BaseAssaultManager.fromNbt(world, nbt), null);
+        return new PersistentState.Type<>(() -> new BaseAssaultManager(world), (nbt, registryLookup) -> BaseAssaultManager.fromNbt(world, nbt), null);
     }
 
     public BaseAssaultManager(ServerWorld world) {
@@ -123,7 +124,7 @@ extends PersistentState {
 
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         nbt.putInt("NextAvailableID", this.nextAvailableId);
         nbt.putInt("Tick", this.currentTime);
         NbtList nbtList = new NbtList();
@@ -152,6 +153,7 @@ extends PersistentState {
         }
         return baseAssault;
     }
+
 
 }
 

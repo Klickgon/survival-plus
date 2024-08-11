@@ -41,9 +41,15 @@ extends SkeletonEntity {
 
     private final AdvancedBowAttackGoal<ScorchedSkeletonEntity> bowAttackGoal = new AdvancedBowAttackGoal<>(this, 1.0, 20, 15.0f);
 
-    public ScorchedSkeletonEntity(EntityType<ScorchedSkeletonEntity> entityType, World world) {
+    public ScorchedSkeletonEntity(EntityType<? extends SkeletonEntity> entityType, World world) {
         super(entityType, world);
         smokeParticleCooldown = this.getRandom().nextInt(11) + 10;
+    }
+
+    @Override
+    protected void initDataTracker(DataTracker.Builder builder) {
+        super.initDataTracker(builder);
+        builder.add(CONVERTING, false);
     }
 
     @Override
@@ -52,11 +58,6 @@ extends SkeletonEntity {
         this.goalSelector.add(4, new DestroyBedGoal(this, 1.0, 8));
     }
 
-    @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.getDataTracker().startTracking(CONVERTING, false);
-    }
 
     public void tick(){
         super.tick();
@@ -71,8 +72,8 @@ extends SkeletonEntity {
 
     @Override
     @Nullable
-    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
-        entityData = super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
+    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
+        entityData = super.initialize(world, difficulty, spawnReason, entityData);
         Random random = world.getRandom();
         this.initEquipment(random, difficulty);
         this.updateEnchantments(random, difficulty);

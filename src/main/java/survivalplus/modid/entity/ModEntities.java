@@ -1,10 +1,7 @@
 package survivalplus.modid.entity;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.entity.SpawnRestriction;
+import net.minecraft.entity.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -52,13 +49,13 @@ public class ModEntities {
                     .dimensions(EntityDimensions.fixed(1.4f, 0.9f)).build());
 
     public static void registerSpawnRestrictions() {
-        SpawnRestriction.register(ModEntities.DIGGINGZOMBIE, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, DiggingZombieEntity::canSpawn);
-        SpawnRestriction.register(ModEntities.SCORCHEDSKELETON, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, ScorchedSkeletonEntity::canSpawn);
-        SpawnRestriction.register(ModEntities.MINERZOMBIE, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, MinerZombieEntity::canSpawn);
-        SpawnRestriction.register(ModEntities.LUMBERJACKZOMBIE, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, LumberjackZombieEntity::canSpawn);
-        SpawnRestriction.register(ModEntities.BUILDERZOMBIE, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, BuilderZombieEntity::canSpawn);
-        SpawnRestriction.register(ModEntities.REEPER, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, ReeperEntity::canSpawn);
-        SpawnRestriction.register(ModEntities.LEAPINGSPIDER, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, LeapingSpiderEntity::canSpawn);
+        SpawnRestriction.register(ModEntities.DIGGINGZOMBIE, SpawnLocationTypes.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, DiggingZombieEntity::canSpawn);
+        SpawnRestriction.register(ModEntities.SCORCHEDSKELETON, SpawnLocationTypes.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, ScorchedSkeletonEntity::canSpawn);
+        SpawnRestriction.register(ModEntities.MINERZOMBIE, SpawnLocationTypes.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, MinerZombieEntity::canSpawn);
+        SpawnRestriction.register(ModEntities.LUMBERJACKZOMBIE, SpawnLocationTypes.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, LumberjackZombieEntity::canSpawn);
+        SpawnRestriction.register(ModEntities.BUILDERZOMBIE, SpawnLocationTypes.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, BuilderZombieEntity::canSpawn);
+        SpawnRestriction.register(ModEntities.REEPER, SpawnLocationTypes.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, ReeperEntity::canSpawn);
+        SpawnRestriction.register(ModEntities.LEAPINGSPIDER, SpawnLocationTypes.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, LeapingSpiderEntity::canSpawn);
     }
 
 

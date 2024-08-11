@@ -8,49 +8,39 @@ import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.ai.pathing.EntityNavigation;
-import net.minecraft.entity.ai.pathing.SpiderNavigation;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.mob.SpiderEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.entity.ai.LeapAtTargetGoal;
 import survivalplus.modid.util.ModGamerules;
 
 public class LeapingSpiderEntity
-extends HostileEntity {
+extends SpiderEntity {
 
     private static final TrackedData<Byte> SPIDER_FLAGS = DataTracker.registerData(LeapingSpiderEntity.class, TrackedDataHandlerRegistry.BYTE);
     public boolean isLeaping;
 
-    public LeapingSpiderEntity(EntityType<? extends LeapingSpiderEntity> entityType, World world) {
-        super((EntityType<? extends HostileEntity>)entityType, world);
+    public LeapingSpiderEntity(EntityType<? extends SpiderEntity> entityType, World world) {
+        super(entityType, world);
         this.isLeaping = false;
     }
 
@@ -69,19 +59,9 @@ extends HostileEntity {
     }
 
     @Override
-    protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
-        return new Vector3f(0.0f, dimensions.height * 0.85f, 0.0f);
-    }
-
-    @Override
-    protected EntityNavigation createNavigation(World world) {
-        return new SpiderNavigation(this, world);
-    }
-
-    @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.dataTracker.startTracking(SPIDER_FLAGS, (byte)0);
+    protected void initDataTracker(DataTracker.Builder builder) {
+        super.initDataTracker(builder);
+        builder.add(SPIDER_FLAGS, (byte)0);
     }
 
     @Override
@@ -96,25 +76,6 @@ extends HostileEntity {
         return HostileEntity.createHostileAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 16.0).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3f).add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK, 3.7f);
     }
 
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return SoundEvents.ENTITY_SPIDER_AMBIENT;
-    }
-
-    @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_SPIDER_HURT;
-    }
-
-    @Override
-    protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_SPIDER_DEATH;
-    }
-
-    @Override
-    protected void playStepSound(BlockPos pos, BlockState state) {
-        this.playSound(SoundEvents.ENTITY_SPIDER_STEP, 0.15f, 1.0f);
-    }
 
     @Override
     public boolean isClimbing() {
@@ -128,10 +89,6 @@ extends HostileEntity {
         }
     }
 
-    @Override
-    public EntityGroup getGroup() {
-        return EntityGroup.ARTHROPOD;
-    }
 
     @Override
     public boolean canHaveStatusEffect(StatusEffectInstance effect) {
@@ -159,7 +116,7 @@ extends HostileEntity {
         float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
         float g = (float) (k * this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_KNOCKBACK));
         if (target instanceof LivingEntity) {
-            f += EnchantmentHelper.getAttackDamage(this.getMainHandStack(), ((LivingEntity)target).getGroup());
+            f += EnchantmentHelper.getAttackDamage(this.getMainHandStack(), target.getType());
             g += (float)EnchantmentHelper.getKnockback(this);
         }
         bl = (this.isOnGround() || this.isLeaping) && target.damage(this.getDamageSources().mobAttack(this), f * k + 1);
@@ -194,37 +151,6 @@ extends HostileEntity {
         return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= FullDaysRequired) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
-    @Override
-    @Nullable
-    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
-        entityData = super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
-        Random random = world.getRandom();
-        if (entityData == null) {
-            entityData = new SpiderData();
-            if (world.getDifficulty() == Difficulty.HARD && random.nextFloat() < 0.1f * difficulty.getClampedLocalDifficulty()) {
-                ((SpiderData)entityData).setEffect(random);
-            }
-        }
-        if (entityData instanceof SpiderData) {
-            SpiderData spiderData = (SpiderData)entityData;
-            StatusEffect statusEffect = spiderData.effect;
-            if (statusEffect != null) {
-                this.addStatusEffect(new StatusEffectInstance(statusEffect, -1));
-            }
-        }
-        return entityData;
-    }
-
-    @Override
-    protected float getActiveEyeHeight(EntityPose pose, EntityDimensions dimensions) {
-        return 0.65f;
-    }
-
-    @Override
-    protected float getUnscaledRidingOffset(Entity vehicle) {
-        return vehicle.getWidth() <= this.getWidth() ? -0.3125f : 0.0f;
-    }
-
     static class AttackGoal
     extends MeleeAttackGoal {
         public AttackGoal(LeapingSpiderEntity spider) {
@@ -245,23 +171,5 @@ extends HostileEntity {
         }
     }
 
-    public static class SpiderData
-    implements EntityData {
-        @Nullable
-        public StatusEffect effect;
-
-        public void setEffect(Random random) {
-            int i = random.nextInt(5);
-            if (i <= 1) {
-                this.effect = StatusEffects.SPEED;
-            } else if (i <= 2) {
-                this.effect = StatusEffects.STRENGTH;
-            } else if (i <= 3) {
-                this.effect = StatusEffects.REGENERATION;
-            } else if (i <= 4) {
-                this.effect = StatusEffects.INVISIBILITY;
-            }
-        }
-    }
 }
 
