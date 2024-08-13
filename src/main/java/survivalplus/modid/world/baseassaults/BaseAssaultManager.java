@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.2.1 (FabricMC 53fa44c9).
- */
 package survivalplus.modid.world.baseassaults;
 
 import com.google.common.collect.Maps;
@@ -77,7 +74,7 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return null;
         }
-        if(PlayerData.getPlayerState(player).baseAssaultTimer < 200000) {
+        if(PlayerData.getPlayerState(player).baseAssaultTimer < 250000) {
             return null;
         }
         BlockPos playerPos = player.getBlockPos();

@@ -102,7 +102,6 @@ extends TrackTargetGoal {
 
                 int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 
-
                 Direction direction = Direction.fromRotation(this.mob.getBodyYaw());
 
                 switch (direction){

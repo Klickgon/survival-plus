@@ -71,7 +71,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
             BlockPos pos = new BlockPos(x, y, z);
             if (world.getBlockState(pos).isIn(this.blockTag) || world.getBlockState(pos).isReplaceable()){
                 if(world.getBlockState(pos.up()).isIn(this.blockTag) || world.getBlockState(pos.up()).isReplaceable()) {
-                    if(world.getBlockState(pos.down()).isSolidBlock(world, pos.down()))
+                    if(!world.getBlockState(pos.down()).isReplaceable())
                         return getNodeWith(x, y, z, PathNodeType.WALKABLE, 8.0f);
                 }
                 else return null;
@@ -185,12 +185,12 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
     }
 
     protected boolean isValidAdjacentSuccessor(@Nullable PathNode node, PathNode successor1, World world, int x, int y, int z) {
-        return super.isValidAdjacentSuccessor(node, successor1) && isPassable(world, x, y, z);
+        return super.isValidAdjacentSuccessor(node, successor1) && isPassable(world, x, y, z) && isPassable(world, x, y + 1, z);
     }
 
     protected boolean isPassable(World world, int x, int y, int z){
         BlockPos pos = new BlockPos(x, y, z);
-        return world.getBlockState(pos).isIn(blockTag) || !world.getBlockState(pos).isFullCube(world, pos);
+        return world.getBlockState(pos).isIn(blockTag) || world.getBlockState(pos).isReplaceable() ;
     }
 
     public PathContext getPathContext(){
