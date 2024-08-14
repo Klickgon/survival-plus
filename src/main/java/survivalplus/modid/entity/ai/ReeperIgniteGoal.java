@@ -24,7 +24,7 @@ public class ReeperIgniteGoal extends Goal {
 
     public boolean canStart() {
         LivingEntity livingEntity = this.reeper.getTarget();
-        return this.reeper.getFuseSpeed() > 0 || livingEntity != null && this.reeper.squaredDistanceTo(livingEntity) < 9.0;
+        return this.reeper.getFuseSpeed() > 0 || livingEntity != null && this.reeper.squaredDistanceTo(livingEntity) < 7.5;
     }
 
     public void start() {
