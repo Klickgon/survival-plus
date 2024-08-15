@@ -8,6 +8,7 @@
     "MobChanger",
     "PersistentProjectileChanger",
     "PhantomSpawnerChanger",
+    "PlayerEntityChanger",
     "PlayerManagerChanger",
     "RangedWeaponChanger",
     "RespawnAnchorChanger",

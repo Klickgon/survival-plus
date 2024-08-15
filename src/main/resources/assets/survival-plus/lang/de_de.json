@@ -1,6 +1,7 @@
 {
     "block.survival-plus.bed.sleepcooldown": "Du kannst zurzeit nicht schlafen, nicht jeder ist lang genug wach gewesen",
     "enchantment.survival-plus.flame_two": "Flamme II",
+    "enchantment.survival-plus.rapid_swing": "Schneller Swung",
     "entity.survival-plus.builderzombie" : "Bau Zombie",
     "entity.survival-plus.scorchedskeleton" : "Verbranntes Skelett",
     "entity.survival-plus.minerzombie" : "Minen Zombie",
