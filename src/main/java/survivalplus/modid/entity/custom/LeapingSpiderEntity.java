@@ -38,6 +38,7 @@ extends SpiderEntity {
 
     private static final TrackedData<Byte> SPIDER_FLAGS = DataTracker.registerData(LeapingSpiderEntity.class, TrackedDataHandlerRegistry.BYTE);
     public boolean isLeaping;
+    public int attackCooldown = 10;
 
     public LeapingSpiderEntity(EntityType<? extends SpiderEntity> entityType, World world) {
         super(entityType, world);
@@ -67,6 +68,7 @@ extends SpiderEntity {
     @Override
     public void tick() {
         super.tick();
+        this.attackCooldown--;
         if (!this.getWorld().isClient) {
             this.setClimbingWall(this.horizontalCollision);
         }
@@ -111,7 +113,6 @@ extends SpiderEntity {
     @Override
     public boolean tryAttack(Entity target) {
         boolean bl;
-        int i;
         float k = (float) this.getVelocity().length();
         float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
         float g = (float) (k * this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_KNOCKBACK));
@@ -119,7 +120,7 @@ extends SpiderEntity {
             f += EnchantmentHelper.getAttackDamage(this.getMainHandStack(), target.getType());
             g += (float)EnchantmentHelper.getKnockback(this);
         }
-        bl = (this.isOnGround() || this.isLeaping) && target.damage(this.getDamageSources().mobAttack(this), f * k + 1);
+        bl = this.attackCooldown <= 0 && (this.isOnGround() || this.isLeaping) && target.damage(this.getDamageSources().mobAttack(this), f * k + 1);
         if (bl) {
             if (g > 0.0f && target instanceof LivingEntity) {
                 ((LivingEntity)target).takeKnockback(g, MathHelper.sin(this.getYaw() * ((float)Math.PI / 180)), -MathHelper.cos(this.getYaw() * ((float)Math.PI / 180)));
@@ -131,6 +132,7 @@ extends SpiderEntity {
             }
             this.applyDamageEffects(this, target);
             this.onAttacking(target);
+            this.attackCooldown = 10;
         }
         return bl;
     }
@@ -153,8 +155,10 @@ extends SpiderEntity {
 
     static class AttackGoal
     extends MeleeAttackGoal {
+        private LeapingSpiderEntity spider;
         public AttackGoal(LeapingSpiderEntity spider) {
             super(spider, 1.0, true);
+            this.spider = spider;
         }
 
         @Override

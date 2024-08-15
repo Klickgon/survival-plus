@@ -32,7 +32,7 @@ extends Goal {
             --this.cooldown;
             return false;
         }
-        if (this.mob.hasControllingPassenger()) {
+        if (this.mob.hasControllingPassenger() || this.mob.attackCooldown > 0) {
             return false;
         }
         this.target = this.mob.getTarget();
@@ -59,7 +59,7 @@ extends Goal {
     }
 
     protected void attack(LivingEntity target) {
-        if (this.canAttack(target)) {
+        if (this.canAttack(target) && !this.mob.isAttacking()) {
             this.mob.isLeaping = true;
             this.mob.swingHand(Hand.MAIN_HAND);
             boolean bl = this.mob.tryAttack(target);
