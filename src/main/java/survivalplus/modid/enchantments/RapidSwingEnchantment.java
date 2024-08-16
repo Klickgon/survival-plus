@@ -9,8 +9,8 @@ public class RapidSwingEnchantment extends Enchantment {
 
 
     public RapidSwingEnchantment() {
-        super(Enchantment.properties(ItemTags.SWORD_ENCHANTABLE, 1, 1, Enchantment.constantCost(30),
-                Enchantment.constantCost(55), 5, EquipmentSlot.MAINHAND));
+        super(Enchantment.properties(ItemTags.SWORD_ENCHANTABLE, 2, 1, Enchantment.constantCost(30),
+                Enchantment.constantCost(60), 8, EquipmentSlot.MAINHAND));
     }
 
 

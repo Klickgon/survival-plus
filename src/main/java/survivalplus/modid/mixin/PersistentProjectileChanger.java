@@ -9,6 +9,7 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -31,7 +32,10 @@ public abstract class PersistentProjectileChanger extends ProjectileEntity imple
     @Inject(method = "onEntityHit", at = @At(value = "HEAD"))
     public void flameInjection(EntityHitResult entityHitResult, CallbackInfo ci){
         if(this.fromFlame2 && this.isOnFire()) { // Checks if the Bow it was shot from has the Flame II enchantment, if yes, it places a fire block at the entity hit
-            this.getWorld().setBlockState(entityHitResult.getEntity().getBlockPos(), Blocks.FIRE.getDefaultState());
+            World world = this.getWorld();
+            BlockPos hitpos = entityHitResult.getEntity().getBlockPos();
+            if(world.getBlockState(hitpos).isAir()) world.setBlockState(hitpos, Blocks.FIRE.getDefaultState());
+            else if(world.getBlockState(hitpos.up()).isAir()) world.setBlockState(hitpos.up(), Blocks.FIRE.getDefaultState());
         }
     }
 

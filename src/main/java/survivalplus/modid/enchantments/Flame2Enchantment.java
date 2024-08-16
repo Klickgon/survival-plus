@@ -8,8 +8,8 @@ import net.minecraft.registry.tag.ItemTags;
 public class Flame2Enchantment extends Enchantment {
 
     public Flame2Enchantment() {
-        super(Enchantment.properties(ItemTags.BOW_ENCHANTABLE, 1, 1, Enchantment.constantCost(30),
-                Enchantment.constantCost(55), 5, EquipmentSlot.MAINHAND));
+        super(Enchantment.properties(ItemTags.BOW_ENCHANTABLE, 2, 1, Enchantment.constantCost(30),
+                Enchantment.constantCost(60), 8, EquipmentSlot.MAINHAND));
     }
 
     @Override
