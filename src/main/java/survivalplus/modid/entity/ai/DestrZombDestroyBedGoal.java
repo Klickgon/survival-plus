@@ -4,9 +4,12 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.item.Item;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
@@ -27,29 +30,33 @@ import java.util.List;
 
 public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
-    private final HostileEntity DestroyMob;
-    private final TagKey<Block> BedGroup = BlockTags.BEDS;
-    private int destroyBlockCooldown;
-    private TagKey<Block> blockTag;
+    protected final HostileEntity DestroyMob;
+    protected final TagKey<Block> BedGroup = BlockTags.BEDS;
+    protected int destroyBlockCooldown;
+    protected TagKey<Block> blockTag;
     @Nullable
-    private BlockPos facingBlock;
-    private int destroyBlockCooldownCounter;
+    protected BlockPos facingBlock;
+    protected int destroyBlockCooldownCounter;
+    protected TagKey<Item> reqItem;
 
     public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 32, maxYDifference);
         this.DestroyMob = mob;
         this.cooldown = 0;
-        if(mob.getClass() == MinerZombieEntity.class){
+        if(mob instanceof MinerZombieEntity){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
             destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
+            reqItem = ItemTags.PICKAXES;
         }
-        if(mob.getClass() == LumberjackZombieEntity.class){
+        if(mob instanceof LumberjackZombieEntity){
             this.blockTag = LumberjackZombieEntity.BLOCKTAG;
             destroyBlockCooldown = LumberjackZombieEntity.defaultCooldown;
+            reqItem = ItemTags.AXES;
         }
-        if(mob.getClass() == DiggingZombieEntity.class){
+        if(mob instanceof DiggingZombieEntity){
             this.blockTag = DiggingZombieEntity.BLOCKTAG;
             destroyBlockCooldown = DiggingZombieEntity.defaultCooldown;
+            reqItem = ItemTags.SHOVELS;
         }
         destroyBlockCooldownCounter = destroyBlockCooldown;
     }
@@ -101,7 +108,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             this.stop();
         }
 
-        if(this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
+        if(this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){
             BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();
 
             int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher

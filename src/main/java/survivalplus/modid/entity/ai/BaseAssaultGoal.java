@@ -5,8 +5,11 @@ import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.item.Item;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
@@ -28,6 +31,7 @@ import survivalplus.modid.world.baseassaults.BaseAssault;
 public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
     private final BaseAssault baseAssault;
+    private TagKey<Item> reqItem;
     private TagKey<Block> blockTag = null;
     private BlockPos facingBlock;
     private int destroyBlockCooldown;
@@ -38,17 +42,20 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         super(mob, speed, 64, 12);
         this.baseAssault = ((IHostileEntityChanger) this.mob).getBaseAssault();
         this.cooldown = mob.getRandom().nextInt(40);
-        if(mob.getClass() == MinerZombieEntity.class){
+        if(mob instanceof MinerZombieEntity){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
             destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
+            reqItem = ItemTags.PICKAXES;
         }
-        if(mob.getClass() == LumberjackZombieEntity.class){
+        if(mob instanceof LumberjackZombieEntity){
             this.blockTag = LumberjackZombieEntity.BLOCKTAG;
             destroyBlockCooldown = LumberjackZombieEntity.defaultCooldown;
+            reqItem = ItemTags.AXES;
         }
-        if(mob.getClass() == DiggingZombieEntity.class){
+        if(mob instanceof DiggingZombieEntity){
             this.blockTag = DiggingZombieEntity.BLOCKTAG;
             destroyBlockCooldown = DiggingZombieEntity.defaultCooldown;
+            reqItem = ItemTags.SHOVELS;
         }
         destroyBlockCooldownCounter = destroyBlockCooldown;
     }
@@ -124,7 +131,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                 else mob.getWorld().breakBlock(bedPos, true);
             }
         }
-        if(this.mob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null){
+        if(this.mob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){
             World world = this.mob.getWorld();
 
             BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();

@@ -11,9 +11,12 @@ import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -33,29 +36,33 @@ public class ActiveTargetGoalDestrZomb<T extends LivingEntity>
 extends TrackTargetGoal {
     protected final Class<T> targetClass;
 
-    private int destroyBlockCooldown;
+    protected int destroyBlockCooldown;
 
     protected final int reciprocalChance;
     @Nullable
     protected LivingEntity targetEntity;
     protected TargetPredicate targetPredicate;
     public TagKey<Block> blockTag;
-    private BlockPos facingBlock;
-    private int destroyBlockCooldownCounter;
+    protected BlockPos facingBlock;
+    protected int destroyBlockCooldownCounter;
+    protected TagKey<Item> reqItem;
 
     public ActiveTargetGoalDestrZomb(MobEntity mob, Class<T> targetClass, boolean checkVisibility) {
         this((ZombieEntity) mob, targetClass, 10, checkVisibility, false, null);
-        if(mob.getClass() == MinerZombieEntity.class){
+        if(mob instanceof MinerZombieEntity){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
             destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
+            reqItem = ItemTags.PICKAXES;
         }
-        if(mob.getClass() == LumberjackZombieEntity.class){
+        if(mob instanceof LumberjackZombieEntity){
             this.blockTag = LumberjackZombieEntity.BLOCKTAG;
             destroyBlockCooldown = LumberjackZombieEntity.defaultCooldown;
+            reqItem = ItemTags.AXES;
         }
-        if(mob.getClass() == DiggingZombieEntity.class){
+        if(mob instanceof DiggingZombieEntity){
             this.blockTag = DiggingZombieEntity.BLOCKTAG;
             destroyBlockCooldown = DiggingZombieEntity.defaultCooldown;
+            reqItem = ItemTags.SHOVELS;
         }
         destroyBlockCooldownCounter = destroyBlockCooldown;
     }
@@ -96,7 +103,7 @@ extends TrackTargetGoal {
     @Override
     public void tick() {
         if(this.mob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.destroyBlockCooldownCounter <= 0){
-            if(this.targetEntity != null && this.mob.getNavigation().getCurrentPath() != null){
+            if(this.targetEntity != null && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){
                 World world = this.mob.getWorld();
                 BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();
 
