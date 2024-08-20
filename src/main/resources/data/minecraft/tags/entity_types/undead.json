@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "survival-plus:diggingzombie",
+    "survival-plus:minerzombie",
+    "survival-plus:lumberjackzombie",
+    "survival-plus:builderzombie",
+    "survival-plus:scorchedskeleton"
+  ]
+}
