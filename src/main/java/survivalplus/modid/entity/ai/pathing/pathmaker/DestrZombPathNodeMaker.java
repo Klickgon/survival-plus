@@ -81,12 +81,12 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
         if (this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isIn(reqItem) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             World world = this.entity.getWorld();
             BlockPos pos = new BlockPos(x, y, z);
-            if (world.getBlockState(pos).isIn(this.blockTag) || world.getBlockState(pos).isReplaceable()){
-                if(world.getBlockState(pos.up()).isIn(this.blockTag) || world.getBlockState(pos.up()).isReplaceable()) {
+            if (world.getBlockState(pos).isIn(this.blockTag) || this.getDefaultNodeType(this.entity, pos).getDefaultPenalty() >= 0.0f){
+                if(world.getBlockState(pos.up()).isIn(this.blockTag) || this.getDefaultNodeType(this.entity, pos.up()).getDefaultPenalty() >= 0.0f) {
                     if(!world.getBlockState(pos.down()).isReplaceable() && !world.getBlockState(pos.down()).isIn(ModTags.Blocks.NOT_PASSABLE))
                         return getNodeWith(x, y, z, PathNodeType.WALKABLE, 8.0f);
                 }
-                else return null;
+                return null;
             }
         }
         return super.getPathNode(x, y, z, maxYStep, prevFeetY, direction, nodeType);

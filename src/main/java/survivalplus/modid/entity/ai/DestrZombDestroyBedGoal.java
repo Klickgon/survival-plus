@@ -70,6 +70,9 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         if (!this.DestroyMob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
+        World world = this.DestroyMob.getWorld();
+        BlockPos pos = this.DestroyMob.getBlockPos();
+        if(world.getBlockState(pos).isIn(blockTag) || world.getBlockState(pos.up()).isIn(blockTag)) return false;
         this.cooldown = 20 + this.mob.getWorld().random.nextInt(10);
         return this.findTargetPos();
     }

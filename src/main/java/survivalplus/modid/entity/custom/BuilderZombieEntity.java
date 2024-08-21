@@ -44,10 +44,10 @@ public class BuilderZombieEntity
     private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(survivalplus.modid.entity.custom.BuilderZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.HARD;
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
-    private boolean canBreakDoors;
-    private int inWaterTime;
-    private int ticksUntilWaterConversion;
-    private int DirtPlaceCooldown = 0;
+    protected boolean canBreakDoors;
+    protected int inWaterTime;
+    protected int ticksUntilWaterConversion;
+    protected int DirtPlaceCooldown = 0;
 
     public boolean hasTargetBed = false;
 
@@ -291,7 +291,6 @@ public class BuilderZombieEntity
             entityData = new BuilderZombieEntity.ZombieData(BuilderZombieEntity.shouldBeBaby(random), false);
         }
         if (entityData instanceof survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData) {
-            survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData zombieData = (survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData)entityData;
             this.setCanBreakDoors(this.shouldBreakDoors() && random.nextFloat() < f * 0.1f);
             this.initEquipment();
         }

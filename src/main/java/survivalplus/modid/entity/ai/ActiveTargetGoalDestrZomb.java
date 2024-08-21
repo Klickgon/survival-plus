@@ -80,6 +80,9 @@ extends TrackTargetGoal {
         if (this.reciprocalChance > 0 && this.mob.getRandom().nextInt(this.reciprocalChance) != 0) {
             return false;
         }
+        World world = this.mob.getWorld();
+        BlockPos pos = this.mob.getBlockPos();
+        if(world.getBlockState(pos).isIn(blockTag) || world.getBlockState(pos.up()).isIn(blockTag)) return false;
         this.findClosestTarget();
         return this.targetEntity != null;
     }

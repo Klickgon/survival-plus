@@ -30,12 +30,13 @@ import survivalplus.modid.world.baseassaults.BaseAssault;
 
 public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
-    private final BaseAssault baseAssault;
-    private TagKey<Item> reqItem;
-    private TagKey<Block> blockTag = null;
-    private BlockPos facingBlock;
-    private int destroyBlockCooldown;
-    private int destroyBlockCooldownCounter;
+    protected final BaseAssault baseAssault;
+    protected TagKey<Item> reqItem;
+    protected TagKey<Block> blockTag = null;
+    protected BlockPos facingBlock;
+    protected int destroyBlockCooldown;
+    protected int destroyBlockCooldownCounter;
+    protected boolean shouldCheckIfNotWithinBlockTag = false;
 
 
     public BaseAssaultGoal(HostileEntity mob, double speed) {
@@ -44,20 +45,23 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         this.cooldown = mob.getRandom().nextInt(40);
         if(mob instanceof MinerZombieEntity){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
-            destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
-            reqItem = ItemTags.PICKAXES;
+            this.destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
+            this.reqItem = ItemTags.PICKAXES;
+            this.shouldCheckIfNotWithinBlockTag = true;
         }
         if(mob instanceof LumberjackZombieEntity){
             this.blockTag = LumberjackZombieEntity.BLOCKTAG;
-            destroyBlockCooldown = LumberjackZombieEntity.defaultCooldown;
-            reqItem = ItemTags.AXES;
+            this.destroyBlockCooldown = LumberjackZombieEntity.defaultCooldown;
+            this.reqItem = ItemTags.AXES;
+            this.shouldCheckIfNotWithinBlockTag = true;
         }
         if(mob instanceof DiggingZombieEntity){
             this.blockTag = DiggingZombieEntity.BLOCKTAG;
-            destroyBlockCooldown = DiggingZombieEntity.defaultCooldown;
-            reqItem = ItemTags.SHOVELS;
+            this.destroyBlockCooldown = DiggingZombieEntity.defaultCooldown;
+            this.reqItem = ItemTags.SHOVELS;
+            this.shouldCheckIfNotWithinBlockTag = true;
         }
-        destroyBlockCooldownCounter = destroyBlockCooldown;
+        this.destroyBlockCooldownCounter = this.destroyBlockCooldown;
     }
 
     @Override
@@ -65,6 +69,12 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         if (this.cooldown > 0) {
             --this.cooldown;
             return false;
+        }
+        if (this.shouldCheckIfNotWithinBlockTag) {
+            World world = this.mob.getWorld();
+            BlockPos pos = this.mob.getBlockPos();
+            if(world.getBlockState(pos).isIn(blockTag) || world.getBlockState(pos.up()).isIn(blockTag))
+                return false;
         }
         if(this.baseAssault == null)
             return false;

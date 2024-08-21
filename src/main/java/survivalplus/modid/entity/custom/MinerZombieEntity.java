@@ -47,12 +47,13 @@ public class MinerZombieEntity
     private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(MinerZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.EASY;
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
-    private boolean canBreakDoors;
+    protected boolean canBreakDoors;
     public BlockPos targetBedPos;
     public static final TagKey<Block> BLOCKTAG = ModTags.Blocks.MINERZOMBIE_MINABLE;
     public static final int defaultCooldown = 12;
-    private int inWaterTime;
-    private int ticksUntilWaterConversion;
+    protected int inWaterTime;
+    protected int ticksUntilWaterConversion;
+    protected int freeingCooldown;
 
     public MinerZombieEntity(EntityType<? extends ZombieEntity> entityType, World world) {
         super(entityType, world);
@@ -161,6 +162,18 @@ public class MinerZombieEntity
                 }
                 if (bl) {
                     this.setOnFireFor(8);
+                }
+            }
+            World world = this.getWorld();
+            BlockPos pos = this.getBlockPos();
+            if(this.freeingCooldown <= 0){
+                if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){
+                    world.breakBlock(pos.up(), true);
+                    this.freeingCooldown = defaultCooldown;
+                }
+                if(world.getBlockState(pos).isIn(BLOCKTAG)){
+                    world.breakBlock(pos, true);
+                    this.freeingCooldown = defaultCooldown;
                 }
             }
         }

@@ -47,12 +47,13 @@ public class DiggingZombieEntity
     private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(DiggingZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.NORMAL;
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
-    private boolean canBreakDoors;
+    protected boolean canBreakDoors;
     public BlockPos targetBedPos;
     public static final TagKey<Block> BLOCKTAG = ModTags.Blocks.DIGGINGZOMBIE_MINABLE;
     public static final int defaultCooldown = 10;
-    private int inWaterTime;
-    private int ticksUntilWaterConversion;
+    protected int freeingCooldown = 0;
+    protected int inWaterTime;
+    protected int ticksUntilWaterConversion;
 
     public DiggingZombieEntity(EntityType<? extends ZombieEntity> entityType, World world) {
         super(entityType, world);
@@ -165,7 +166,20 @@ public class DiggingZombieEntity
                     this.setOnFireFor(8);
                 }
             }
+            World world = this.getWorld();
+            BlockPos pos = this.getBlockPos();
+            if(this.freeingCooldown <= 0){
+                if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){
+                    world.breakBlock(pos.up(), true);
+                    this.freeingCooldown = defaultCooldown;
+                }
+                if(world.getBlockState(pos).isIn(BLOCKTAG)){
+                    world.breakBlock(pos, true);
+                    this.freeingCooldown = defaultCooldown;
+                }
+            }
         }
+        this.freeingCooldown--;
         super.tickMovement();
     }
 
