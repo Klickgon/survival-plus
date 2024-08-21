@@ -50,7 +50,7 @@ public class MinerZombieEntity
     private boolean canBreakDoors;
     public BlockPos targetBedPos;
     public static final TagKey<Block> BLOCKTAG = ModTags.Blocks.MINERZOMBIE_MINABLE;
-    public static final int defaultCooldown = 15;
+    public static final int defaultCooldown = 12;
     private int inWaterTime;
     private int ticksUntilWaterConversion;
 
@@ -146,8 +146,7 @@ public class MinerZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            boolean bl;
-            boolean bl2 = bl = this.burnsInDaylight() && this.isAffectedByDaylight();
+            boolean bl = this.burnsInDaylight() && this.isAffectedByDaylight();
             if (bl) {
                 ItemStack itemStack = this.getEquippedStack(EquipmentSlot.HEAD);
                 if (!itemStack.isEmpty()) {

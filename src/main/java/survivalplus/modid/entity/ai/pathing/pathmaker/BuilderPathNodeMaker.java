@@ -6,7 +6,9 @@ import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathContext;
 import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.ai.pathing.PathNodeType;
+import net.minecraft.item.Items;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -38,7 +40,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
     @Override
     @Nullable
     protected PathNode getPathNode(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        if (this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
+        if (this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             BlockPos pos = new BlockPos(x, y, z);
             World world = this.entity.getWorld();
             if (world.getBlockState(pos).isIn(BlockTags.REPLACEABLE) && world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE)) {
@@ -51,7 +53,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
     @Override
     public int getSuccessors(PathNode[] successors, PathNode node) {
-        if (this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
+        if (this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             boolean usedVerticalNodeAsSuccessor = false;
             PathNode pathNode16;
             PathNode pathNode15;
@@ -131,7 +133,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
                 successors[i++] = pathNode8;
             }
             if(usedVerticalNodeAsSuccessor) this.verticalPathNodeCounter = verticalNodePenalty;
-            else this.verticalPathNodeCounter--;
+            this.verticalPathNodeCounter--;
             return i;
         }
         return super.getSuccessors(successors, node);
@@ -160,9 +162,8 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
 
     protected boolean canChooseVerticalNode(int x, int y, int z){
-        boolean bl = !this.entity.getWorld().getBlockState(new BlockPos(x, y - 1, z)).isReplaceable();
-        if(bl) return true;
-        else return this.verticalPathNodeCounter <= 0;
+        if(!this.entity.getWorld().getBlockState(new BlockPos(x, y - 1, z)).isReplaceable()) return true;
+        return this.verticalPathNodeCounter <= 0;
     }
 
     public PathContext getPathContext(){

@@ -146,8 +146,7 @@ public class BuilderZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            boolean bl;
-            boolean bl2 = bl = this.burnsInDaylight() && this.isAffectedByDaylight();
+            boolean bl = this.burnsInDaylight() && this.isAffectedByDaylight();
             if (bl) {
                 ItemStack itemStack = this.getEquippedStack(EquipmentSlot.HEAD);
                 if (!itemStack.isEmpty()) {
@@ -167,7 +166,7 @@ public class BuilderZombieEntity
 
             LivingEntity target = getTarget();
             IHostileEntityChanger bzomb = (IHostileEntityChanger) this;
-            if (this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
+            if (this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.getMainHandStack().isOf(Items.DIRT) && DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
                 World world = this.getWorld();
                 BlockPos BlockUnder = getBlockPos().down(1);
                 BlockPos BlockUnder2 = getBlockPos().down(2);
@@ -241,8 +240,8 @@ public class BuilderZombieEntity
 
 
     protected void initEquipment() {
-                this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.DIRT, 1));
-        }
+
+    }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {

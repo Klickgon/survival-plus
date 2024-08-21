@@ -149,8 +149,7 @@ public class LumberjackZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            boolean bl;
-            boolean bl2 = bl = this.burnsInDaylight() && this.isAffectedByDaylight();
+            boolean bl = this.burnsInDaylight() && this.isAffectedByDaylight();
             if (bl) {
                 ItemStack itemStack = this.getEquippedStack(EquipmentSlot.HEAD);
                 if (!itemStack.isEmpty()) {

@@ -64,8 +64,8 @@ public class DiggingZombieEntity
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(4, new DestrZombDestroyBedGoal((HostileEntity)this, 1.0, 8));
-        this.goalSelector.add(5, new DestroyEggGoal((PathAwareEntity)this, 1.0, 3));
+        this.goalSelector.add(4, new DestrZombDestroyBedGoal(this, 1.0, 8));
+        this.goalSelector.add(5, new DestroyEggGoal(this, 1.0, 3));
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(8, new LookAroundGoal(this));
         this.initCustomGoals();
@@ -148,8 +148,7 @@ public class DiggingZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            boolean bl;
-            boolean bl2 = bl = this.burnsInDaylight() && this.isAffectedByDaylight();
+            boolean bl = this.burnsInDaylight() && this.isAffectedByDaylight();
             if (bl) {
                 ItemStack itemStack = this.getEquippedStack(EquipmentSlot.HEAD);
                 if (!itemStack.isEmpty()) {

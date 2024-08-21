@@ -7,9 +7,11 @@ import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.entity.ai.pathing.PathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.item.Items;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -37,7 +39,6 @@ public class BuilderZombieMoveControl extends MoveControl {
     @Override
     public void tick() {
         if (this.state == State.STRAFE) {
-            float n;
             float f = (float)this.entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
             float g = (float)this.speed * f;
             float h = this.forwardMovement;
@@ -50,7 +51,7 @@ public class BuilderZombieMoveControl extends MoveControl {
             float k = MathHelper.sin(this.entity.getYaw() * ((float)Math.PI / 180));
             float l = MathHelper.cos(this.entity.getYaw() * ((float)Math.PI / 180));
             float m = (h *= j) * l - (i *= j) * k;
-            if (!this.isPosWalkable(m, n = i * l + h * k)) {
+            if (!this.isPosWalkable(m, i * l + h * k)) {
                 this.forwardMovement = 1.0f;
                 this.sidewaysMovement = 0.0f;
             }
@@ -83,7 +84,7 @@ public class BuilderZombieMoveControl extends MoveControl {
             World world = this.entity.getWorld();
             BuilderZombieEntity bzomb = (BuilderZombieEntity) this.entity;
             IHostileEntityChanger bzomb2 = (IHostileEntityChanger) this.entity;
-            if(this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
+            if(this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
                 BlockPos bzombpos = bzomb.getBlockPos();
                 if (isDirtJumpRequired(bzombpos.down(), world)) {
                     world.setBlockState(bzombpos.down(), Blocks.DIRT.getDefaultState());
@@ -105,8 +106,8 @@ public class BuilderZombieMoveControl extends MoveControl {
 
         boolean canJumpSafely = world.getBlockState(pos.up(2)).isAir();
 
-        boolean mustPlaceBlockToProgress = world.getBlockState(pos.east()).isIn(BlockTags.REPLACEABLE) && world.getBlockState(pos.west()).isIn(BlockTags.REPLACEABLE)
-                && world.getBlockState(pos.north()).isIn(BlockTags.REPLACEABLE) && world.getBlockState(pos.south()).isIn(BlockTags.REPLACEABLE);
+        boolean mustPlaceBlockToProgress = world.getBlockState(pos.east()).isIn(BlockTags.REPLACEABLE) || world.getBlockState(pos.west()).isIn(BlockTags.REPLACEABLE)
+                || world.getBlockState(pos.north()).isIn(BlockTags.REPLACEABLE) || world.getBlockState(pos.south()).isIn(BlockTags.REPLACEABLE);
 
         return canPlaceBlock && canJumpSafely && mustPlaceBlockToProgress;
     }
