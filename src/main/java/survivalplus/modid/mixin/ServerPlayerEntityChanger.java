@@ -26,7 +26,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalplus.modid.PlayerData;
-import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModGamerules;
@@ -172,7 +171,6 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     }
 
     public void setShouldNotSpawnAtAnchor(boolean bl){
-        SurvivalPlus.LOGGER.info("field set to: " + bl);
         this.shouldNotSpawnAtAnchor = bl;
     }
 

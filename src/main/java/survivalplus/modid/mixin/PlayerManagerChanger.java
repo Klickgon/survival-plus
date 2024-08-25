@@ -45,5 +45,4 @@ public class PlayerManagerChanger {
         ((IServerPlayerChanger)player).setShouldNotSpawnAtAnchor(false);
     }
 
-
 }

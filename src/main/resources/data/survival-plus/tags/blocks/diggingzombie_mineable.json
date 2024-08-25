@@ -23,6 +23,7 @@
     "#minecraft:concrete_powder",
     "minecraft:torch",
     "minecraft:soul_torch",
-    "minecraft:redstone_torch"
+    "minecraft:redstone_torch",
+    "#minecraft:crops"
   ]
 }

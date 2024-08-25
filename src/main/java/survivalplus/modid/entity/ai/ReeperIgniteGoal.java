@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameRules;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.ReeperEntity;
 
@@ -43,6 +44,9 @@ public class ReeperIgniteGoal extends Goal {
     public void tick() {
         if(this.target != null) {
             if (this.reeper.squaredDistanceTo(this.target) > 49.0) {
+                return;
+            }
+            if (!this.reeper.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && !this.reeper.getVisibilityCache().canSee(this.target)) {
                 return;
             }
             Vec3d vec3d = Vec3d.ofBottomCenter(this.reeper.getBlockPos());
