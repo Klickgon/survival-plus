@@ -51,16 +51,15 @@ public class MinerZombieEntity
     public BlockPos targetBedPos;
     public static final TagKey<Block> BLOCKTAG = ModTags.Blocks.MINERZOMBIE_MINABLE;
     public static final int defaultCooldown = 12;
+    protected int freeingCooldown = 0;
     protected int inWaterTime;
     protected int ticksUntilWaterConversion;
-    protected int freeingCooldown;
 
     public MinerZombieEntity(EntityType<? extends ZombieEntity> entityType, World world) {
         super(entityType, world);
         this.navigation = new DestroyZombieNavigation(this, this.getWorld());
         this.moveControl = new DestroyerZombieMoveControl(this);
     }
-
 
     @Override
     protected void initGoals() {

@@ -50,13 +50,13 @@ public class LumberjackZombieEntity
     private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(LumberjackZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.EASY;
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
-    private boolean canBreakDoors;
+    protected boolean canBreakDoors;
     public BlockPos targetBedPos;
     public static final TagKey<Block> BLOCKTAG = ModTags.Blocks.LUMBERJACKZOMBIE_MINABLE;
     public static final int defaultCooldown = 12;
+    protected int freeingCooldown = 0;
     protected int inWaterTime;
     protected int ticksUntilWaterConversion;
-    protected int freeingCooldown;
 
     public LumberjackZombieEntity(EntityType<? extends ZombieEntity> entityType, World world) {
         super(entityType, world);

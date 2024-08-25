@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "AbstractSkeletonChanger",
+    "EndPortalBlockChanger",
     "HostileEntityChanger",
     "MobChanger",
     "PersistentProjectileChanger",

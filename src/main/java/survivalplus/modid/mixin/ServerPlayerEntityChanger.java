@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
@@ -25,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalplus.modid.PlayerData;
+import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModGamerules;
@@ -58,6 +60,8 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     @Shadow private float spawnAngle;
 
     @Shadow private boolean spawnForced;
+
+    @Unique public boolean shouldNotSpawnAtAnchor = false;
 
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isSpectator()Z"))
     private boolean noRespawnPointPunishment(ServerPlayerEntity instance){
@@ -148,6 +152,15 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         pData.mainSpawnForced = this.spawnForced;
     }
 
+    @Inject(method = "moveToWorld", at = @At(value = "TAIL"))
+    private void endPortalToOverworldFix(ServerWorld destination, CallbackInfoReturnable<Entity> cir){
+        PlayerData pData = PlayerData.getPlayerState(this);
+        pData.mainSpawnPosition = this.spawnPointPosition;
+        pData.mainSpawnDimension = this.spawnPointDimension;
+        pData.mainSpawnAngle = this.spawnAngle;
+        pData.mainSpawnForced = this.spawnForced;
+    }
+
     @Unique
     private boolean isValidRespawnAnchor(BlockPos pos, World world){
         BlockState state = world.getBlockState(pos);
@@ -156,6 +169,15 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
 
     public BlockPos getMainSpawnPoint(){
         return this.spawnPointPosition;
+    }
+
+    public void setShouldNotSpawnAtAnchor(boolean bl){
+        SurvivalPlus.LOGGER.info("field set to: " + bl);
+        this.shouldNotSpawnAtAnchor = bl;
+    }
+
+    public boolean getShouldNotSpawnAtAnchor(){
+        return this.shouldNotSpawnAtAnchor;
     }
 
 }

@@ -61,8 +61,6 @@ public class DiggingZombieEntity
         this.moveControl = new DestroyerZombieMoveControl(this);
     }
 
-
-
     @Override
     protected void initGoals() {
         this.goalSelector.add(4, new DestrZombDestroyBedGoal(this, 1.0, 8));

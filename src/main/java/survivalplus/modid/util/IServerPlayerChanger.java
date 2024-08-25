@@ -5,4 +5,8 @@ import net.minecraft.util.math.BlockPos;
 public interface IServerPlayerChanger {
 
     BlockPos getMainSpawnPoint();
+
+    void setShouldNotSpawnAtAnchor(boolean bl);
+
+    boolean getShouldNotSpawnAtAnchor();
 }
