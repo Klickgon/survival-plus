@@ -219,7 +219,6 @@ public class BuilderZombieEntity
         return false;
     }
 
-
     @Override
     public boolean tryAttack(Entity target) {
         boolean bl = super.tryAttack(target);
@@ -238,9 +237,7 @@ public class BuilderZombieEntity
         return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= FullDaysRequired) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
-
     protected void initEquipment() {
-
     }
 
     @Override
@@ -260,9 +257,6 @@ public class BuilderZombieEntity
             this.setTicksUntilWaterConversion(nbt.getInt("DrownedConversionTime"));
         }
     }
-
-
-
 
     @Override
     public boolean canPickupItem(ItemStack stack) {
@@ -288,9 +282,9 @@ public class BuilderZombieEntity
         float f = difficulty.getClampedLocalDifficulty();
         this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
         if (entityData == null) {
-            entityData = new BuilderZombieEntity.ZombieData(BuilderZombieEntity.shouldBeBaby(random), false);
+            entityData = new BuilderZombieEntity.ZombieData(false, false);
         }
-        if (entityData instanceof survivalplus.modid.entity.custom.BuilderZombieEntity.ZombieData) {
+        if (entityData instanceof BuilderZombieEntity.ZombieData) {
             this.setCanBreakDoors(this.shouldBreakDoors() && random.nextFloat() < f * 0.1f);
             this.initEquipment();
         }
@@ -312,11 +306,6 @@ public class BuilderZombieEntity
         this.applyAttributeModifiers(f);
         return entityData;
     }
-
-    public static boolean shouldBeBaby(Random random) {
-        return false;
-    }
-
 
     @Override
     protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
@@ -360,7 +349,7 @@ public class BuilderZombieEntity
 
         public ZombieData(boolean baby, boolean tryChickenJockey) {
             this.baby = baby;
-            this.tryChickenJockey = tryChickenJockey;
+            this.tryChickenJockey = false;
         }
     }
 }

@@ -258,7 +258,7 @@ public class MinerZombieEntity
         float f = difficulty.getClampedLocalDifficulty();
         this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
         if (entityData == null) {
-            entityData = new ZombieData(MinerZombieEntity.shouldBeBaby(random), false);
+            entityData = new ZombieData(false, false);
         }
         if (entityData instanceof ZombieData) {
             ZombieData zombieData = (ZombieData)entityData;
@@ -284,11 +284,6 @@ public class MinerZombieEntity
         this.applyAttributeModifiers(f);
         return entityData;
     }
-
-    public static boolean shouldBeBaby(Random random) {
-        return false;
-    }
-
 
     @Override
     protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
@@ -332,7 +327,7 @@ public class MinerZombieEntity
 
         public ZombieData(boolean baby, boolean tryChickenJockey) {
             this.baby = baby;
-            this.tryChickenJockey = tryChickenJockey;
+            this.tryChickenJockey = false;
         }
     }
 }

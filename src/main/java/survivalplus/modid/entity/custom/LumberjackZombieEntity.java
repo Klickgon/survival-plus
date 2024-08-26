@@ -295,10 +295,9 @@ public class LumberjackZombieEntity
         float f = difficulty.getClampedLocalDifficulty();
         this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
         if (entityData == null) {
-            entityData = new LumberjackZombieEntity.ZombieData(LumberjackZombieEntity.shouldBeBaby(random), false);
+            entityData = new LumberjackZombieEntity.ZombieData(false, false);
         }
         if (entityData instanceof LumberjackZombieEntity.ZombieData) {
-            LumberjackZombieEntity.ZombieData zombieData = (LumberjackZombieEntity.ZombieData)entityData;
             this.setCanBreakDoors(this.shouldBreakDoors() && random.nextFloat() < f * 0.1f);
             this.initEquipment();
         }
@@ -317,11 +316,6 @@ public class LumberjackZombieEntity
         this.applyAttributeModifiers(f);
         return entityData;
     }
-
-    public static boolean shouldBeBaby(Random random) {
-        return false;
-    }
-
 
     @Override
     protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
@@ -365,7 +359,7 @@ public class LumberjackZombieEntity
 
         public ZombieData(boolean baby, boolean tryChickenJockey) {
             this.baby = baby;
-            this.tryChickenJockey = tryChickenJockey;
+            this.tryChickenJockey = false;
         }
     }
 }
