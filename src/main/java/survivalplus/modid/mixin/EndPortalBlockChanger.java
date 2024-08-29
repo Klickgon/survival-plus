@@ -15,7 +15,7 @@ import survivalplus.modid.util.IServerPlayerChanger;
 @Mixin(EndPortalBlock.class)
 public class EndPortalBlockChanger {
 
-    @Inject(method = "onEntityCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;moveToWorld(Lnet/minecraft/server/world/ServerWorld;)Lnet/minecraft/entity/Entity;", shift = At.Shift.BEFORE))
+    @Inject(method = "onEntityCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;tryUsePortal(Lnet/minecraft/block/Portal;Lnet/minecraft/util/math/BlockPos;)V", shift = At.Shift.BEFORE))
     private void shouldSkipRespawnAnchorFieldFlip(BlockState state, World world, BlockPos pos, Entity entity, CallbackInfo ci){
         if(entity instanceof ServerPlayerEntity && entity.getWorld().getRegistryKey() == World.END) ((IServerPlayerChanger)entity).setShouldNotSpawnAtAnchor(true);
     }

@@ -22,7 +22,7 @@ public class MinerZombieRenderer extends MobEntityRenderer<MinerZombieEntity, Mo
     }
     @Override
     public Identifier getTexture(MinerZombieEntity entity) {
-        return new Identifier(SurvivalPlus.MOD_ID,"textures/entity/minerzombie.png");
+        return Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/minerzombie.png");
     }
 
 

@@ -6,7 +6,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -29,7 +28,6 @@ import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import survivalplus.modid.enchantments.ModEnchantments;
 import survivalplus.modid.entity.ai.AdvancedBowAttackGoal;
 import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.util.ModGamerules;
@@ -116,21 +114,19 @@ extends SkeletonEntity {
         return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= FullDaysRequired) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
-    @Override
     protected void updateEnchantments(Random random, LocalDifficulty localDifficulty) {
         float f = localDifficulty.getClampedLocalDifficulty();
         this.enchantMainHandItem(random, f);
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
-            if (equipmentSlot.getType() != EquipmentSlot.Type.ARMOR) continue;
-            this.enchantEquipment(random, f, equipmentSlot);
+            if (equipmentSlot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR) continue;
+            this.enchantEquipment((ServerWorldAccess)this.getWorld(), random, equipmentSlot, localDifficulty);
         }
     }
 
-    @Override
     protected void enchantMainHandItem(Random random, float power) {
         if (this.getMainHandStack().isOf(Items.BOW)) {
             ItemStack bow = this.getMainHandStack();
-            bow.addEnchantment(ModEnchantments.FLAME_TWO, 1);
+            //bow.addEnchantment(RegistryEntry);
             this.equipStack(EquipmentSlot.MAINHAND, bow);
         }
     }
@@ -189,12 +185,6 @@ extends SkeletonEntity {
             this.bowAttackGoal.setAttackInterval(i);
             this.goalSelector.add(3, this.bowAttackGoal);
         }
-    }
-
-
-    @Override
-    protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
-        super.dropEquipment(source, lootingMultiplier, allowDrops);
     }
 }
 

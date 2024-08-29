@@ -8,11 +8,13 @@ import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.*;
+import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.PathAwareEntity;
+import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.entity.mob.ZombifiedPiglinEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.TurtleEntity;
@@ -153,7 +155,7 @@ public class BuilderZombieEntity
                     if (itemStack.isDamageable()) {
                         itemStack.setDamage(itemStack.getDamage() + this.random.nextInt(2));
                         if (itemStack.getDamage() >= itemStack.getMaxDamage()) {
-                            this.sendEquipmentBreakStatus(EquipmentSlot.HEAD);
+                            this.sendEquipmentBreakStatus(itemStack.getItem(), EquipmentSlot.HEAD);
                             this.equipStack(EquipmentSlot.HEAD, ItemStack.EMPTY);
                         }
                     }
@@ -307,17 +309,6 @@ public class BuilderZombieEntity
         return entityData;
     }
 
-    @Override
-    protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
-        ItemStack itemStack;
-        CreeperEntity creeperEntity;
-        super.dropEquipment(source, lootingMultiplier, allowDrops);
-        Entity entity = source.getAttacker();
-        if (entity instanceof CreeperEntity && (creeperEntity = (CreeperEntity)entity).shouldDropHead() && !(itemStack = this.getSkull()).isEmpty()) {
-            creeperEntity.onHeadDropped();
-            this.dropStack(itemStack);
-        }
-    }
 
 
     class DestroyEggGoal

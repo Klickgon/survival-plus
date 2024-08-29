@@ -17,7 +17,7 @@ import survivalplus.modid.SurvivalPlus;
 @Environment(value=EnvType.CLIENT)
 public class ScorchedSkeletonRenderer
 extends BipedEntityRenderer<AbstractSkeletonEntity, ScorchedSkeletonModel<AbstractSkeletonEntity>> {
-    private static final Identifier TEXTURE = new Identifier(SurvivalPlus.MOD_ID,"textures/entity/scorchedskeleton.png");
+    private static final Identifier TEXTURE = Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/scorchedskeleton.png");
 
     public ScorchedSkeletonRenderer(EntityRendererFactory.Context context) {
         this(context, EntityModelLayers.SKELETON, EntityModelLayers.SKELETON_INNER_ARMOR, EntityModelLayers.SKELETON_OUTER_ARMOR);

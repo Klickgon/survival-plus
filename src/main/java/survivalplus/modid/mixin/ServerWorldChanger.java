@@ -1,6 +1,5 @@
 package survivalplus.modid.mixin;
 
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -11,10 +10,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.RandomSequencesState;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.MutableWorldProperties;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.dimension.DimensionType;
@@ -39,7 +38,6 @@ import survivalplus.modid.world.baseassaults.BaseAssault;
 import survivalplus.modid.world.baseassaults.BaseAssaultManager;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -103,8 +101,8 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             BlockPos bpos = serverPlayer.getSpawnPointPosition();
                 if(bpos != null){
-                    Optional<Vec3d> result = PlayerEntity.findRespawnPosition(serverPlayer.getServerWorld(), bpos, 0.0f, false, true);
-                    if (result.isEmpty())
+                    TeleportTarget result = serverPlayer.getRespawnTarget(true, TeleportTarget.NO_OP);
+                    if (result.missingRespawnBlock())
                         serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             } else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             this.baseAssaultManager.startBaseAssault(serverPlayer);

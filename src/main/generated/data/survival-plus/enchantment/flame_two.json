@@ -1,0 +1,40 @@
+{
+  "anvil_cost": 8,
+  "description": {
+    "translate": "enchantment.survival-plus.flame_two"
+  },
+  "effects": {
+    "minecraft:post_attack": [
+      {
+        "affected": "victim",
+        "effect": {
+          "type": "minecraft:rapid_swing",
+          "levelBasedValue": 1.0
+        },
+        "enchanted": "attacker"
+      }
+    ],
+    "minecraft:projectile_spawned": [
+      {
+        "effect": {
+          "type": "minecraft:ignite",
+          "duration": 100.0
+        }
+      }
+    ]
+  },
+  "max_cost": {
+    "base": 60,
+    "per_level_above_first": 0
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 30,
+    "per_level_above_first": 0
+  },
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": "#minecraft:enchantable/bow",
+  "weight": 1
+}

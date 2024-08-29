@@ -13,18 +13,21 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.*;
+import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.PathAwareEntity;
+import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.entity.mob.ZombifiedPiglinEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.TurtleEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -157,7 +160,7 @@ public class LumberjackZombieEntity
                     if (itemStack.isDamageable()) {
                         itemStack.setDamage(itemStack.getDamage() + this.random.nextInt(2));
                         if (itemStack.getDamage() >= itemStack.getMaxDamage()) {
-                            this.sendEquipmentBreakStatus(EquipmentSlot.HEAD);
+                            this.sendEquipmentBreakStatus(itemStack.getItem(), EquipmentSlot.HEAD);
                             this.equipStack(EquipmentSlot.HEAD, ItemStack.EMPTY);
                         }
                     }
@@ -200,46 +203,29 @@ public class LumberjackZombieEntity
     @Override
     public boolean tryAttack(Entity target) {
         boolean bl;
-        int i;
         float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-        float g = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_KNOCKBACK);
-        if (target instanceof LivingEntity) {
-            f += EnchantmentHelper.getAttackDamage(this.getMainHandStack(), target.getType());
-            g += (float)EnchantmentHelper.getKnockback(this);
+        DamageSource damageSource = this.getDamageSources().mobAttack(this);
+        World world = this.getWorld();
+        if (world instanceof ServerWorld) {
+            ServerWorld serverWorld = (ServerWorld)world;
+            f = EnchantmentHelper.getDamage(serverWorld, this.getWeaponStack(), target, damageSource, f) * 0.60f;
         }
-        if ((i = EnchantmentHelper.getFireAspect(this)) > 0) {
-            target.setOnFireFor(i * 4);
-        }
-        bl = target.damage(this.getDamageSources().mobAttack(this), f * 0.60f);
-        if (bl) {
+        if (bl = target.damage(damageSource, f)) {
+            World world2;
+            float g = this.getKnockbackAgainst(target, damageSource);
             if (g > 0.0f && target instanceof LivingEntity) {
-                ((LivingEntity)target).takeKnockback(g * 0.5f, MathHelper.sin(this.getYaw() * ((float)Math.PI / 180)), -MathHelper.cos(this.getYaw() * ((float)Math.PI / 180)));
+                LivingEntity livingEntity = (LivingEntity)target;
+                livingEntity.takeKnockback(g * 0.5f, MathHelper.sin(this.getYaw() * ((float)Math.PI / 180)), -MathHelper.cos(this.getYaw() * ((float)Math.PI / 180)));
                 this.setVelocity(this.getVelocity().multiply(0.6, 1.0, 0.6));
             }
-            if (target instanceof PlayerEntity) {
-                PlayerEntity playerEntity = (PlayerEntity)target;
-                this.disablePlayerShield(playerEntity, this.getMainHandStack(), playerEntity.isUsingItem() ? playerEntity.getActiveItem() : ItemStack.EMPTY);
+            if ((world2 = this.getWorld()) instanceof ServerWorld) {
+                ServerWorld serverWorld2 = (ServerWorld)world2;
+                EnchantmentHelper.onTargetDamaged(serverWorld2, target, damageSource);
             }
-            this.applyDamageEffects(this, target);
             this.onAttacking(target);
-        }
-        if (bl) {
-            float d = this.getWorld().getLocalDifficulty(this.getBlockPos()).getLocalDifficulty();
-            if (this.getMainHandStack().isEmpty() && this.isOnFire() && this.random.nextFloat() < d * 0.3f) {
-                target.setOnFireFor(2 * (int)d);
-            }
+            this.playAttackSound();
         }
         return bl;
-    }
-
-    private void disablePlayerShield(PlayerEntity player, ItemStack mobStack, ItemStack playerStack) {
-        if (!mobStack.isEmpty() && !playerStack.isEmpty() && mobStack.getItem() instanceof AxeItem && playerStack.isOf(Items.SHIELD)) {
-            float f = 0.25f + (float)EnchantmentHelper.getEfficiency(this) * 0.05f;
-            if (this.random.nextFloat() < f) {
-                player.getItemCooldownManager().set(Items.SHIELD, 100);
-                this.getWorld().sendEntityStatus(player, EntityStatuses.BREAK_SHIELD);
-            }
-        }
     }
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
@@ -316,19 +302,6 @@ public class LumberjackZombieEntity
         this.applyAttributeModifiers(f);
         return entityData;
     }
-
-    @Override
-    protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
-        ItemStack itemStack;
-        CreeperEntity creeperEntity;
-        super.dropEquipment(source, lootingMultiplier, allowDrops);
-        Entity entity = source.getAttacker();
-        if (entity instanceof CreeperEntity && (creeperEntity = (CreeperEntity)entity).shouldDropHead() && !(itemStack = this.getSkull()).isEmpty()) {
-            creeperEntity.onHeadDropped();
-            this.dropStack(itemStack);
-        }
-    }
-
 
     class DestroyEggGoal
             extends StepAndDestroyBlockGoal {

@@ -11,7 +11,6 @@ import net.minecraft.client.render.entity.model.ZombieEntityModel;
 import net.minecraft.util.Identifier;
 import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
-import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 
 public class DiggingZombieRenderer extends MobEntityRenderer<DiggingZombieEntity, ModZombieModel<DiggingZombieEntity>> {
     public DiggingZombieRenderer(EntityRendererFactory.Context context) {
@@ -24,7 +23,7 @@ public class DiggingZombieRenderer extends MobEntityRenderer<DiggingZombieEntity
 
     @Override
     public Identifier getTexture(DiggingZombieEntity entity) {
-        return new Identifier(SurvivalPlus.MOD_ID,"textures/entity/diggingzombie.png");
+        return Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/diggingzombie.png");
     }
 
 

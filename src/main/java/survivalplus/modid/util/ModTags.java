@@ -18,7 +18,7 @@ public class ModTags {
         public static final TagKey<Block> NOT_PASSABLE = createTag("notpassable");
 
         private static TagKey<Block> createTag(String name){
-            return TagKey.of(RegistryKeys.BLOCK, new Identifier(SurvivalPlus.MOD_ID, name));
+            return TagKey.of(RegistryKeys.BLOCK, Identifier.of(SurvivalPlus.MOD_ID, name));
         }
 
     }

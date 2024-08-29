@@ -16,7 +16,7 @@ import survivalplus.modid.SurvivalPlus;
 @Environment(value=EnvType.CLIENT)
 public class BrunsFeatureRenderer<T extends Entity, M extends EntityModel<T>>
 extends EyesFeatureRenderer<T, M> {
-    private static final RenderLayer BURNS = RenderLayer.getEyes(new Identifier(SurvivalPlus.MOD_ID,"textures/entity/scorchedskeletonburns.png"));
+    private static final RenderLayer BURNS = RenderLayer.getEyes(Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/scorchedskeletonburns.png"));
 
     public BrunsFeatureRenderer(FeatureRendererContext featureRendererContext) {
         super(featureRendererContext);

@@ -29,6 +29,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.PlayerData;
@@ -299,7 +300,7 @@ public class BaseAssault {
                 return;
             }
             ++this.ticksActive;
-            if (!this.attachedPlayer.isAlive() && PlayerEntity.findRespawnPosition(world, this.attachedPlayer.getSpawnPointPosition(), 0.0f, false, true).isEmpty()) {
+            if (!this.attachedPlayer.isAlive() && this.attachedPlayer.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock()) {
                 this.status = Status.LOSS;
             }
             updateCenter();

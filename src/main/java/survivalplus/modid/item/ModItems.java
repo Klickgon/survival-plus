@@ -21,7 +21,7 @@ public class ModItems {
     public static final Item LEAPING_SPIDER_SPAWN_EGG = registerItem("leaping_spider_spawn_egg", new SpawnEggItem(ModEntities.LEAPINGSPIDER, 0xFFD30E, 0x172513, SETTING));
 
     private static Item registerItem(String name, Item item){
-        return Registry.register(Registries.ITEM, new Identifier(SurvivalPlus.MOD_ID, name), item);
+        return Registry.register(Registries.ITEM, Identifier.of(SurvivalPlus.MOD_ID, name), item);
     }
 
     public static void registerModItems(){

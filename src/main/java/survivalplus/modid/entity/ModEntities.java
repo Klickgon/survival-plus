@@ -1,7 +1,9 @@
 package survivalplus.modid.entity;
 
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.entity.*;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnGroup;
+import net.minecraft.entity.SpawnLocationTypes;
+import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -14,39 +16,39 @@ public class ModEntities {
 
 
     public static final EntityType<ReeperEntity> REEPER = Registry.register(Registries.ENTITY_TYPE,
-            new Identifier(SurvivalPlus.MOD_ID,"reeper"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, ReeperEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.6f, 1.7f)).build());
+            Identifier.of(SurvivalPlus.MOD_ID,"reeper"),
+            EntityType.Builder.create(ReeperEntity::new, SpawnGroup.MONSTER)
+                    .dimensions(0.6f, 1.7f).build());
 
     public static final EntityType<BuilderZombieEntity> BUILDERZOMBIE = Registry.register(Registries.ENTITY_TYPE,
-            new Identifier(SurvivalPlus.MOD_ID,"builderzombie"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, BuilderZombieEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.6f, 1.95f)).build());
+            Identifier.of(SurvivalPlus.MOD_ID,"builderzombie"),
+            EntityType.Builder.create(BuilderZombieEntity::new, SpawnGroup.MONSTER)
+                    .dimensions(0.6f, 1.95f).build());
 
     public static final EntityType<MinerZombieEntity> MINERZOMBIE = Registry.register(Registries.ENTITY_TYPE,
-            new Identifier(SurvivalPlus.MOD_ID,"minerzombie"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, MinerZombieEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.6f, 1.95f)).build());
+            Identifier.of(SurvivalPlus.MOD_ID,"minerzombie"),
+            EntityType.Builder.create(MinerZombieEntity::new, SpawnGroup.MONSTER)
+                    .dimensions(0.6f, 1.95f).build());
 
     public static final EntityType<LumberjackZombieEntity> LUMBERJACKZOMBIE = Registry.register(Registries.ENTITY_TYPE,
-            new Identifier(SurvivalPlus.MOD_ID,"lumberjackzombie"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, LumberjackZombieEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.6f, 1.95f)).build());
+            Identifier.of(SurvivalPlus.MOD_ID,"lumberjackzombie"),
+            EntityType.Builder.create(LumberjackZombieEntity::new, SpawnGroup.MONSTER)
+                    .dimensions(0.6f, 1.95f).build());
 
     public static final EntityType<DiggingZombieEntity> DIGGINGZOMBIE = Registry.register(Registries.ENTITY_TYPE,
-            new Identifier(SurvivalPlus.MOD_ID,"diggingzombie"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, DiggingZombieEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.6f, 1.95f)).build());
+            Identifier.of(SurvivalPlus.MOD_ID,"diggingzombie"),
+            EntityType.Builder.create(DiggingZombieEntity::new, SpawnGroup.MONSTER)
+                    .dimensions(0.6f, 1.95f).build());
 
     public static final EntityType<ScorchedSkeletonEntity> SCORCHEDSKELETON = Registry.register(Registries.ENTITY_TYPE,
-            new Identifier(SurvivalPlus.MOD_ID,"scorchedskeleton"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, ScorchedSkeletonEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.6f, 1.99f)).build());
+            Identifier.of(SurvivalPlus.MOD_ID,"scorchedskeleton"),
+            EntityType.Builder.create(ScorchedSkeletonEntity::new, SpawnGroup.MONSTER)
+                    .dimensions(0.6f, 1.99f).build());
 
     public static final EntityType<LeapingSpiderEntity> LEAPINGSPIDER = Registry.register(Registries.ENTITY_TYPE,
-            new Identifier(SurvivalPlus.MOD_ID,"leapingspider"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, LeapingSpiderEntity::new)
-                    .dimensions(EntityDimensions.fixed(1.4f, 0.9f)).build());
+            Identifier.of(SurvivalPlus.MOD_ID,"leapingspider"),
+            EntityType.Builder.create(LeapingSpiderEntity::new, SpawnGroup.MONSTER)
+                    .dimensions(1.4f, 0.09f).build());
 
     public static void registerSpawnRestrictions() {
         SpawnRestriction.register(ModEntities.DIGGINGZOMBIE, SpawnLocationTypes.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, DiggingZombieEntity::canSpawn);

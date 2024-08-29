@@ -1,6 +1,5 @@
 package survivalplus.modid.entity.custom;
 
-import net.minecraft.client.render.entity.feature.SkinOverlayOwner;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.Path;
@@ -43,7 +42,7 @@ import java.util.List;
 
 public class ReeperEntity
         extends CreeperEntity
-        implements SkinOverlayOwner {
+        implements net.minecraft.entity.SkinOverlayOwner {
     private static final TrackedData<Integer> FUSE_SPEED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> CHARGED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> IGNITED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.BOOLEAN);

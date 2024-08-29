@@ -15,6 +15,7 @@ import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -60,6 +61,8 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
 
     @Shadow private boolean spawnForced;
 
+    @Shadow public abstract TeleportTarget getRespawnTarget(boolean alive, TeleportTarget.PostDimensionTransition postDimensionTransition);
+
     @Unique public boolean shouldNotSpawnAtAnchor = false;
 
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isSpectator()Z"))
@@ -69,7 +72,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         if(bpos == null)
             bl = false;
         else
-            bl = ServerPlayerEntity.findRespawnPosition(this.getServerWorld(), bpos, 0.0f, false, true).isPresent() || this.getWorld().getLevelProperties().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN);
+            bl = !this.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock() || this.getWorld().getLevelProperties().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN);
         return !this.isSpectator() && !(this.isCreative() || bl);
     }
 
@@ -91,7 +94,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     private void tempSpawnPositionImplementation(CallbackInfoReturnable<BlockPos> cir){
         ServerWorld world = this.getServerWorld();
         BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent())
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && !this.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock())
             cir.setReturnValue(tempSpawnPos);
     }
 
@@ -100,7 +103,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         ServerWorld world = this.getServerWorld();
         PlayerData pdata = PlayerData.getPlayerState(this);
         BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent()) {
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && !this.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock()) {
             cir.setReturnValue(pdata.tempSpawnDimension);
         }
     }
@@ -110,7 +113,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         ServerWorld world = this.getServerWorld();
         PlayerData pdata = PlayerData.getPlayerState(this);
         BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent())
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && !this.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock())
             cir.setReturnValue(pdata.tempSpawnAngle);
     }
 
@@ -119,7 +122,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         ServerWorld world = this.getServerWorld();
         PlayerData pdata = PlayerData.getPlayerState(this);
         BlockPos tempSpawnPos = pdata.tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && PlayerEntity.findRespawnPosition(world, tempSpawnPos, 0.0f, false, true).isPresent())
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && !this.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock())
             cir.setReturnValue(pdata.tempSpawnForced);
     }
 
@@ -151,8 +154,8 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         pData.mainSpawnForced = this.spawnForced;
     }
 
-    @Inject(method = "moveToWorld", at = @At(value = "TAIL"))
-    private void endPortalToOverworldFix(ServerWorld destination, CallbackInfoReturnable<Entity> cir){
+    @Inject(method = "teleportTo", at = @At(value = "TAIL"))
+    private void endPortalToOverworldFix(TeleportTarget teleportTarget, CallbackInfoReturnable<Entity> cir){
         PlayerData pData = PlayerData.getPlayerState(this);
         pData.mainSpawnPosition = this.spawnPointPosition;
         pData.mainSpawnDimension = this.spawnPointDimension;

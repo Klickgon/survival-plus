@@ -16,7 +16,7 @@ import survivalplus.modid.entity.custom.LeapingSpiderEntity;
 @Environment(value=EnvType.CLIENT)
 public class LeapingSpiderRenderer<T extends LeapingSpiderEntity>
 extends MobEntityRenderer<T, LeapingSpiderModel<T>> {
-    private static final Identifier TEXTURE = new Identifier(SurvivalPlus.MOD_ID,"textures/entity/leapingspider.png");
+    private static final Identifier TEXTURE = Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/leapingspider.png");
 
     public LeapingSpiderRenderer(EntityRendererFactory.Context context) {
         this(context, EntityModelLayers.SPIDER);

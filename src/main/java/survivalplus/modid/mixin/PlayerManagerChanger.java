@@ -1,11 +1,9 @@
 package survivalplus.modid.mixin;
 
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.TeleportTarget;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,31 +15,19 @@ import survivalplus.modid.util.IServerPlayerChanger;
 @Mixin(PlayerManager.class)
 public class PlayerManagerChanger {
 
-    @Redirect(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;setSpawnPoint(Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/util/math/BlockPos;FZZ)V"))
-    private void setSpawnPointRedirect(ServerPlayerEntity instance, RegistryKey<World> dimension, @Nullable BlockPos pos, float angle, boolean forced, boolean sendMessage){
+    @Redirect(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;setSpawnPointFrom(Lnet/minecraft/server/network/ServerPlayerEntity;)V"))
+    private void setSpawnPointRedirect(ServerPlayerEntity instance, ServerPlayerEntity player){
         PlayerData pdata = PlayerData.getPlayerState(instance); // Necessary so the player has a non Respawn Anchor block spawnpoint after death due to it actually not being saved after death
         instance.setSpawnPoint(pdata.mainSpawnDimension, pdata.mainSpawnPosition, pdata.mainSpawnAngle, pdata.mainSpawnForced, false);
     }
 
-    @Redirect(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getSpawnPointPosition()Lnet/minecraft/util/math/BlockPos;"))
-    private BlockPos endPortalToOverworldFixDimension(ServerPlayerEntity instance){
-        IServerPlayerChanger Iplayer = ((IServerPlayerChanger)instance);
-        BlockPos bpos = Iplayer.getShouldNotSpawnAtAnchor() ? Iplayer.getMainSpawnPoint() : instance.getSpawnPointPosition();
-        return bpos;
-    }
-
-    @Redirect(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getSpawnPointDimension()Lnet/minecraft/registry/RegistryKey;"))
-    private RegistryKey<World> endPortalToOverworldFixPosition(ServerPlayerEntity instance){
-        return ((IServerPlayerChanger)instance).getShouldNotSpawnAtAnchor() ? World.OVERWORLD : instance.getSpawnPointDimension();
-    }
-
-    @Redirect(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isSpawnForced()Z"))
-    private boolean endPortalToOverworldFixBoolean(ServerPlayerEntity instance){
-        return !((IServerPlayerChanger)instance).getShouldNotSpawnAtAnchor() && instance.isSpawnForced();
+    @Redirect(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getRespawnTarget(ZLnet/minecraft/world/TeleportTarget$PostDimensionTransition;)Lnet/minecraft/world/TeleportTarget;"))
+    private TeleportTarget endPortalToOverworldFixDimension(ServerPlayerEntity instance, boolean alive, TeleportTarget.PostDimensionTransition postDimensionTransition){
+        return ((IServerPlayerChanger)instance).getShouldNotSpawnAtAnchor() ? new TeleportTarget(instance.getServerWorld(), instance, TeleportTarget.NO_OP) : instance.getRespawnTarget(true, TeleportTarget.NO_OP) ;
     }
 
     @Inject(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;setMainArm(Lnet/minecraft/util/Arm;)V"))
-    private void anchorSkipFieldReset(ServerPlayerEntity player, boolean alive, CallbackInfoReturnable<ServerPlayerEntity> cir){
+    private void anchorSkipFieldReset(ServerPlayerEntity player, boolean alive, Entity.RemovalReason removalReason, CallbackInfoReturnable<ServerPlayerEntity> cir){
         ((IServerPlayerChanger)player).setShouldNotSpawnAtAnchor(false);
     }
 

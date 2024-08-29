@@ -6,10 +6,14 @@ package survivalplus.modid.entity.custom;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -20,9 +24,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.SpiderEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -115,36 +117,29 @@ extends SpiderEntity {
         boolean bl;
         float k = (float) this.getVelocity().length();
         float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-        float g = (float) (k * this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_KNOCKBACK));
-        if (target instanceof LivingEntity) {
-            f += EnchantmentHelper.getAttackDamage(this.getMainHandStack(), target.getType());
-            g += (float)EnchantmentHelper.getKnockback(this);
+        DamageSource damageSource = this.getDamageSources().mobAttack(this);
+        World world = this.getWorld();
+        if (world instanceof ServerWorld) {
+            ServerWorld serverWorld = (ServerWorld)world;
+            f = EnchantmentHelper.getDamage(serverWorld, this.getWeaponStack(), target, damageSource, f);
         }
         bl = this.attackCooldown <= 0 && (this.isOnGround() || this.isLeaping) && target.damage(this.getDamageSources().mobAttack(this), f * k + 1);
         if (bl) {
+            World world2;
+            float g = this.getKnockbackAgainst(target, damageSource);
             if (g > 0.0f && target instanceof LivingEntity) {
-                ((LivingEntity)target).takeKnockback(g, MathHelper.sin(this.getYaw() * ((float)Math.PI / 180)), -MathHelper.cos(this.getYaw() * ((float)Math.PI / 180)));
+                LivingEntity livingEntity = (LivingEntity)target;
+                livingEntity.takeKnockback(g * 0.5f, MathHelper.sin(this.getYaw() * ((float)Math.PI / 180)), -MathHelper.cos(this.getYaw() * ((float)Math.PI / 180)));
                 this.setVelocity(this.getVelocity().multiply(0.6, 1.0, 0.6));
             }
-            if (target instanceof PlayerEntity) {
-                PlayerEntity playerEntity = (PlayerEntity) target;
-                this.disablePlayerShield(playerEntity, this.getMainHandStack(), playerEntity.isUsingItem() ? playerEntity.getActiveItem() : ItemStack.EMPTY);
+            if ((world2 = this.getWorld()) instanceof ServerWorld) {
+                ServerWorld serverWorld2 = (ServerWorld)world2;
+                EnchantmentHelper.onTargetDamaged(serverWorld2, target, damageSource);
             }
-            this.applyDamageEffects(this, target);
             this.onAttacking(target);
-            this.attackCooldown = 10;
+            this.playAttackSound();
         }
         return bl;
-    }
-
-    private void disablePlayerShield(PlayerEntity player, ItemStack mobStack, ItemStack playerStack) {
-        if (!mobStack.isEmpty() && !playerStack.isEmpty() && mobStack.getItem() instanceof AxeItem && playerStack.isOf(Items.SHIELD)) {
-            float f = 0.25f + (float)EnchantmentHelper.getEfficiency(this) * 0.05f;
-            if (this.random.nextFloat() < f) {
-                player.getItemCooldownManager().set(Items.SHIELD, 100);
-                this.getWorld().sendEntityStatus(player, EntityStatuses.BREAK_SHIELD);
-            }
-        }
     }
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
