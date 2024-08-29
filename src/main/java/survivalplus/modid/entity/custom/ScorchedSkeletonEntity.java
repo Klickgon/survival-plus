@@ -21,6 +21,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
@@ -28,6 +29,7 @@ import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import survivalplus.modid.enchantments.ModEnchantments;
 import survivalplus.modid.entity.ai.AdvancedBowAttackGoal;
 import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.util.ModGamerules;
@@ -126,7 +128,7 @@ extends SkeletonEntity {
     protected void enchantMainHandItem(Random random, float power) {
         if (this.getMainHandStack().isOf(Items.BOW)) {
             ItemStack bow = this.getMainHandStack();
-            //bow.addEnchantment(RegistryEntry);
+            bow.addEnchantment(this.getRegistryManager().getWrapperOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(ModEnchantments.FLAME_TWO), 1);
             this.equipStack(EquipmentSlot.MAINHAND, bow);
         }
     }
