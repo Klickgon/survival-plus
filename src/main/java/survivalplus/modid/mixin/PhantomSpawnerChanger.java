@@ -1,13 +1,15 @@
 package survivalplus.modid.mixin;
 
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stat;
 import net.minecraft.stat.Stats;
 import net.minecraft.world.spawner.PhantomSpawner;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.ModPlayerStats;
 
 @Mixin(PhantomSpawner.class)
@@ -22,4 +24,19 @@ public class PhantomSpawnerChanger {
     private int phantomSpawnTimerChanger(int constant){
         return 120000;
     }
+
+    @Inject(method = "spawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getPlayers()Ljava/util/List;"), cancellable = true)
+    private void noBedSpawnPointCheck(ServerWorld world, boolean spawnMonsters, boolean spawnAnimals, CallbackInfoReturnable<Integer> cir){
+        boolean ShouldPhantomsNotSpawn = true;
+        for (ServerPlayerEntity player : world.getPlayers()){
+            if (!world.getBlockState(((IServerPlayerChanger)player).getMainSpawnPoint()).isIn(BlockTags.BEDS)) {
+                ShouldPhantomsNotSpawn = false;
+                break;
+            }
+        }
+        if(ShouldPhantomsNotSpawn) {
+            cir.setReturnValue(0);
+        }
+    }
+
 }

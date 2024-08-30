@@ -23,8 +23,11 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.stat.Stat;
+import net.minecraft.stat.StatHandler;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
@@ -247,7 +250,9 @@ public class BaseAssault {
     }
 
     public void start(PlayerEntity player) {
-        player.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
+        Stat<Identifier> stat = Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT);
+        StatHandler handler = player.getServer().getPlayerManager().getPlayer(player.getUuid()).getStatHandler();
+        handler.setStat(player, stat, Math.max(0, handler.getStat(stat) - 72000));
     }
 
     public void invalidate() {

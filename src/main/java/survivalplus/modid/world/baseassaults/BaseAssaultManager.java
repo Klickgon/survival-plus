@@ -72,7 +72,7 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return;
         }
-        if(PlayerData.getPlayerState(player).baseAssaultTimer < 250000) {
+        if(PlayerData.getPlayerState(player).baseAssaultTimer < 250) {
             return;
         }
         BlockPos playerPos = player.getBlockPos();
