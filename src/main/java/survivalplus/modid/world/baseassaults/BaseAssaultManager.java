@@ -60,30 +60,28 @@ extends PersistentState {
         }
 
     }
-
-
-    @Nullable
-    public BaseAssault startBaseAssault(ServerPlayerEntity player) {
+    
+    public void startBaseAssault(ServerPlayerEntity player) {
         if (player.isSpectator() || player.isCreative()) {
-            return null;
+            return;
         }
         if (this.world.getGameRules().getBoolean(ModGamerules.DISABLE_BASEASSAULTS) || world.getDifficulty() == Difficulty.PEACEFUL) {
-            return null;
+            return;
         }
         DimensionType dimensionType = player.getWorld().getDimension();
         if (!dimensionType.bedWorks()) {
-            return null;
+            return;
         }
         if(PlayerData.getPlayerState(player).baseAssaultTimer < 250000) {
-            return null;
+            return;
         }
         BlockPos playerPos = player.getBlockPos();
         BlockPos spawnPos = ((IServerPlayerChanger) player).getMainSpawnPoint();
         if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || this.world.getAmbientDarkness() < 4) {
-            return null;
+            return;
         }
         if(Math.abs(playerPos.getY() - spawnPos.getY()) > 16){
-            return null;
+            return;
         }
         BaseAssault baseAssault = this.getOrCreateBaseAssault(player.getServerWorld(), spawnPos, player);
         if (!baseAssault.hasStarted()) {
@@ -94,7 +92,6 @@ extends PersistentState {
         baseAssault.setCenter(spawnPos);
         baseAssault.start(player);
         this.markDirty();
-        return baseAssault;
     }
 
     private int nextId() {

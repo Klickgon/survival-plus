@@ -99,12 +99,10 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
             }
         }
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
-            BlockPos bpos = serverPlayer.getSpawnPointPosition();
-                if(bpos != null){
-                    TeleportTarget result = serverPlayer.getRespawnTarget(true, TeleportTarget.NO_OP);
-                    if (result.missingRespawnBlock())
-                        serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
-            } else serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
+            TeleportTarget result = serverPlayer.getRespawnTarget(true, TeleportTarget.NO_OP);
+            if (result.missingRespawnBlock())
+                serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
+
             this.baseAssaultManager.startBaseAssault(serverPlayer);
             BlockPos spawnPoint = ((IServerPlayerChanger) serverPlayer).getMainSpawnPoint();
             if(spawnPoint != null && this.getBlockState(spawnPoint).isIn(BlockTags.BEDS)){
@@ -115,8 +113,8 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
                 else if(distance < 65536)
                     playerData.baseAssaultTimer = Math.min(195000, playerData.baseAssaultTimer + 1);
             }
-
         }
+
         baseAssaultManager.tick();
     }
 

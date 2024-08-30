@@ -247,7 +247,7 @@ public class BaseAssault {
     }
 
     public void start(PlayerEntity player) {
-
+        player.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
     }
 
     public void invalidate() {
