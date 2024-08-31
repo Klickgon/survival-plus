@@ -35,7 +35,7 @@ public class EnchantmentGenerator extends FabricDynamicRegistryProvider {
 
         register(entries, ModEnchantments.FLAME_TWO, Enchantment.builder(Enchantment.definition(
                 itemLookUp.getOrThrow(ItemTags.BOW_ENCHANTABLE),
-                1, // Enchantment weight
+                2, // Enchantment weight
                 1, // Max Level
                 Enchantment.constantCost(30), // Cost per Level (base)
                 Enchantment.constantCost(60), // Cost per Level (max)
@@ -55,7 +55,7 @@ public class EnchantmentGenerator extends FabricDynamicRegistryProvider {
 
         register(entries, ModEnchantments.RAPID_SWING, Enchantment.builder(Enchantment.definition(
                 itemLookUp.getOrThrow(ItemTags.SWORD_ENCHANTABLE),
-                1, // Enchantment weight
+                2, // Enchantment weight
                 1, // Max Level
                 Enchantment.constantCost(30), // Cost per Level (base)
                 Enchantment.constantCost(60), // Cost per Level (max)
