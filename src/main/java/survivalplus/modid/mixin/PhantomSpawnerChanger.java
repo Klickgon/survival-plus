@@ -27,15 +27,10 @@ public class PhantomSpawnerChanger {
 
     @Inject(method = "spawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getPlayers()Ljava/util/List;"), cancellable = true)
     private void noBedSpawnPointCheck(ServerWorld world, boolean spawnMonsters, boolean spawnAnimals, CallbackInfoReturnable<Integer> cir){
-        boolean ShouldPhantomsNotSpawn = true;
         for (ServerPlayerEntity player : world.getPlayers()){
             if (!world.getBlockState(((IServerPlayerChanger)player).getMainSpawnPoint()).isIn(BlockTags.BEDS)) {
-                ShouldPhantomsNotSpawn = false;
-                break;
+                cir.setReturnValue(0);
             }
-        }
-        if(ShouldPhantomsNotSpawn) {
-            cir.setReturnValue(0);
         }
     }
 
