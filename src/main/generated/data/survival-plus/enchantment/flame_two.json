@@ -23,6 +23,7 @@
       }
     ]
   },
+  "exclusive_set": "#survival-plus:flame_exclusive_set",
   "max_cost": {
     "base": 60,
     "per_level_above_first": 0

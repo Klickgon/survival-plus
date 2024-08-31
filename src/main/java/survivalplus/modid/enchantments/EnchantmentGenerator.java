@@ -15,6 +15,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.ItemTags;
 import survivalplus.modid.enchantment_effects.FlameTwoEnchantmentEffect;
+import survivalplus.modid.util.ModTags;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -30,6 +31,8 @@ public class EnchantmentGenerator extends FabricDynamicRegistryProvider {
     @Override
     protected void configure(RegistryWrapper.WrapperLookup registries, Entries entries) {
         RegistryWrapper<Item> itemLookUp = registries.getWrapperOrThrow(RegistryKeys.ITEM);
+        RegistryWrapper<Enchantment> enchantmentLookUp = registries.getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
+
         register(entries, ModEnchantments.FLAME_TWO, Enchantment.builder(Enchantment.definition(
                 itemLookUp.getOrThrow(ItemTags.BOW_ENCHANTABLE),
                 1, // Enchantment weight
@@ -45,9 +48,11 @@ public class EnchantmentGenerator extends FabricDynamicRegistryProvider {
                 .addEffect(EnchantmentEffectComponentTypes.POST_ATTACK,
                 EnchantmentEffectTarget.ATTACKER,
                 EnchantmentEffectTarget.VICTIM,
-                new FlameTwoEnchantmentEffect(EnchantmentLevelBasedValue.constant(1.0f))
-            )
+                new FlameTwoEnchantmentEffect(EnchantmentLevelBasedValue.constant(1.0f)))
+
+                .exclusiveSet(enchantmentLookUp.getOrThrow(ModTags.Enchantments.FLAME_EXCLUSIVE_SET))
         );
+
         register(entries, ModEnchantments.RAPID_SWING, Enchantment.builder(Enchantment.definition(
                 itemLookUp.getOrThrow(ItemTags.SWORD_ENCHANTABLE),
                 1, // Enchantment weight
@@ -57,6 +62,8 @@ public class EnchantmentGenerator extends FabricDynamicRegistryProvider {
                 8, // Anvil Cost
                 AttributeModifierSlot.MAINHAND
                 ))
+
+                .exclusiveSet(enchantmentLookUp.getOrThrow(ModTags.Enchantments.SWING_MECHANIC_EXCLUSIVE_SET))
         );
     }
 
