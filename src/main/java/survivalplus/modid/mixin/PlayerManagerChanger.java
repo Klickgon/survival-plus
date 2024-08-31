@@ -23,7 +23,7 @@ public class PlayerManagerChanger {
 
     @Redirect(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getRespawnTarget(ZLnet/minecraft/world/TeleportTarget$PostDimensionTransition;)Lnet/minecraft/world/TeleportTarget;"))
     private TeleportTarget endPortalToOverworldFixDimension(ServerPlayerEntity instance, boolean alive, TeleportTarget.PostDimensionTransition postDimensionTransition){
-        return ((IServerPlayerChanger)instance).getShouldNotSpawnAtAnchor() ? new TeleportTarget(instance.getServerWorld(), instance, TeleportTarget.NO_OP) : instance.getRespawnTarget(true, TeleportTarget.NO_OP) ;
+        return ((IServerPlayerChanger)instance).getShouldNotSpawnAtAnchor() ? new TeleportTarget(instance.getServerWorld(), instance, TeleportTarget.NO_OP) : instance.getRespawnTarget(alive, TeleportTarget.NO_OP) ;
     }
 
     @Inject(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;setMainArm(Lnet/minecraft/util/Arm;)V"))

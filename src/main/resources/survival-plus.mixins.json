@@ -11,7 +11,6 @@
     "PhantomSpawnerChanger",
     "PlayerEntityChanger",
     "PlayerManagerChanger",
-    "RangedWeaponChanger",
     "RespawnAnchorChanger",
     "ServerPlayerEntityChanger",
     "ServerWorldChanger",
