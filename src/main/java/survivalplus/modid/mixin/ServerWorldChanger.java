@@ -21,6 +21,7 @@ import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -59,6 +60,8 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
     @Shadow public abstract ServerWorld toServerWorld();
 
+    @Shadow @Final private ServerWorldProperties worldProperties;
+
     protected ServerWorldChanger(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
@@ -69,7 +72,19 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     }
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;resetWeather()V"))
-    public void removeWeatherReset(ServerWorld instance) { // Removes the weather reset after sleeping
+    public void changeWeatherReset(ServerWorld instance) { // Reduces the rain or thunder time by the time skip of sleeping in ticks
+        int rain = this.worldProperties.getRainTime() - 7000;
+        if(rain > 0) this.worldProperties.setRainTime(rain);
+        else {
+            this.worldProperties.setRaining(false);
+            this.worldProperties.setRainTime(0);
+        }
+        int thunder = this.worldProperties.getThunderTime() - 7000;
+        if(thunder > 0) this.worldProperties.setThunderTime(thunder);
+        else {
+            this.worldProperties.setThundering(false);
+            this.worldProperties.setThunderTime(0);
+        }
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
@@ -111,10 +126,9 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
                 if(distance < 9216)
                     playerData.baseAssaultTimer += 2;
                 else if(distance < 65536)
-                    playerData.baseAssaultTimer = Math.min(195000, playerData.baseAssaultTimer + 1);
+                    playerData.baseAssaultTimer = Math.min(247000, playerData.baseAssaultTimer + 1);
             }
         }
-
         baseAssaultManager.tick();
     }
 
