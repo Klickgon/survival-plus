@@ -7,7 +7,6 @@
     "EndPortalBlockChanger",
     "HostileEntityChanger",
     "MobChanger",
-    "PersistentProjectileChanger",
     "PhantomSpawnerChanger",
     "PlayerEntityChanger",
     "PlayerManagerChanger",
