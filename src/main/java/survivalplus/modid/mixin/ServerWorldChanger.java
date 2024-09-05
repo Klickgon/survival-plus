@@ -125,8 +125,8 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
                 PlayerData playerData = PlayerData.getPlayerState(serverPlayer);
                 if(distance < 9216)
                     playerData.baseAssaultTimer += 2;
-                else if(distance < 65536)
-                    playerData.baseAssaultTimer = Math.min(247000, playerData.baseAssaultTimer + 1);
+                else if(distance < 65536 && playerData.baseAssaultTimer < BaseAssaultManager.BASE_ASSAULT_TIME_NEEDED - 3000)
+                    playerData.baseAssaultTimer++;
             }
         }
         baseAssaultManager.tick();
