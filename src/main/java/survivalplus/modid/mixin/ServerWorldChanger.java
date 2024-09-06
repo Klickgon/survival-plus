@@ -47,7 +47,6 @@ import java.util.function.Supplier;
 @Mixin(ServerWorld.class)
 public abstract class ServerWorldChanger extends World implements IServerWorldChanger {
 
-
     @Unique
     public BaseAssaultManager baseAssaultManager;
 
@@ -101,7 +100,6 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
         ServerWorld sworld = this.toServerWorld();
         this.baseAssaultManager = sworld.getPersistentStateManager().getOrCreate(BaseAssaultManager.getPersistentStateType(sworld), BaseAssaultManager.nameFor(sworld.getDimensionEntry()));
     }
-
 
     @Inject(method = "tick", at = @At("TAIL"))
     protected void injectTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {

@@ -29,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalplus.modid.PlayerData;
 import survivalplus.modid.util.*;
+import survivalplus.modid.world.baseassaults.BaseAssaultManager;
 
 import java.util.Optional;
 
@@ -60,6 +61,8 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     @Shadow private float spawnAngle;
 
     @Shadow private boolean spawnForced;
+
+    @Shadow public abstract RegistryKey<World> getSpawnPointDimension();
 
     @Unique public boolean shouldNotSpawnAtAnchor = false;
 
@@ -96,13 +99,13 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         if(bpos == null)
             bl = false;
         else
-            bl = this.findModRespawnPosition(instance.getServerWorld(), bpos,0.0f, false, true).isPresent() || this.getWorld().getLevelProperties().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN);
+            bl = this.findModRespawnPosition(this.getServer().getWorld(this.getSpawnPointDimension()), bpos,0.0f, false, true).isPresent() || this.getWorld().getLevelProperties().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN);
         return !this.isSpectator() && !(this.isCreative() || bl);
     }
 
     @Inject(method = "onDeath", at = @At(value = "TAIL"))
     private void statReset(DamageSource damageSource, CallbackInfo ci){
-        PlayerData.getPlayerState(this).baseAssaultTimer = Math.max(Math.min(PlayerData.getPlayerState(this).baseAssaultTimer, 200000) - 48000, 0);
+        PlayerData.getPlayerState(this).baseAssaultTimer = Math.max(Math.min(PlayerData.getPlayerState(this).baseAssaultTimer, BaseAssaultManager.BASE_ASSAULT_TIME_NEEDED - 50000) - 48000, 0);
         this.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP));
         this.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
     }
