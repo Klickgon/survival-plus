@@ -2,4 +2,5 @@ Repository for "Survival Plus", a Minecraft mod adding new mobs with custom ai a
 
 This repository always contains the most recent version, released or unreleased. While no compiled versions are released here, feel free to compile the project yourself. Always be cautious with building from a commit, it might not be tested and could result breaking the minecraft world you loaded with the mod.
 For the stable releases visit the modrinth page: https://modrinth.com/mod/survival-plus/
+
 Please report any issues on the "Issues" tab of this repo.
