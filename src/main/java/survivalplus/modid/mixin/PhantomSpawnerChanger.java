@@ -2,13 +2,12 @@ package survivalplus.modid.mixin;
 
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stat;
 import net.minecraft.stat.Stats;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.spawner.PhantomSpawner;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.ModPlayerStats;
 
@@ -25,13 +24,10 @@ public class PhantomSpawnerChanger {
         return 120000;
     }
 
-    @Inject(method = "spawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getPlayers()Ljava/util/List;"), cancellable = true)
-    private void noBedSpawnPointCheck(ServerWorld world, boolean spawnMonsters, boolean spawnAnimals, CallbackInfoReturnable<Integer> cir){
-        for (ServerPlayerEntity player : world.getPlayers()){
-            if (!world.getBlockState(((IServerPlayerChanger)player).getMainSpawnPoint()).isIn(BlockTags.BEDS)) {
-                cir.setReturnValue(0);
-            }
-        }
+    @Redirect(method = "spawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isSpectator()Z"))
+    private boolean noBedSpawnPointCheck(ServerPlayerEntity instance){
+        BlockPos pos = ((IServerPlayerChanger)instance).getMainSpawnPoint();
+        return instance.isSpectator() || (pos != null && instance.getWorld().getBlockState(pos).isIn(BlockTags.BEDS));
     }
 
 }

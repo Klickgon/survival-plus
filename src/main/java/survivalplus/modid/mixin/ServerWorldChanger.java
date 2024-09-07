@@ -112,8 +112,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
             }
         }
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
-            TeleportTarget result = serverPlayer.getRespawnTarget(true, TeleportTarget.NO_OP);
-            if (result.missingRespawnBlock())
+            if (serverPlayer.getSpawnPointPosition() == null || serverPlayer.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock())
                 serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
 
             this.baseAssaultManager.startBaseAssault(serverPlayer);
