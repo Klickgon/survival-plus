@@ -48,7 +48,7 @@ public class ModEntities {
     public static final EntityType<LeapingSpiderEntity> LEAPINGSPIDER = Registry.register(Registries.ENTITY_TYPE,
             Identifier.of(SurvivalPlus.MOD_ID,"leapingspider"),
             EntityType.Builder.create(LeapingSpiderEntity::new, SpawnGroup.MONSTER)
-                    .dimensions(1.4f, 0.09f).build());
+                    .dimensions(1.4f, 0.9f).build());
 
     public static void registerSpawnRestrictions() {
         SpawnRestriction.register(ModEntities.DIGGINGZOMBIE, SpawnLocationTypes.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, DiggingZombieEntity::canSpawn);
