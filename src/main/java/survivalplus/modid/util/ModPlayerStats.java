@@ -8,8 +8,11 @@ import net.minecraft.util.Identifier;
 import survivalplus.modid.SurvivalPlus;
 
 public class ModPlayerStats {
+
     public static final Identifier TIME_WITHOUT_CUSTOM_RESPAWNPOINT = Identifier.of(SurvivalPlus.MOD_ID, "timewithoutcustomrespawnpoint");
+
     public static final Identifier TIME_SINCE_SLEEP = Identifier.of(SurvivalPlus.MOD_ID, "timesincesleep");
+
     public static final Identifier BASEASSAULTS_WON = Identifier.of(SurvivalPlus.MOD_ID, "baseassaultswon");
 
     public static void registerModPlayerStats(){

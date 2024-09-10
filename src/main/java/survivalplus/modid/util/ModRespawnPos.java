@@ -5,6 +5,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public record ModRespawnPos(Vec3d pos, float yaw) {
+
     public static ModRespawnPos fromCurrentPos(Vec3d respawnPos, BlockPos currentPos) {
         return new ModRespawnPos(respawnPos, ModRespawnPos.getYaw(respawnPos, currentPos));
     }

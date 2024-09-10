@@ -91,7 +91,7 @@ public class StateSaverAndLoader extends PersistentState {
         return state;
     }
 
-    private static Type<StateSaverAndLoader> type = new Type<>(
+    private static final Type<StateSaverAndLoader> type = new Type<>(
             StateSaverAndLoader::new,
             StateSaverAndLoader::createFromNbt,
             null

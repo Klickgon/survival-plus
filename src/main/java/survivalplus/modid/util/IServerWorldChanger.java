@@ -10,5 +10,4 @@ public interface IServerWorldChanger {
 
     BaseAssaultManager getBaseAssaultManager();
 
-    boolean getEnoughTimeSinceRest();
 }

@@ -1,7 +1,7 @@
 package survivalplus.modid;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Items;
@@ -62,7 +62,7 @@ public class SurvivalPlus implements ModInitializer {
 		ModGamerules.registerModGamerules();
 		ModPlayerStats.registerModPlayerStats();
 
-		LootTableEvents.MODIFY.register((lootTableRegistryKey, builder, lootTableSource) -> {
+		LootTableEvents.MODIFY.register((lootTableRegistryKey, builder, lootTableSource, wrapperLookup) -> {
 			if(lootTableSource.isBuiltin()){
 				if (FROG_LOOT_TABLE_ID.equals(lootTableRegistryKey)) {
 					LootPool.Builder poolBuilder = LootPool.builder().with(ItemEntry.builder(Items.SLIME_BALL))

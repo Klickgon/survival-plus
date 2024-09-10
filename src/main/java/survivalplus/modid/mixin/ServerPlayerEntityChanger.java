@@ -121,7 +121,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     private void tempSpawnPositionImplementation(CallbackInfoReturnable<BlockPos> cir){
         ServerWorld world = this.getServerWorld();
         BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, tempSpawnPos).isPresent())
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) )
             cir.setReturnValue(tempSpawnPos);
     }
 
@@ -130,7 +130,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         ServerWorld world = this.getServerWorld();
         PlayerData pdata = PlayerData.getPlayerState(this);
         BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, tempSpawnPos).isPresent()) {
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world)) {
             cir.setReturnValue(pdata.tempSpawnDimension);
         }
     }
@@ -140,7 +140,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         ServerWorld world = this.getServerWorld();
         PlayerData pdata = PlayerData.getPlayerState(this);
         BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, tempSpawnPos).isPresent())
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world))
             cir.setReturnValue(pdata.tempSpawnAngle);
     }
 
@@ -149,7 +149,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         ServerWorld world = this.getServerWorld();
         PlayerData pdata = PlayerData.getPlayerState(this);
         BlockPos tempSpawnPos = pdata.tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) && RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, tempSpawnPos).isPresent())
+        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world))
             cir.setReturnValue(pdata.tempSpawnForced);
     }
 
@@ -193,7 +193,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     @Unique
     public boolean isValidRespawnAnchor(BlockPos pos, World world){
         BlockState state = world.getBlockState(pos);
-        return state.isOf(Blocks.RESPAWN_ANCHOR) && state.get(CHARGES) > 0;
+        return state.isOf(Blocks.RESPAWN_ANCHOR) && state.get(CHARGES) > 0 && RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, pos).isPresent();
     }
 
     @Unique

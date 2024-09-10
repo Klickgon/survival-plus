@@ -5,6 +5,7 @@ import net.minecraft.util.math.BlockPos;
 import survivalplus.modid.world.baseassaults.BaseAssault;
 
 public interface IHostileEntityChanger {
+
     void setBaseAssault(BaseAssault ba);
 
     BaseAssault getBaseAssault();
@@ -12,4 +13,5 @@ public interface IHostileEntityChanger {
     GoalSelector getGoalSelector();
 
     BlockPos getElevatedBlockPos();
+
 }

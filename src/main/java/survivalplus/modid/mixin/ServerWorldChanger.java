@@ -87,7 +87,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
-    protected void resetTimeSinceSleepStat(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+    protected void addTimeFromSleep(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP));// Resets the "time since sleep" stat for every player once everyone wakes up
             StateSaverAndLoader.getPlayerState(serverPlayer).baseAssaultTimer += 14000;
