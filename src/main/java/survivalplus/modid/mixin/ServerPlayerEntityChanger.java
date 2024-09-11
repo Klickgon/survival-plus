@@ -29,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalplus.modid.PlayerData;
 import survivalplus.modid.util.*;
+import survivalplus.modid.world.baseassaults.BaseAssault;
 import survivalplus.modid.world.baseassaults.BaseAssaultManager;
 
 import java.util.Optional;
@@ -112,8 +113,10 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
 
     @Inject(method = "trySleep", at = @At(value = "INVOKE", target = "Ljava/util/List;isEmpty()Z", shift = At.Shift.AFTER), cancellable = true)
     private void sleepFailureInject(BlockPos pos, CallbackInfoReturnable<Either<SleepFailureReason, Unit>> cir){
-        if(!this.isCreative() && ((IServerWorldChanger)this.getWorld()).getBaseAssaultAt(this.getBlockPos()) != null){
-            cir.setReturnValue(Either.left(SleepFailureReason.NOT_SAFE));
+        if(!this.isCreative()){
+            BaseAssault baseAssault = ((IServerWorldChanger)this.getWorld()).getBaseAssaultAt(this.getBlockPos());
+            if(baseAssault != null && !(baseAssault.isFinished() || baseAssault.hasStopped()))
+                cir.setReturnValue(Either.left(SleepFailureReason.NOT_SAFE));
         }
     }
 
