@@ -45,11 +45,9 @@ public class ModItemGroups {
             content.add(ModItems.MINER_ZOMBIE_SPAWN_EGG);});
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(content -> {
-            content.add(ModItems.LUMBERJACK_ZOMBIE_SPAWN_EGG);
-        });
+            content.add(ModItems.LUMBERJACK_ZOMBIE_SPAWN_EGG);});
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(content -> {
-            content.add(ModItems.LEAPING_SPIDER_SPAWN_EGG);
-        });
+            content.add(ModItems.LEAPING_SPIDER_SPAWN_EGG);});
     }
 }

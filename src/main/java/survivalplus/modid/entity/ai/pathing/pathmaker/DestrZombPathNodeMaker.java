@@ -60,15 +60,12 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     private boolean hasTargetBedPos(MobEntity mob){
         if(mob instanceof MinerZombieEntity){
-            this.reqItem = ItemTags.PICKAXES;
             return ((MinerZombieEntity) mob).targetBedPos != null;
         }
         if(mob instanceof LumberjackZombieEntity){
-            this.reqItem = ItemTags.AXES;
             return ((LumberjackZombieEntity) mob).targetBedPos != null;
         }
         if(mob instanceof DiggingZombieEntity){
-            this.reqItem = ItemTags.SHOVELS;
             return ((DiggingZombieEntity) mob).targetBedPos != null;
         }
         return false;

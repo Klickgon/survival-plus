@@ -67,30 +67,31 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
 
     @Unique public boolean shouldNotSpawnAtAnchor = false;
 
-    @Unique public Optional<ModRespawnPos> findModRespawnPosition(ServerWorld world, BlockPos pos, float spawnAngle, boolean spawnForced, boolean alive) {
-            BlockState blockState = world.getBlockState(pos);
-            Block block = blockState.getBlock();
-            if (block instanceof RespawnAnchorBlock && (spawnForced || blockState.get(RespawnAnchorBlock.CHARGES) > 0) && RespawnAnchorBlock.isNether(world)) {
-                Optional<Vec3d> optional = RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, pos);
-                if (!spawnForced && !alive && optional.isPresent()) {
-                    world.setBlockState(pos, blockState.with(RespawnAnchorBlock.CHARGES, blockState.get(RespawnAnchorBlock.CHARGES) - 1), Block.NOTIFY_ALL);
-                }
-                return optional.map(respawnPos -> ModRespawnPos.fromCurrentPos(respawnPos, pos));
+    @Unique
+    public Optional<ModRespawnPos> findModRespawnPosition(ServerWorld world, BlockPos pos, float spawnAngle, boolean spawnForced, boolean alive) {
+        BlockState blockState = world.getBlockState(pos);
+        Block block = blockState.getBlock();
+        if (block instanceof RespawnAnchorBlock && (spawnForced || blockState.get(RespawnAnchorBlock.CHARGES) > 0) && RespawnAnchorBlock.isNether(world)) {
+            Optional<Vec3d> optional = RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, pos);
+            if (!spawnForced && !alive && optional.isPresent()) {
+                world.setBlockState(pos, blockState.with(RespawnAnchorBlock.CHARGES, blockState.get(RespawnAnchorBlock.CHARGES) - 1), Block.NOTIFY_ALL);
             }
-            if (block instanceof BedBlock && BedBlock.isBedWorking(world)) {
-                return BedBlock.findWakeUpPosition(EntityType.PLAYER, world, pos, blockState.get(BedBlock.FACING), spawnAngle).map(respawnPos -> ModRespawnPos.fromCurrentPos(respawnPos, pos));
-            }
-            if (!spawnForced) {
-                return Optional.empty();
-            }
-            boolean bl = block.canMobSpawnInside(blockState);
-            BlockState blockState2 = world.getBlockState(pos.up());
-            boolean bl2 = blockState2.getBlock().canMobSpawnInside(blockState2);
-            if (bl && bl2) {
-                return Optional.of(new ModRespawnPos(new Vec3d((double)pos.getX() + 0.5, (double)pos.getY() + 0.1, (double)pos.getZ() + 0.5), spawnAngle));
-            }
+            return optional.map(respawnPos -> ModRespawnPos.fromCurrentPos(respawnPos, pos));
+        }
+        if (block instanceof BedBlock && BedBlock.isBedWorking(world)) {
+            return BedBlock.findWakeUpPosition(EntityType.PLAYER, world, pos, blockState.get(BedBlock.FACING), spawnAngle).map(respawnPos -> ModRespawnPos.fromCurrentPos(respawnPos, pos));
+        }
+        if (!spawnForced) {
             return Optional.empty();
         }
+        boolean bl = block.canMobSpawnInside(blockState);
+        BlockState blockState2 = world.getBlockState(pos.up());
+        boolean bl2 = blockState2.getBlock().canMobSpawnInside(blockState2);
+        if (bl && bl2) {
+            return Optional.of(new ModRespawnPos(new Vec3d((double)pos.getX() + 0.5, (double)pos.getY() + 0.1, (double)pos.getZ() + 0.5), spawnAngle));
+        }
+        return Optional.empty();
+    }
 
 
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isSpectator()Z"))
@@ -100,7 +101,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         if(bpos == null)
             bl = false;
         else
-            bl = this.findModRespawnPosition(this.getServer().getWorld(this.getSpawnPointDimension()), bpos,0.0f, false, true).isPresent() || this.getWorld().getLevelProperties().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN);
+            bl = this.findModRespawnPosition(this.getServer().getWorld(this.getSpawnPointDimension()), bpos, 0.0f, false, true).isPresent() || this.getWorld().getLevelProperties().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN);
         return !this.isSpectator() && !(this.isCreative() || bl);
     }
 
