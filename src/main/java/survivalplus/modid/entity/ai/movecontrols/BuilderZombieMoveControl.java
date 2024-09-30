@@ -4,6 +4,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
+import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.ai.pathing.PathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -87,6 +88,7 @@ public class BuilderZombieMoveControl extends MoveControl {
             if(this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
                 BlockPos bzombpos = bzomb.getBlockPos();
                 if (isDirtJumpRequired(bzombpos.down(), world)) {
+                    entity.swingHand(Hand.MAIN_HAND);
                     world.setBlockState(bzombpos.down(), Blocks.DIRT.getDefaultState());
                     world.playSound(null, bzombpos.down(), SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
                     this.dirtJumpcooldown = 10;
@@ -102,23 +104,19 @@ public class BuilderZombieMoveControl extends MoveControl {
     }
 
     private boolean isDirtJumpRequired(BlockPos pos, World world){
-        boolean canPlaceBlock = world.getBlockState(pos).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE);
-
-        boolean canJumpSafely = world.getBlockState(pos.up(2)).isAir();
-
-        boolean mustPlaceBlockToProgress = world.getBlockState(pos.east()).isIn(BlockTags.REPLACEABLE) || world.getBlockState(pos.west()).isIn(BlockTags.REPLACEABLE)
-                || world.getBlockState(pos.north()).isIn(BlockTags.REPLACEABLE) || world.getBlockState(pos.south()).isIn(BlockTags.REPLACEABLE);
-
-        return canPlaceBlock && canJumpSafely && mustPlaceBlockToProgress;
+        Path path;
+        if(!(world.getBlockState(pos).isIn(BlockTags.REPLACEABLE) && !world.getBlockState(pos.down()).isIn(BlockTags.REPLACEABLE)))
+            return false;
+        if(!world.getBlockState(pos.up(2)).isAir())
+            return false;
+        BlockPos pathPos;
+        return (path = this.entity.getNavigation().getCurrentPath()) != null && (pathPos = path.getCurrentNodePos()) != null && world.getBlockState(pathPos.down()).isReplaceable();
     }
 
-    private boolean jumpRequirement(double o, double d, double e, VoxelShape voxelShape, BlockPos blockPos, BlockState blockState){
-        boolean bl1 = o > (double)this.entity.getStepHeight() && d * d + e * e < (double)Math.max(1.0f, this.entity.getWidth());
-        boolean bl2 = this.entity.getY() < voxelShape.getMax(Direction.Axis.Y) + (double)blockPos.getY() && !blockState.isIn(BlockTags.DOORS);
-        return bl1 || bl2 && !blockState.isIn(BlockTags.FENCES) || ((BuilderZombieEntity)this.entity).calcDiffY() >= 1;
+    private boolean jumpRequirement(double o, double d, double e, VoxelShape voxelShape, BlockPos blockPos, BlockState blockState) {
+        boolean bl1 = o > (double) this.entity.getStepHeight() && d * d + e * e < (double) Math.max(1.0f, this.entity.getWidth());
+        boolean bl2 = this.entity.getY() < voxelShape.getMax(Direction.Axis.Y) + (double) blockPos.getY() && !blockState.isIn(BlockTags.DOORS);
+        return bl1 || bl2 && !blockState.isIn(BlockTags.FENCES) && ((BuilderZombieEntity) this.entity).calcDiffY() > 0;
     }
-
-
-
 
 }

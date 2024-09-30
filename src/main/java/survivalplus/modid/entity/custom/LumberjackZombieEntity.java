@@ -30,6 +30,7 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
@@ -40,6 +41,7 @@ import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.DestroyerZombAttackGoal;
 import survivalplus.modid.entity.ai.movecontrols.DestroyerZombieMoveControl;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
+import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.util.ModTags;
 
@@ -153,31 +155,16 @@ public class LumberjackZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            boolean bl = this.burnsInDaylight() && this.isAffectedByDaylight();
-            if (bl) {
-                ItemStack itemStack = this.getEquippedStack(EquipmentSlot.HEAD);
-                if (!itemStack.isEmpty()) {
-                    if (itemStack.isDamageable()) {
-                        itemStack.setDamage(itemStack.getDamage() + this.random.nextInt(2));
-                        if (itemStack.getDamage() >= itemStack.getMaxDamage()) {
-                            this.sendEquipmentBreakStatus(itemStack.getItem(), EquipmentSlot.HEAD);
-                            this.equipStack(EquipmentSlot.HEAD, ItemStack.EMPTY);
-                        }
-                    }
-                    bl = false;
-                }
-                if (bl) {
-                    this.setOnFireFor(8);
-                }
-            }
-            World world = this.getWorld();
-            BlockPos pos = this.getBlockPos();
             if(this.freeingCooldown <= 0){
+                World world = this.getWorld();
+                BlockPos pos = ((IHostileEntityChanger)this).getElevatedBlockPos();
                 if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){
+                    this.swingHand(Hand.MAIN_HAND);
                     world.breakBlock(pos.up(), true);
                     this.freeingCooldown = defaultCooldown;
                 }
-                if(world.getBlockState(pos).isIn(BLOCKTAG)){
+                else if(world.getBlockState(pos).isIn(BLOCKTAG)){
+                    this.swingHand(Hand.MAIN_HAND);
                     world.breakBlock(pos, true);
                     this.freeingCooldown = defaultCooldown;
                 }
@@ -224,6 +211,12 @@ public class LumberjackZombieEntity
             }
             this.onAttacking(target);
             this.playAttackSound();
+        }
+        if (bl) {
+            float l = this.getWorld().getLocalDifficulty(this.getBlockPos()).getLocalDifficulty();
+            if (this.getMainHandStack().isEmpty() && this.isOnFire() && this.random.nextFloat() < l * 0.3f) {
+                target.setOnFireFor(2 * (int)l);
+            }
         }
         return bl;
     }

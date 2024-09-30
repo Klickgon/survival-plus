@@ -2,7 +2,10 @@ package survivalplus.modid.entity.custom;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.*;
+import net.minecraft.entity.EntityData;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.NavigationConditions;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.MobNavigation;
@@ -27,6 +30,7 @@ import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
@@ -36,6 +40,7 @@ import survivalplus.modid.entity.ai.DestrZombDestroyBedGoal;
 import survivalplus.modid.entity.ai.DestroyerZombAttackGoal;
 import survivalplus.modid.entity.ai.movecontrols.DestroyerZombieMoveControl;
 import survivalplus.modid.entity.ai.pathing.DestroyZombieNavigation;
+import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.util.ModTags;
 
@@ -149,31 +154,16 @@ public class DiggingZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            boolean bl = this.burnsInDaylight() && this.isAffectedByDaylight();
-            if (bl) {
-                ItemStack itemStack = this.getEquippedStack(EquipmentSlot.HEAD);
-                if (!itemStack.isEmpty()) {
-                    if (itemStack.isDamageable()) {
-                        itemStack.setDamage(itemStack.getDamage() + this.random.nextInt(2));
-                        if (itemStack.getDamage() >= itemStack.getMaxDamage()) {
-                            this.sendEquipmentBreakStatus(itemStack.getItem(), EquipmentSlot.HEAD);
-                            this.equipStack(EquipmentSlot.HEAD, ItemStack.EMPTY);
-                        }
-                    }
-                    bl = false;
-                }
-                if (bl) {
-                    this.setOnFireFor(8);
-                }
-            }
-            World world = this.getWorld();
-            BlockPos pos = this.getBlockPos();
             if(this.freeingCooldown <= 0){
+                World world = this.getWorld();
+                BlockPos pos = ((IHostileEntityChanger)this).getElevatedBlockPos();
                 if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){
+                    this.swingHand(Hand.MAIN_HAND);
                     world.breakBlock(pos.up(), true);
                     this.freeingCooldown = defaultCooldown;
                 }
-                if(world.getBlockState(pos).isIn(BLOCKTAG)){
+                else if(world.getBlockState(pos).isIn(BLOCKTAG)){
+                    this.swingHand(Hand.MAIN_HAND);
                     world.breakBlock(pos, true);
                     this.freeingCooldown = defaultCooldown;
                 }
@@ -194,19 +184,6 @@ public class DiggingZombieEntity
 
     @Override
     protected void convertInWater() {
-    }
-
-
-    @Override
-    public boolean tryAttack(Entity target) {
-        boolean bl = super.tryAttack(target);
-        if (bl) {
-            float f = this.getWorld().getLocalDifficulty(this.getBlockPos()).getLocalDifficulty();
-            if (this.getMainHandStack().isEmpty() && this.isOnFire() && this.random.nextFloat() < f * 0.3f) {
-                target.setOnFireFor(2 * (int)f);
-            }
-        }
-        return bl;
     }
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){

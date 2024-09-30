@@ -26,6 +26,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
@@ -148,33 +149,15 @@ public class BuilderZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            boolean bl = this.burnsInDaylight() && this.isAffectedByDaylight();
-            if (bl) {
-                ItemStack itemStack = this.getEquippedStack(EquipmentSlot.HEAD);
-                if (!itemStack.isEmpty()) {
-                    if (itemStack.isDamageable()) {
-                        itemStack.setDamage(itemStack.getDamage() + this.random.nextInt(2));
-                        if (itemStack.getDamage() >= itemStack.getMaxDamage()) {
-                            this.sendEquipmentBreakStatus(itemStack.getItem(), EquipmentSlot.HEAD);
-                            this.equipStack(EquipmentSlot.HEAD, ItemStack.EMPTY);
-                        }
-                    }
-                    bl = false;
-                }
-                if (bl) {
-                    this.setOnFireFor(8);
-                }
-            }
-
             LivingEntity target = getTarget();
             IHostileEntityChanger bzomb = (IHostileEntityChanger) this;
             if (this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.getMainHandStack().isOf(Items.DIRT) && DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
                 World world = this.getWorld();
-                BlockPos BlockUnder = getBlockPos().down(1);
-                BlockPos BlockUnder2 = getBlockPos().down(2);
 
-                if (calcDiffY() >= 0) {
-                    if (canPlaceDirt(world, BlockUnder, BlockUnder2)) {
+                if (calcDiffY() >= 0 && this.getNavigation().getCurrentPath() != null) {
+                    BlockPos BlockUnder = this.getBlockPos().down();
+                    if (canPlaceDirt(world, BlockUnder, BlockUnder.down())) {
+                        this.swingHand(Hand.MAIN_HAND);
                         world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
                         world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
                         DirtPlaceCooldown = 2;
@@ -219,18 +202,6 @@ public class BuilderZombieEntity
 
     protected boolean burnsInDaylight() {
         return false;
-    }
-
-    @Override
-    public boolean tryAttack(Entity target) {
-        boolean bl = super.tryAttack(target);
-        if (bl) {
-            float f = this.getWorld().getLocalDifficulty(this.getBlockPos()).getLocalDifficulty();
-            if (this.getMainHandStack().isEmpty() && this.isOnFire() && this.random.nextFloat() < f * 0.3f) {
-                target.setOnFireFor(2 * (int)f);
-            }
-        }
-        return bl;
     }
 
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){

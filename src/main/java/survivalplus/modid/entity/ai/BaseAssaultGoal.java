@@ -42,7 +42,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
     public BaseAssaultGoal(HostileEntity mob, double speed) {
         super(mob, speed, 64, 12);
         this.baseAssault = ((IHostileEntityChanger) this.mob).getBaseAssault();
-        this.cooldown = mob.getRandom().nextInt(40);
+        this.cooldown = mob.getRandom().nextInt(130);
         if(mob instanceof MinerZombieEntity){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
             this.destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
@@ -162,9 +162,11 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                 if(DiffY == 0) {
                     if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
+                        mob.swingHand(Hand.MAIN_HAND);
                         world.breakBlock(this.facingBlock, true);
                     } else if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down()).getHardness(world, this.facingBlock.down());
+                        mob.swingHand(Hand.MAIN_HAND);
                         world.breakBlock(this.facingBlock.down(), true);
                     }
                 }
@@ -172,12 +174,15 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                 if(DiffY < 0) {
                     if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down()).getHardness(world, this.facingBlock.down());
+                        mob.swingHand(Hand.MAIN_HAND);
                         world.breakBlock(this.facingBlock.down(), true);
                     } else if (world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blockTag)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down(2)).getHardness(world, this.facingBlock.down(2));
+                        mob.swingHand(Hand.MAIN_HAND);
                         world.breakBlock(this.facingBlock.down(2), true);
                     } else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
+                        mob.swingHand(Hand.MAIN_HAND);
                         world.breakBlock(this.facingBlock, true);
                     }
 
@@ -186,14 +191,17 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
                 if(DiffY > 0) {
                     if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
+                        mob.swingHand(Hand.MAIN_HAND);
                         world.breakBlock(this.facingBlock, true);
                     }
                     else if (world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.up()).getHardness(world, this.facingBlock.up());
+                        mob.swingHand(Hand.MAIN_HAND);
                         world.breakBlock(this.facingBlock.up(), true);
                     }
                     else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.mob.getBlockPos().up(2)).getHardness(world, this.mob.getBlockPos().up(2));
+                        mob.swingHand(Hand.MAIN_HAND);
                         world.breakBlock(this.mob.getBlockPos().up(2), true);
                     }
                 }

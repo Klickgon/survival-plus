@@ -1,11 +1,13 @@
 package survivalplus.modid.entity.ai.pathing;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.MobNavigation;
+import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.ai.pathing.PathNodeNavigator;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import survivalplus.modid.entity.ai.pathing.pathmaker.BuilderPathNodeMaker;
 
@@ -25,11 +27,13 @@ public class BuilderZombieNavigation extends MobNavigation {
 
     @Override
     public void recalculatePath() {
-        if (this.recalcCooldown <= 0) {
+        Path path;
+        BlockPos pathPos;
+        if (this.recalcCooldown <= 0 || ((path = this.getCurrentPath()) != null && (pathPos = path.getCurrentNodePos()) != null && (this.world.getBlockState(pathPos).isOf(Blocks.DIRT)))) {
             LivingEntity target = this.entity.getTarget();
             if (target != null) {
                 this.currentPath = null;
-                this.currentPath = this.findPathTo((Entity) target, (int) this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
+                this.currentPath = this.findPathTo(target, (int) this.entity.getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE));
                 this.recalcCooldown = 10;
             }
         }

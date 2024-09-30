@@ -75,6 +75,7 @@ public class BaseAssault {
     private boolean waveSpawned;
     private boolean winStatIncreased;
     public boolean findPlayerInsteadOfBed;
+    private static final int REQUIRED_WAVE_LENGTH = 12;
 
     public BaseAssault(int id, ServerWorld world, BlockPos pos, ServerPlayerEntity attachedPlayer) {
         this.id = id;
@@ -189,15 +190,15 @@ public class BaseAssault {
         Random random = this.world.getRandom();
         if(calcWaveSize(wave) < 45){ // checks if the generated wave has less than 45 mobs in it
             SurvivalPlus.LOGGER.info("{}'s generated wave size is below 45, incrementing it.", this.attachedPlayer.getName().getString());
-            int randomIndex = random.nextInt(11); // to increment the count of a random mob for the next wave
+            int randomIndex = random.nextInt(REQUIRED_WAVE_LENGTH); // to increment the count of a random mob for the next wave
             wave[randomIndex]++;
         }
         else { // if the wave has 45 mobs, one random mob gets replaced with a different one
             SurvivalPlus.LOGGER.info("{}'s generated wave size is 45, shuffling.", this.attachedPlayer.getName().getString());
-            int randomIndex1 = random.nextInt(11);
+            int randomIndex1 = random.nextInt(REQUIRED_WAVE_LENGTH);
             wave[randomIndex1]--;
             int randomIndex2;
-            do randomIndex2 = random.nextInt(11);
+            do randomIndex2 = random.nextInt(REQUIRED_WAVE_LENGTH);
             while (randomIndex1 == randomIndex2);
             wave[randomIndex2]++;
         }
@@ -425,7 +426,7 @@ public class BaseAssault {
     private int calculateSpawnY(int x, int z){
         World world = this.world;
         int y = this.center.getY();
-        BlockPos pos = new BlockPos (x, y + 36, z);
+        BlockPos pos = new BlockPos.Mutable (x, y + 36, z);
         while(!(world.getBlockState(pos.down()).isOpaqueFullCube(world, pos.down()) && world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isReplaceable())){
             if(pos.getY() <= (y - 16)) break;
             pos = pos.down();
@@ -453,16 +454,25 @@ public class BaseAssault {
     }
 
     private void spawnWave(BlockPos pos1, BlockPos pos2, BlockPos pos3, ArrayList<HostileEntity> list) {
+        if(this.wave.length < REQUIRED_WAVE_LENGTH)
+            this.wave = this.updateWave(this.wave);
         byte[] wave = this.wave;
         EntityType[] entityTypes = {EntityType.ZOMBIE, EntityType.SPIDER, EntityType.SKELETON, EntityType.CREEPER, ModEntities.DIGGINGZOMBIE, ModEntities.LUMBERJACKZOMBIE,
-                ModEntities.MINERZOMBIE, ModEntities.BUILDERZOMBIE, ModEntities.LEAPINGSPIDER, ModEntities.REEPER, ModEntities.SCORCHEDSKELETON};
-        for(byte i = 0; i < 11; i++) {
+                ModEntities.MINERZOMBIE, ModEntities.BUILDERZOMBIE, ModEntities.LEAPINGSPIDER, ModEntities.REEPER, ModEntities.SCORCHEDSKELETON, EntityType.WITCH};
+        for(byte i = 0; i < 12; i++) {
             spawnTypeOfHostile(wave[i], entityTypes[i], pos1, pos2, pos3, list);
         }
         this.hostiles = list.toArray(new HostileEntity[list.size()]);
         this.totalHealth = getCurrentHostilesHealth();
         if(getHostileCount() > 0) this.waveSpawned = true;
         this.markDirty();
+    }
+
+    private byte[] updateWave(byte[] wave){
+        byte[] output = BaseAssaultWaves.BASEASSAULT_TWELVE;
+        System.arraycopy(wave, 0, output, 0, wave.length);
+        SurvivalPlus.LOGGER.info("Old wave detected and updated: {} with length {}", Arrays.toString(output), output.length);
+        return output;
     }
 
     private BlockPos posDiceRoll(BlockPos pos1, BlockPos pos2, BlockPos pos3){

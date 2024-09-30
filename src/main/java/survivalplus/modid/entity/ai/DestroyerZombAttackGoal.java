@@ -58,10 +58,6 @@ public class DestroyerZombAttackGoal extends ZombieAttackGoal {
         this.cooldown = Math.max(this.cooldown - 1, 0);
         this.attack(livingEntity);
         ++this.ticks;
-        if (this.ticks >= 5 && this.getCooldown() < this.getMaxCooldown() / 2) {
-            this.zombie.setAttacking(true);
-        } else {
-            this.zombie.setAttacking(false);
-        }
+        this.zombie.setAttacking(this.ticks >= 5 && this.getCooldown() < this.getMaxCooldown() / 2);
     }
 }
