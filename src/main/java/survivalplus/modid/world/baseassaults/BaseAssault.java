@@ -191,7 +191,13 @@ public class BaseAssault {
         Random random = this.world.getRandom();
         if(calcWaveSize(wave) < 45){ // checks if the generated wave has less than 45 mobs in it
             SurvivalPlus.LOGGER.info("{}'s generated wave size is below 45, incrementing it.", this.attachedPlayer.getName().getString());
-            int randomIndex = random.nextInt(REQUIRED_WAVE_LENGTH); // to increment the count of a random mob for the next wave
+            int randomIndex;
+            if(random.nextBoolean()) {
+                randomIndex = 4 + random.nextInt(REQUIRED_WAVE_LENGTH - 4); // to increment the count of one of the powerful mobs
+                if(wave[randomIndex] > 5) randomIndex = random.nextInt(4);
+            }
+            else
+                randomIndex = random.nextInt(4); // to increment the count of one of the standard mobs
             wave[randomIndex]++;
         }
         else { // if the wave has 45 mobs, one random mob gets replaced with a different one
@@ -205,6 +211,14 @@ public class BaseAssault {
         }
         SurvivalPlus.LOGGER.info("{}'s new generated Wave: {}", this.attachedPlayer.getName().getString(), Arrays.toString(wave));
         PlayerData.getPlayerState(this.attachedPlayer).generatedWave = wave;
+    }
+
+    // Checks if all the powerful mobs have a count smaller than 6
+    private static boolean onePowerfulMobCountOver5(byte[] wave){
+        for (int i = 4; i < REQUIRED_WAVE_LENGTH; i++){
+            if (wave[i] > 5) return true;
+        }
+        return false;
     }
 
     private static int calcWaveSize(byte[] array){
@@ -455,12 +469,12 @@ public class BaseAssault {
     }
 
     private void spawnWave(BlockPos pos1, BlockPos pos2, BlockPos pos3, ArrayList<HostileEntity> list) {
-        if(this.wave.length < REQUIRED_WAVE_LENGTH)
+        if(this.wave.length < REQUIRED_WAVE_LENGTH || onePowerfulMobCountOver5(this.wave))
             this.wave = this.updateWave(this.wave);
         byte[] wave = this.wave;
         EntityType[] entityTypes = {EntityType.ZOMBIE, EntityType.SPIDER, EntityType.SKELETON, EntityType.CREEPER, ModEntities.DIGGINGZOMBIE, ModEntities.LUMBERJACKZOMBIE,
                 ModEntities.MINERZOMBIE, ModEntities.BUILDERZOMBIE, ModEntities.LEAPINGSPIDER, ModEntities.REEPER, ModEntities.SCORCHEDSKELETON, EntityType.WITCH};
-        for(byte i = 0; i < 12; i++) {
+        for(byte i = 0; i < REQUIRED_WAVE_LENGTH; i++) {
             spawnTypeOfHostile(wave[i], entityTypes[i], pos1, pos2, pos3, list);
         }
         this.hostiles = list.toArray(new HostileEntity[list.size()]);
@@ -471,8 +485,19 @@ public class BaseAssault {
 
     private byte[] updateWave(byte[] wave){
         byte[] output = BaseAssaultWaves.BASEASSAULT_TWELVE;
-        System.arraycopy(wave, 0, output, 0, wave.length);
-        SurvivalPlus.LOGGER.info("Old wave detected and updated: {} with length {}", Arrays.toString(output), output.length);
+        System.arraycopy(wave, 0, output, 0, wave.length); // Copy the outdated array to the new array format
+        int pool = 0;
+        for(int i = 4; i < REQUIRED_WAVE_LENGTH; i++){ // Sets all powerful mob counts to five if over
+            if (output[i] > 5){
+                pool += output[i] - 5;
+                output[i] = 5;
+            }
+        }
+        for(int i = 0; i < pool; i++){ // redistributes the removed counts to the standard mobs
+            output[this.world.getRandom().nextInt(4)] += 1;
+        }
+        SurvivalPlus.LOGGER.info("Incompatible wave detected and updated: {} with length {}", Arrays.toString(output), output.length);
+        PlayerData.getPlayerState(this.attachedPlayer).generatedWave = output;
         return output;
     }
 

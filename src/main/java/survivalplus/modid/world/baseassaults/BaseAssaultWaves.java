@@ -5,10 +5,13 @@ public class BaseAssaultWaves {
     // Here are all set Base Assault Waves stored, each Wave has an array of numbers stored,
     // corresponding to the amount of mobs that should be spawned of each type for that Assault.
 
+    // Standard Mobs:
     // Index 0: Zombie
     // Index 1: Spider
     // Index 2: Skeleton
     // Index 3: Creeper
+
+    // Powerful Mobs:
     // Index 4: Digging Zombie
     // Index 5: Lumberjack Zombie
     // Index 6: Miner Zombie
