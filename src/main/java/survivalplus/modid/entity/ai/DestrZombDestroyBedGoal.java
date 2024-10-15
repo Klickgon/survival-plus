@@ -48,12 +48,12 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
             reqItem = ItemTags.PICKAXES;
         }
-        if(mob instanceof LumberjackZombieEntity){
+        else if(mob instanceof LumberjackZombieEntity){
             this.blockTag = LumberjackZombieEntity.BLOCKTAG;
             destroyBlockCooldown = LumberjackZombieEntity.defaultCooldown;
             reqItem = ItemTags.AXES;
         }
-        if(mob instanceof DiggingZombieEntity){
+        else if(mob instanceof DiggingZombieEntity){
             this.blockTag = DiggingZombieEntity.BLOCKTAG;
             destroyBlockCooldown = DiggingZombieEntity.defaultCooldown;
             reqItem = ItemTags.SHOVELS;
@@ -81,8 +81,8 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     public void stop() {
         super.stop();
         if(DestroyMob instanceof MinerZombieEntity) ((MinerZombieEntity) this.DestroyMob).targetBedPos = null;
-        if(DestroyMob instanceof LumberjackZombieEntity) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = null;
-        if(DestroyMob instanceof DiggingZombieEntity) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = null;
+        else if(DestroyMob instanceof LumberjackZombieEntity) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = null;
+        else if(DestroyMob instanceof DiggingZombieEntity) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = null;
         this.DestroyMob.fallDistance = 1.0f;
     }
 
@@ -90,8 +90,8 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     public void start() {
         super.start();
         if(DestroyMob instanceof MinerZombieEntity) ((MinerZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
-        if(DestroyMob instanceof LumberjackZombieEntity) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
-        if(DestroyMob instanceof DiggingZombieEntity) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
+        else if(DestroyMob instanceof LumberjackZombieEntity) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
+        else if(DestroyMob instanceof DiggingZombieEntity) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
     }
 
     @Override
@@ -139,7 +139,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
                     }
                 }
 
-                if(DiffY < 0) {
+                else if(DiffY < 0) {
                     if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down()).getHardness(world, this.facingBlock.down());
                         mob.swingHand(Hand.MAIN_HAND);
@@ -156,7 +156,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
                 }
 
-                if(DiffY > 0) {
+                else {
                     if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                         this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
                         mob.swingHand(Hand.MAIN_HAND);
@@ -178,7 +178,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
         this.destroyBlockCooldownCounter--;
     }
 
-    private int calcDiffY(){ // Calculates the height difference between the current and the last pathnode of the mob
+    private int calcDiffY(){ // Calculates the height difference between the current and the last used pathnode of the mob
         Path path = this.mob.getNavigation().getCurrentPath();
         if(path == null || path.getCurrentNodeIndex() >= path.getLength()) return 0;
         if(path.getCurrentNodeIndex() > 0){

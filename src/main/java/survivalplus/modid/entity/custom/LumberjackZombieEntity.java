@@ -155,7 +155,7 @@ public class LumberjackZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            if(this.freeingCooldown <= 0){
+            if(this.freeingCooldown <= 0 && this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
                 World world = this.getWorld();
                 BlockPos pos = ((IHostileEntityChanger)this).getElevatedBlockPos();
                 if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){

@@ -77,6 +77,7 @@ public class MinerZombieEntity
         this.initCustomGoals();
     }
 
+    @Override
     protected void initCustomGoals() {
         this.goalSelector.add(2, new DestroyerZombAttackGoal(this, 1.0, false));
         this.goalSelector.add(6, new MoveThroughVillageGoal(this, 1.0, true, 4, this::canBreakDoors));
@@ -153,7 +154,7 @@ public class MinerZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            if(this.freeingCooldown <= 0){
+            if(this.freeingCooldown <= 0 && this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
                 World world = this.getWorld();
                 BlockPos pos = ((IHostileEntityChanger)this).getElevatedBlockPos();
                 if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){

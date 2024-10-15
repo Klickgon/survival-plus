@@ -54,12 +54,12 @@ extends TrackTargetGoal {
             destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
             reqItem = ItemTags.PICKAXES;
         }
-        if(mob instanceof LumberjackZombieEntity){
+        else if(mob instanceof LumberjackZombieEntity){
             this.blockTag = LumberjackZombieEntity.BLOCKTAG;
             destroyBlockCooldown = LumberjackZombieEntity.defaultCooldown;
             reqItem = ItemTags.AXES;
         }
-        if(mob instanceof DiggingZombieEntity){
+        else if(mob instanceof DiggingZombieEntity){
             this.blockTag = DiggingZombieEntity.BLOCKTAG;
             destroyBlockCooldown = DiggingZombieEntity.defaultCooldown;
             reqItem = ItemTags.SHOVELS;
@@ -135,7 +135,7 @@ extends TrackTargetGoal {
                         }
                     }
 
-                    if(DiffY < 0) {
+                    else if(DiffY < 0) {
                         if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
                             this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down()).getHardness(world, this.facingBlock.down());
                             mob.swingHand(Hand.MAIN_HAND);
@@ -152,7 +152,7 @@ extends TrackTargetGoal {
 
                     }
 
-                    if(DiffY > 0) {
+                    else {
                         if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
                             this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
                             mob.swingHand(Hand.MAIN_HAND);
