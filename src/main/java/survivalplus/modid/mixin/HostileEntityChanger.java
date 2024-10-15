@@ -32,14 +32,16 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
         super(entityType, world);
     }
 
-    @Inject(method = "canSpawnInDark", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "canSpawnInDark", at = @At("HEAD"), cancellable = true)
     private static void SpawnDayReq(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir){
-        // Cuts hostile entity spawnrate in half during the first day on the surface, but mobs can still spawn normally under full opaque blocks during the first day
-        boolean firstNightRestriction = true;
-        if (world.getLevelProperties().getTimeOfDay() <= 24000L)
-            firstNightRestriction = firstNightSpawnRestriction(pos, world.toServerWorld());
+        if(spawnReason == SpawnReason.NATURAL) {
+            // Cuts hostile entity spawnrate in half during the first day on the surface, but mobs can still spawn normally under full opaque blocks during the first day
+            boolean firstNightRestriction = true;
+            if (world.getLevelProperties().getTimeOfDay() <= 24000L)
+                firstNightRestriction = firstNightSpawnRestriction(pos, world.toServerWorld());
 
-        cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (firstNightRestriction || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
+            cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (firstNightRestriction || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
+        }
     }
 
     @Unique
