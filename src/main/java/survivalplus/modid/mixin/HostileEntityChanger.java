@@ -40,7 +40,7 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
             if (world.getLevelProperties().getTimeOfDay() <= 24000L)
                 firstNightRestriction = firstNightSpawnRestriction(pos, world.toServerWorld());
 
-            cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (firstNightRestriction || !world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
+            cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (firstNightRestriction || !world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
         }
     }
 
@@ -49,7 +49,7 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
         BlockPos.Mutable blockPos = new BlockPos.Mutable(pos.getX(), pos.getY() + 32, pos.getZ());
         while (blockPos.getY() > pos.getY()) {
             BlockState blockState = world.getBlockState(blockPos);
-            if (blockState.isOpaqueFullCube(world, blockPos))
+            if (blockState.isOpaqueFullCube())
                 return true;
             blockPos.move(Direction.DOWN);
         }

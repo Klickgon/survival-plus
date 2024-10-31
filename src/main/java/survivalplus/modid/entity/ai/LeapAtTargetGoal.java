@@ -62,7 +62,7 @@ extends Goal {
         if (this.canAttack(target) && !this.mob.isAttacking()) {
             this.mob.isLeaping = true;
             this.mob.swingHand(Hand.MAIN_HAND);
-            boolean bl = this.mob.tryAttack(target);
+            boolean bl = this.mob.tryAttack(this.mob.getWorld().getServer().getWorld(this.mob.getWorld().getRegistryKey()), target);
             this.canLeapAttack = !bl;
         }
     }

@@ -38,7 +38,7 @@ extends MoveControl {
     public void tick() {
         if (this.state == State.STRAFE) {
             float n;
-            float f = (float)this.entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+            float f = (float)this.entity.getAttributeValue(EntityAttributes.MOVEMENT_SPEED);
             float g = (float)this.speed * f;
             float h = this.forwardMovement;
             float i = this.sidewaysMovement;
@@ -70,7 +70,7 @@ extends MoveControl {
             }
             float n = (float)(MathHelper.atan2(e, d) * 57.2957763671875) - 90.0f;
             this.entity.setYaw(this.wrapDegrees(this.entity.getYaw(), n, 90.0f));
-            this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)));
+            this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.MOVEMENT_SPEED)));
             BlockPos blockPos = this.entity.getBlockPos();
             BlockPos facingPos = null;
             BlockState blockState = this.entity.getWorld().getBlockState(blockPos);
@@ -88,7 +88,7 @@ extends MoveControl {
                 this.state = State.JUMPING;
             }
         } else if (this.state == State.JUMPING) {
-            this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)));
+            this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.MOVEMENT_SPEED)));
             if (this.entity.isOnGround()) {
                 this.state = State.WAIT;
             }

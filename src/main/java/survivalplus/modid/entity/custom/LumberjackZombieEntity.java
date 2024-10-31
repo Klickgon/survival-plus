@@ -4,9 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
-import net.minecraft.entity.ai.NavigationConditions;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -90,7 +88,7 @@ public class LumberjackZombieEntity
     }
 
     public static DefaultAttributeContainer.Builder createLumberZombieAttributes() {
-        return HostileEntity.createHostileAttributes().add(EntityAttributes.GENERIC_FOLLOW_RANGE, 20.0).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.23f).add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 2.25).add(EntityAttributes.GENERIC_ARMOR, 2.0).add(EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS);
+        return HostileEntity.createHostileAttributes().add(EntityAttributes.FOLLOW_RANGE, 20.0).add(EntityAttributes.MOVEMENT_SPEED, 0.23f).add(EntityAttributes.ATTACK_DAMAGE, 2.25).add(EntityAttributes.ARMOR, 2.0).add(EntityAttributes.SPAWN_REINFORCEMENTS);
     }
 
     @Override
@@ -107,24 +105,6 @@ public class LumberjackZombieEntity
     public boolean canBreakDoors() {
         return this.canBreakDoors;
     }
-
-    public void setCanBreakDoors(boolean canBreakDoors) {
-        if (this.shouldBreakDoors() && NavigationConditions.hasMobNavigation(this)) {
-            if (this.canBreakDoors != canBreakDoors) {
-                this.canBreakDoors = canBreakDoors;
-                ((MobNavigation)this.getNavigation()).setCanPathThroughDoors(canBreakDoors);
-                if (canBreakDoors) {
-                    this.goalSelector.add(1, this.breakDoorsGoal);
-                } else {
-                    this.goalSelector.remove(this.breakDoorsGoal);
-                }
-            }
-        } else if (this.canBreakDoors) {
-            this.goalSelector.remove(this.breakDoorsGoal);
-            this.canBreakDoors = false;
-        }
-    }
-
 
     protected boolean canConvertInWater() {
         return false;
@@ -155,7 +135,7 @@ public class LumberjackZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            if(this.freeingCooldown <= 0 && this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
+            if(this.freeingCooldown <= 0 && this.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
                 World world = this.getWorld();
                 BlockPos pos = ((IHostileEntityChanger)this).getElevatedBlockPos();
                 if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){
@@ -188,16 +168,15 @@ public class LumberjackZombieEntity
 
 
     @Override
-    public boolean tryAttack(Entity target) {
+    public boolean tryAttack(ServerWorld world, Entity target) {
         boolean bl;
-        float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+        float f = (float)this.getAttributeValue(EntityAttributes.ATTACK_DAMAGE);
         DamageSource damageSource = this.getDamageSources().mobAttack(this);
-        World world = this.getWorld();
         if (world instanceof ServerWorld) {
             ServerWorld serverWorld = (ServerWorld)world;
             f = EnchantmentHelper.getDamage(serverWorld, this.getWeaponStack(), target, damageSource, f) * 0.60f;
         }
-        if (bl = target.damage(damageSource, f)) {
+        if (bl = target.damage(world, damageSource, f)) {
             World world2;
             float g = this.getKnockbackAgainst(target, damageSource);
             if (g > 0.0f && target instanceof LivingEntity) {
@@ -224,7 +203,7 @@ public class LumberjackZombieEntity
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int fullDaysRequired = 21;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
+        return (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
 
@@ -259,14 +238,6 @@ public class LumberjackZombieEntity
     }
 
     @Override
-    public boolean canGather(ItemStack stack) {
-        if (stack.isOf(Items.GLOW_INK_SAC)) {
-            return false;
-        }
-        return super.canGather(stack);
-    }
-
-    @Override
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         Random random = world.getRandom();
@@ -277,7 +248,7 @@ public class LumberjackZombieEntity
             entityData = new LumberjackZombieEntity.ZombieData(false, false);
         }
         if (entityData instanceof LumberjackZombieEntity.ZombieData) {
-            this.setCanBreakDoors(this.shouldBreakDoors() && random.nextFloat() < f * 0.1f);
+            this.setCanBreakDoors(true);
             this.initEquipment();
         }
 

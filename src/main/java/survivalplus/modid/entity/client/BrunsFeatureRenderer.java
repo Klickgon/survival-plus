@@ -9,12 +9,12 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.feature.EyesFeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.util.Identifier;
 import survivalplus.modid.SurvivalPlus;
 
 @Environment(value=EnvType.CLIENT)
-public class BrunsFeatureRenderer<T extends Entity, M extends EntityModel<T>>
+public class BrunsFeatureRenderer<T extends EntityRenderState, M extends EntityModel<T>>
 extends EyesFeatureRenderer<T, M> {
     private static final RenderLayer BURNS = RenderLayer.getEyes(Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/scorchedskeletonburns.png"));
 

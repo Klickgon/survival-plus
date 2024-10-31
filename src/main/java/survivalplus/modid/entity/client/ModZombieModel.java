@@ -6,14 +6,13 @@ package survivalplus.modid.entity.client;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.*;
-import net.minecraft.client.render.entity.model.AbstractZombieModel;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.client.render.entity.model.ZombieEntityModel;
+import net.minecraft.client.render.entity.state.ZombieEntityRenderState;
 
 @Environment(value=EnvType.CLIENT)
-public class ModZombieModel<T extends ZombieEntity>
-extends AbstractZombieModel<T> {
+public class ModZombieModel<T extends ZombieEntityRenderState>
+extends ZombieEntityModel<T> {
     public ModZombieModel(ModelPart modelPart) {
         super(modelPart);
     }
@@ -32,9 +31,5 @@ extends AbstractZombieModel<T> {
 
     }
 
-    @Override
-    public boolean isAttacking(T zombieEntity) {
-        return ((MobEntity)zombieEntity).isAttacking();
-    }
 }
 

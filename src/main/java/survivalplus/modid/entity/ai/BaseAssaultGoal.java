@@ -135,13 +135,13 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
 
         if(!this.baseAssault.findPlayerInsteadOfBed) {
             BlockPos bedPos = baseAssault.getCenter();
-            if(this.mob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
+            if(this.mob.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
                 if (mob instanceof ReeperEntity) ((ReeperEntity) mob).hadTarget = true;
                 else if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
                 else mob.getWorld().breakBlock(bedPos, true);
             }
         }
-        if(this.mob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){
+        if(this.mob.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){
             World world = this.mob.getWorld();
 
             BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();

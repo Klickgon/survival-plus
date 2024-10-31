@@ -5,39 +5,25 @@ package survivalplus.modid.entity.client;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.entity.BipedEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.render.entity.model.EntityModelLayers;
-import net.minecraft.entity.mob.AbstractSkeletonEntity;
+import net.minecraft.client.render.entity.SkeletonEntityRenderer;
+import net.minecraft.client.render.entity.state.SkeletonEntityRenderState;
 import net.minecraft.util.Identifier;
 import survivalplus.modid.SurvivalPlus;
 
 @Environment(value=EnvType.CLIENT)
 public class ScorchedSkeletonRenderer
-extends BipedEntityRenderer<AbstractSkeletonEntity, ScorchedSkeletonModel<AbstractSkeletonEntity>> {
-    private static final Identifier TEXTURE = Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/scorchedskeleton.png");
+extends SkeletonEntityRenderer {
 
     public ScorchedSkeletonRenderer(EntityRendererFactory.Context context) {
-        this(context, EntityModelLayers.SKELETON, EntityModelLayers.SKELETON_INNER_ARMOR, EntityModelLayers.SKELETON_OUTER_ARMOR);
-    }
-
-    public ScorchedSkeletonRenderer(EntityRendererFactory.Context ctx, EntityModelLayer layer, EntityModelLayer legArmorLayer, EntityModelLayer bodyArmorLayer) {
-        super(ctx, new ScorchedSkeletonModel(ctx.getPart(layer)), 0.5f);
-        this.addFeature(new ArmorFeatureRenderer(this, new ScorchedSkeletonModel(ctx.getPart(legArmorLayer)), new ScorchedSkeletonModel(ctx.getPart(bodyArmorLayer)), ctx.getModelManager()));
-        this.addFeature(new BrunsFeatureRenderer<>(this));
+        super(context);
     }
 
     @Override
-    public Identifier getTexture(AbstractSkeletonEntity abstractSkeletonEntity) {
-        return TEXTURE;
+    public Identifier getTexture(SkeletonEntityRenderState renderState) {
+        return Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/scorchedskeleton.png");
     }
 
-    @Override
-    protected boolean isShaking(AbstractSkeletonEntity abstractSkeletonEntity) {
-        return abstractSkeletonEntity.isShaking();
-    }
 
 }
 

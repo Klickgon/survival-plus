@@ -23,14 +23,14 @@ public abstract class PlayerEntityChanger extends LivingEntity {
 
     @ModifyReturnValue(method = "getAttackCooldownProgress", at = @At(value = "RETURN"))
     private float rapidSwingRedirect(float original){
-        RegistryWrapper.Impl<Enchantment> impl = this.getRegistryManager().getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
+        RegistryWrapper.Impl<Enchantment> impl = this.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT);
         if(EnchantmentHelper.getLevel(impl.getOrThrow(ModEnchantments.RAPID_SWING), this.getMainHandStack()) > 0) return 1.0f;
         return original;
     }
 
     @ModifyExpressionValue(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;isOnGround()Z", ordinal = 1))
     private boolean disableSweepAttackOnEnchant(boolean original){
-        RegistryWrapper.Impl<Enchantment> impl = this.getRegistryManager().getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
+        RegistryWrapper.Impl<Enchantment> impl = this.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT);
         return original && !(EnchantmentHelper.getLevel(impl.getOrThrow(ModEnchantments.RAPID_SWING), this.getMainHandStack()) > 0);
     }
 }

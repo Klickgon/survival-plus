@@ -73,7 +73,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     @Nullable
     protected PathNode getPathNodeVertical(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        if (this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isIn(reqItem) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
+        if (this.entity.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isIn(reqItem) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             World world = this.entity.getWorld();
             BlockPos pos = new BlockPos(x, y, z);
             if (world.getBlockState(pos).isIn(this.blockTag) || this.getDefaultNodeType(this.entity, pos).getDefaultPenalty() >= 0.0f){
@@ -88,7 +88,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     @Nullable
     protected PathNode getPathNodeForHorizontal(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        if (this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isIn(reqItem) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
+        if (this.entity.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isIn(reqItem) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             World world = this.entity.getWorld();
             BlockPos pos = new BlockPos(x, y, z);
             if(!world.getBlockState(pos.down()).isReplaceable() && !world.getBlockState(pos.down()).isIn(ModTags.Blocks.NOT_PASSABLE)){
@@ -111,7 +111,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     @Override
     public int getSuccessors(PathNode[] successors, PathNode node) {
-        if (this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isIn(reqItem) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
+        if (this.entity.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isIn(reqItem) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             PathNode pathNode16;
             PathNode pathNode15;
             PathNode pathNode14;

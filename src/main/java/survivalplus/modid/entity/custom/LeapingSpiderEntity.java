@@ -77,7 +77,7 @@ extends SpiderEntity {
     }
 
     public static DefaultAttributeContainer.Builder createSpiderAttributes() {
-        return HostileEntity.createHostileAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 16.0).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3f).add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK, 3.7f);
+        return HostileEntity.createHostileAttributes().add(EntityAttributes.MAX_HEALTH, 16.0).add(EntityAttributes.MOVEMENT_SPEED, 0.3f).add(EntityAttributes.ATTACK_KNOCKBACK, 3.7f);
     }
 
 
@@ -113,17 +113,12 @@ extends SpiderEntity {
     }
 
     @Override
-    public boolean tryAttack(Entity target) {
+    public boolean tryAttack(ServerWorld sworld, Entity target) {
         boolean bl;
         float k = (float) this.getVelocity().length();
-        float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
         DamageSource damageSource = this.getDamageSources().mobAttack(this);
-        World world = this.getWorld();
-        if (world instanceof ServerWorld) {
-            ServerWorld serverWorld = (ServerWorld)world;
-            f = EnchantmentHelper.getDamage(serverWorld, this.getWeaponStack(), target, damageSource, f);
-        }
-        bl = this.attackCooldown <= 0 && (this.isOnGround() || this.isLeaping) && target.damage(this.getDamageSources().mobAttack(this), f * k + 1);
+        float f = EnchantmentHelper.getDamage(sworld, this.getWeaponStack(), target, damageSource, (float)this.getAttributeValue(EntityAttributes.ATTACK_DAMAGE));
+        bl = this.attackCooldown <= 0 && (this.isOnGround() || this.isLeaping) && target.damage(sworld, this.getDamageSources().mobAttack(this), f * k + 1);
         if (bl) {
             World world2;
             float g = this.getKnockbackAgainst(target, damageSource);
@@ -145,7 +140,7 @@ extends SpiderEntity {
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int fullDaysRequired = 25;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
+        return (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     static class AttackGoal

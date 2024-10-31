@@ -35,7 +35,7 @@ public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        if (!this.reeper.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
+        if (!this.reeper.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
         this.cooldown = 20 + this.mob.getWorld().random.nextInt(10);

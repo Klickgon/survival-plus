@@ -16,7 +16,7 @@ import survivalplus.modid.SurvivalPlus;
 public class ModItemGroups {
     public static final ItemGroup SURVIVAL_PLUS_ITEMGROUP = Registry.register(Registries.ITEM_GROUP, Identifier.of(SurvivalPlus.MOD_ID, "survival-plus"),
             FabricItemGroup.builder().displayName(Text.translatable("itemgroup.survival-plus"))
-                    .icon(() -> new ItemStack(Items.MOSSY_STONE_BRICKS)).entries((displayContext, entries) -> {
+                    .icon(() -> new ItemStack(Items.COBBLESTONE)).entries((displayContext, entries) -> {
                         entries.add(ModItems.REEPER_SPAWN_EGG);
                         entries.add(ModItems.SCORCHED_SKELETON_SPAWN_EGG);
                         entries.add(ModItems.BUILDER_ZOMBIE_SPAWN_EGG);

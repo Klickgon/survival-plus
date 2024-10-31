@@ -16,6 +16,7 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -29,7 +30,6 @@ import survivalplus.modid.entity.custom.MinerZombieEntity;
 import survivalplus.modid.util.IHostileEntityChanger;
 
 import java.util.EnumSet;
-import java.util.function.Predicate;
 
 
 public class ActiveTargetGoalDestrZomb<T extends LivingEntity>
@@ -67,7 +67,7 @@ extends TrackTargetGoal {
         destroyBlockCooldownCounter = destroyBlockCooldown;
     }
 
-    public ActiveTargetGoalDestrZomb(ZombieEntity mob, Class<T> targetClass, int reciprocalChance, boolean checkVisibility, boolean checkCanNavigate, @Nullable Predicate<LivingEntity> targetPredicate) {
+    public ActiveTargetGoalDestrZomb(ZombieEntity mob, Class<T> targetClass, int reciprocalChance, boolean checkVisibility, boolean checkCanNavigate, @Nullable TargetPredicate.EntityPredicate targetPredicate) {
         super(mob, checkVisibility, checkCanNavigate);
         this.targetClass = targetClass;
         this.reciprocalChance = ActiveTargetGoalDestrZomb.toGoalTicks(reciprocalChance);
@@ -93,7 +93,23 @@ extends TrackTargetGoal {
     }
 
     protected void findClosestTarget() {
-        this.targetEntity = this.targetClass == PlayerEntity.class || this.targetClass == ServerPlayerEntity.class ? this.mob.getWorld().getClosestPlayer(this.targetPredicate, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ()) : this.mob.getWorld().getClosestEntity(this.mob.getWorld().getEntitiesByClass(this.targetClass, this.getSearchBox(this.getFollowRange()), livingEntity -> true), this.targetPredicate, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
+        ServerWorld serverWorld = getServerWorld(this.mob);
+        if (this.targetClass != PlayerEntity.class && this.targetClass != ServerPlayerEntity.class) {
+            this.targetEntity = serverWorld.getClosestEntity(
+                    this.mob.getWorld().getEntitiesByClass(this.targetClass, this.getSearchBox(this.getFollowRange()), livingEntity -> true),
+                    this.getAndUpdateTargetPredicate(),
+                    this.mob,
+                    this.mob.getX(),
+                    this.mob.getEyeY(),
+                    this.mob.getZ()
+            );
+        } else {
+            this.targetEntity = serverWorld.getClosestPlayer(this.getAndUpdateTargetPredicate(), this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
+        }
+    }
+
+    protected TargetPredicate getAndUpdateTargetPredicate() {
+        return this.targetPredicate.setBaseMaxDistance(this.getFollowRange());
     }
 
     @Override
@@ -105,7 +121,7 @@ extends TrackTargetGoal {
 
     @Override
     public void tick() {
-        if(this.mob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.destroyBlockCooldownCounter <= 0){
+        if(this.mob.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.destroyBlockCooldownCounter <= 0){
             if(this.targetEntity != null && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){
                 World world = this.mob.getWorld();
                 BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();

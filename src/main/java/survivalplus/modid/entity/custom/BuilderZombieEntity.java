@@ -2,9 +2,7 @@ package survivalplus.modid.entity.custom;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
-import net.minecraft.entity.ai.NavigationConditions;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -83,7 +81,7 @@ public class BuilderZombieEntity
     }
 
     public static DefaultAttributeContainer.Builder createZombieAttributes() {
-        return HostileEntity.createHostileAttributes().add(EntityAttributes.GENERIC_FOLLOW_RANGE, 20.0).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.23f).add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.0).add(EntityAttributes.GENERIC_ARMOR, 2.0).add(EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS);
+        return HostileEntity.createHostileAttributes().add(EntityAttributes.FOLLOW_RANGE, 20.0).add(EntityAttributes.MOVEMENT_SPEED, 0.23f).add(EntityAttributes.ATTACK_DAMAGE, 3.0).add(EntityAttributes.ARMOR, 2.0).add(EntityAttributes.SPAWN_REINFORCEMENTS);
     }
 
     @Override
@@ -99,23 +97,6 @@ public class BuilderZombieEntity
 
     public boolean canBreakDoors() {
         return this.canBreakDoors;
-    }
-
-    public void setCanBreakDoors(boolean canBreakDoors) {
-        if (this.shouldBreakDoors() && NavigationConditions.hasMobNavigation(this)) {
-            if (this.canBreakDoors != canBreakDoors) {
-                this.canBreakDoors = canBreakDoors;
-                ((MobNavigation)this.getNavigation()).setCanPathThroughDoors(canBreakDoors);
-                if (canBreakDoors) {
-                    this.goalSelector.add(1, this.breakDoorsGoal);
-                } else {
-                    this.goalSelector.remove(this.breakDoorsGoal);
-                }
-            }
-        } else if (this.canBreakDoors) {
-            this.goalSelector.remove(this.breakDoorsGoal);
-            this.canBreakDoors = false;
-        }
     }
 
     @Override
@@ -151,7 +132,7 @@ public class BuilderZombieEntity
         if (this.isAlive()) {
             LivingEntity target = getTarget();
             IHostileEntityChanger bzomb = (IHostileEntityChanger) this;
-            if (this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.getMainHandStack().isOf(Items.DIRT) && DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
+            if (this.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.getMainHandStack().isOf(Items.DIRT) && DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
                 World world = this.getWorld();
 
                 if (calcDiffY() >= 0 && this.getNavigation().getCurrentPath() != null) {
@@ -207,7 +188,7 @@ public class BuilderZombieEntity
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int fullDaysRequired = 32;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
+        return (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     protected void initEquipment() {
@@ -240,14 +221,6 @@ public class BuilderZombieEntity
     }
 
     @Override
-    public boolean canGather(ItemStack stack) {
-        if (stack.isOf(Items.GLOW_INK_SAC)) {
-            return false;
-        }
-        return super.canGather(stack);
-    }
-
-    @Override
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         Random random = world.getRandom();
@@ -258,7 +231,7 @@ public class BuilderZombieEntity
             entityData = new BuilderZombieEntity.ZombieData(false, false);
         }
         if (entityData instanceof BuilderZombieEntity.ZombieData) {
-            this.setCanBreakDoors(this.shouldBreakDoors() && random.nextFloat() < f * 0.1f);
+            this.setCanBreakDoors(random.nextFloat() < f * 0.1f);
             this.initEquipment();
         }
 

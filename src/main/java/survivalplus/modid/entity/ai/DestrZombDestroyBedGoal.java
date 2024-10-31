@@ -67,7 +67,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        if (!this.DestroyMob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
+        if (!this.DestroyMob.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
         World world = this.DestroyMob.getWorld();

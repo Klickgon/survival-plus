@@ -21,6 +21,7 @@ import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -41,8 +42,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class ReeperEntity
-        extends CreeperEntity
-        implements net.minecraft.entity.SkinOverlayOwner {
+        extends CreeperEntity {
     private static final TrackedData<Integer> FUSE_SPEED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> CHARGED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> IGNITED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -76,7 +76,7 @@ public class ReeperEntity
     }
 
     public static DefaultAttributeContainer.Builder createReeperAttributes() {
-        return HostileEntity.createHostileAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.20);
+        return HostileEntity.createHostileAttributes().add(EntityAttributes.MOVEMENT_SPEED, 0.20);
     }
 
     @Override
@@ -142,7 +142,8 @@ public class ReeperEntity
                     this.lostTarget = false;
                 }
             }
-            if(this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
+            MinecraftServer server = this.getServer();
+            if(server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
                 Path path = this.getNavigation().getCurrentPath();
                 if(path != null && path.getLength() > path.getCurrentNodeIndex()){
                     PathNode pathNode = path.getCurrentNode();
@@ -198,17 +199,18 @@ public class ReeperEntity
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int fullDaysRequired = 43;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
+        return (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
 
     private void explode() {
-        if (!this.getWorld().isClient) {
-            float f = this.shouldRenderOverlay() ? 2.0f : 1.0f;
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            float f = this.isCharged() ? 2.0F : 1.0F;
             this.dead = true;
-            this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), (float)this.explosionRadius * f, World.ExplosionSourceType.MOB);
-            this.discard();
+            serverWorld.createExplosion(this, this.getX(), this.getY(), this.getZ(), (float)this.explosionRadius * f, World.ExplosionSourceType.MOB);
             this.spawnEffectsCloud();
+            this.onRemoval(serverWorld, Entity.RemovalReason.KILLED);
+            this.discard();
         }
     }
 

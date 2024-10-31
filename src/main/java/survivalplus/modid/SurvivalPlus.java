@@ -27,11 +27,11 @@ public class SurvivalPlus implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("survival-plus");
 
-	private static final RegistryKey<LootTable> FROG_LOOT_TABLE_ID = EntityType.FROG.getLootTableId();
+	private static final RegistryKey<LootTable> FROG_LOOT_TABLE_ID = EntityType.FROG.getLootTableKey().get();
 
-	private static final RegistryKey<LootTable> GOAT_LOOT_TABLE_ID = EntityType.GOAT.getLootTableId();
+	private static final RegistryKey<LootTable> GOAT_LOOT_TABLE_ID = EntityType.GOAT.getLootTableKey().get();
 
-	private static final RegistryKey<LootTable> SNIFFER_LOOT_TABLE_ID = EntityType.SNIFFER.getLootTableId();
+	private static final RegistryKey<LootTable> SNIFFER_LOOT_TABLE_ID = EntityType.SNIFFER.getLootTableKey().get();
 
 	@Override
 	public void onInitialize() {

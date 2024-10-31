@@ -5,7 +5,7 @@ import net.minecraft.client.render.entity.model.CreeperEntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
-public class ReeperModel<T extends Entity> extends CreeperEntityModel<T> {
+public class ReeperModel<T extends Entity> extends CreeperEntityModel {
     private final ModelPart root;
     private final ModelPart head;
     private final ModelPart leftHindLeg;

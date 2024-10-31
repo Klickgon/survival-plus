@@ -113,7 +113,7 @@ extends SkeletonEntity {
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int fullDaysRequired = 51;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
+        return (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     protected void updateEnchantments(Random random, LocalDifficulty localDifficulty) {
@@ -128,7 +128,7 @@ extends SkeletonEntity {
     protected void enchantMainHandItem(Random random, float power) {
         if (this.getMainHandStack().isOf(Items.BOW)) {
             ItemStack bow = this.getMainHandStack();
-            bow.addEnchantment(this.getRegistryManager().getWrapperOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(ModEnchantments.FLAME_TWO), 1);
+            bow.addEnchantment(this.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(ModEnchantments.FLAME_TWO), 1);
             this.equipStack(EquipmentSlot.MAINHAND, bow);
         }
     }
@@ -165,11 +165,6 @@ extends SkeletonEntity {
         if (nbt.contains(STRAY_CONVERSION_TIME_KEY, NbtElement.NUMBER_TYPE) && nbt.getInt(STRAY_CONVERSION_TIME_KEY) > -1) {
             this.setConversionTime(nbt.getInt(STRAY_CONVERSION_TIME_KEY));
         }
-    }
-
-    private void setConversionTime(int time) {
-        this.conversionTime = time;
-        this.setConverting(true);
     }
 
     @Override

@@ -6,9 +6,7 @@ import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.NavigationConditions;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
@@ -90,7 +88,7 @@ public class MinerZombieEntity
     }
 
     public static DefaultAttributeContainer.Builder createZombieAttributes() {
-        return HostileEntity.createHostileAttributes().add(EntityAttributes.GENERIC_FOLLOW_RANGE, 20.0).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.23f).add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.0).add(EntityAttributes.GENERIC_ARMOR, 2.0).add(EntityAttributes.ZOMBIE_SPAWN_REINFORCEMENTS);
+        return HostileEntity.createHostileAttributes().add(EntityAttributes.FOLLOW_RANGE, 20.0).add(EntityAttributes.MOVEMENT_SPEED, 0.23f).add(EntityAttributes.ATTACK_DAMAGE, 3.0).add(EntityAttributes.ARMOR, 2.0).add(EntityAttributes.SPAWN_REINFORCEMENTS);
     }
 
     @Override
@@ -106,23 +104,6 @@ public class MinerZombieEntity
 
     public boolean canBreakDoors() {
         return this.canBreakDoors;
-    }
-
-    public void setCanBreakDoors(boolean canBreakDoors) {
-        if (this.shouldBreakDoors() && NavigationConditions.hasMobNavigation(this)) {
-            if (this.canBreakDoors != canBreakDoors) {
-                this.canBreakDoors = canBreakDoors;
-                ((MobNavigation)this.getNavigation()).setCanPathThroughDoors(canBreakDoors);
-                if (canBreakDoors) {
-                    this.goalSelector.add(1, this.breakDoorsGoal);
-                } else {
-                    this.goalSelector.remove(this.breakDoorsGoal);
-                }
-            }
-        } else if (this.canBreakDoors) {
-            this.goalSelector.remove(this.breakDoorsGoal);
-            this.canBreakDoors = false;
-        }
     }
 
     protected boolean canConvertInWater() {
@@ -154,7 +135,7 @@ public class MinerZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            if(this.freeingCooldown <= 0 && this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
+            if(this.freeingCooldown <= 0 && this.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
                 World world = this.getWorld();
                 BlockPos pos = ((IHostileEntityChanger)this).getElevatedBlockPos();
                 if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){
@@ -193,7 +174,7 @@ public class MinerZombieEntity
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int fullDaysRequired = 37;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (!world.getLevelProperties().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
+        return (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     protected void initEquipment() {}
@@ -224,14 +205,6 @@ public class MinerZombieEntity
         return super.canPickupItem(stack);
     }
 
-    @Override
-    public boolean canGather(ItemStack stack) {
-        if (stack.isOf(Items.GLOW_INK_SAC)) {
-            return false;
-        }
-        return super.canGather(stack);
-    }
-
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         Random random = world.getRandom();
@@ -242,8 +215,7 @@ public class MinerZombieEntity
             entityData = new ZombieData(false, false);
         }
         if (entityData instanceof ZombieData) {
-            ZombieData zombieData = (ZombieData)entityData;
-            this.setCanBreakDoors(this.shouldBreakDoors() && random.nextFloat() < f * 0.1f);
+            this.setCanBreakDoors(true);
             this.initEquipment();
         }
 

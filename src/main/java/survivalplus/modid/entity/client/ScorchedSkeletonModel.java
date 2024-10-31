@@ -7,19 +7,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.client.render.entity.model.CrossbowPosing;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
 import net.minecraft.client.render.entity.model.SkeletonEntityModel;
-import net.minecraft.entity.ai.RangedAttackMob;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Arm;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.render.entity.state.SkeletonEntityRenderState;
 
 @Environment(value=EnvType.CLIENT)
-public class ScorchedSkeletonModel<T extends MobEntity & RangedAttackMob>
+public class ScorchedSkeletonModel<T extends SkeletonEntityRenderState>
 extends SkeletonEntityModel<T> {
     public ScorchedSkeletonModel(ModelPart modelPart) {
         super(modelPart);
@@ -33,40 +26,6 @@ extends SkeletonEntityModel<T> {
         modelPartData.addChild(EntityModelPartNames.RIGHT_LEG, ModelPartBuilder.create().uv(0, 16).cuboid(-1.0f, 0.0f, -1.0f, 2.0f, 12.0f, 2.0f), ModelTransform.pivot(-2.0f, 12.0f, 0.0f));
         modelPartData.addChild(EntityModelPartNames.LEFT_LEG, ModelPartBuilder.create().uv(0, 16).mirrored().cuboid(-1.0f, 0.0f, -1.0f, 2.0f, 12.0f, 2.0f), ModelTransform.pivot(2.0f, 12.0f, 0.0f));
         return TexturedModelData.of(modelData, 64, 32);
-    }
-
-    @Override
-    public void animateModel(T mobEntity, float f, float g, float h) {
-        this.rightArmPose = ArmPose.EMPTY;
-        this.leftArmPose = ArmPose.EMPTY;
-        ItemStack itemStack = mobEntity.getStackInHand(Hand.MAIN_HAND);
-        if (itemStack.isOf(Items.BOW) && mobEntity.isAttacking()) {
-            if (mobEntity.getMainArm() == Arm.RIGHT) {
-                this.rightArmPose = ArmPose.BOW_AND_ARROW;
-            } else {
-                this.leftArmPose = ArmPose.BOW_AND_ARROW;
-            }
-        }
-        super.animateModel(mobEntity, f, g, h);
-    }
-
-    @Override
-    public void setAngles(T mobEntity, float f, float g, float h, float i, float j) {
-        super.setAngles(mobEntity, f, g, h, i, j);
-        ItemStack itemStack = mobEntity.getMainHandStack();
-        if (mobEntity.isAttacking() && (itemStack.isEmpty() || !itemStack.isOf(Items.BOW))) {
-            float k = MathHelper.sin(this.handSwingProgress * (float)Math.PI);
-            float l = MathHelper.sin((1.0f - (1.0f - this.handSwingProgress) * (1.0f - this.handSwingProgress)) * (float)Math.PI);
-            this.rightArm.roll = 0.0f;
-            this.leftArm.roll = 0.0f;
-            this.rightArm.yaw = -(0.1f - k * 0.6f);
-            this.leftArm.yaw = 0.1f - k * 0.6f;
-            this.rightArm.pitch = -1.5707964f;
-            this.leftArm.pitch = -1.5707964f;
-            this.rightArm.pitch -= k * 1.2f - l * 0.4f;
-            this.leftArm.pitch -= k * 1.2f - l * 0.4f;
-            CrossbowPosing.swingArms(this.rightArm, this.leftArm, h);
-        }
     }
 
 }

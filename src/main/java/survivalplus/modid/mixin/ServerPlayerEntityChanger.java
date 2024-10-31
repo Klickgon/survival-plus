@@ -101,7 +101,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         if(bpos == null)
             bl = false;
         else
-            bl = this.findModRespawnPosition(this.getServer().getWorld(this.getSpawnPointDimension()), bpos, 0.0f, false, true).isPresent() || this.getWorld().getLevelProperties().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN);
+            bl = this.findModRespawnPosition(this.getServer().getWorld(this.getSpawnPointDimension()), bpos, 0.0f, false, true).isPresent() || this.getServer().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN);
         return !this.isSpectator() && !(this.isCreative() || bl);
     }
 
@@ -165,7 +165,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
                 boolean bl;
                 bl = pos.equals(pdata.tempSpawnPosition) && dimension.equals(pdata.tempSpawnDimension);
                 if (sendMessage && !bl) {
-                    this.sendMessage(Text.translatable("block.survival-plus.set_spawn_temp"));
+                    this.sendMessage(Text.translatable("block.survival-plus.set_spawn_temp"), true);
                 }
                 pdata.tempSpawnPosition = pos;
                 pdata.tempSpawnDimension = dimension;

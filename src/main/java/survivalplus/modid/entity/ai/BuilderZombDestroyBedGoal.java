@@ -36,7 +36,7 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        if (!this.DestroyMob.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
+        if (!this.DestroyMob.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
         this.cooldown = 20 + this.mob.getWorld().random.nextInt(10);

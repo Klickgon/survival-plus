@@ -443,7 +443,7 @@ public class BaseAssault {
         World world = this.world;
         int y = this.center.getY();
         BlockPos pos = new BlockPos.Mutable (x, y + 36, z);
-        while(!(world.getBlockState(pos.down()).isOpaqueFullCube(world, pos.down()) && world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isReplaceable())){
+        while(!(world.getBlockState(pos.down()).isOpaqueFullCube() && world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isReplaceable())){
             if(pos.getY() <= (y - 16)) break;
             pos = pos.down();
         }
@@ -515,7 +515,7 @@ public class BaseAssault {
 
     private void spawnTypeOfHostile(byte count, EntityType hostile, BlockPos pos1, BlockPos pos2, BlockPos pos3, ArrayList<HostileEntity> list){
         for(int i = 0; i < count; i++){
-            addHostile((HostileEntity) hostile.create(this.world), posDiceRoll(pos1, pos2, pos3), list);
+            addHostile((HostileEntity) hostile.create(this.world, SpawnReason.EVENT), posDiceRoll(pos1, pos2, pos3), list);
         }
     }
 

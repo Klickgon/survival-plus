@@ -30,8 +30,8 @@ public class EnchantmentGenerator extends FabricDynamicRegistryProvider {
 
     @Override
     protected void configure(RegistryWrapper.WrapperLookup registries, Entries entries) {
-        RegistryWrapper<Item> itemLookUp = registries.getWrapperOrThrow(RegistryKeys.ITEM);
-        RegistryWrapper<Enchantment> enchantmentLookUp = registries.getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
+        RegistryWrapper<Item> itemLookUp = registries.getOrThrow(RegistryKeys.ITEM);
+        RegistryWrapper<Enchantment> enchantmentLookUp = registries.getOrThrow(RegistryKeys.ENCHANTMENT);
 
         register(entries, ModEnchantments.FLAME_TWO, Enchantment.builder(Enchantment.definition(
                 itemLookUp.getOrThrow(ItemTags.BOW_ENCHANTABLE),

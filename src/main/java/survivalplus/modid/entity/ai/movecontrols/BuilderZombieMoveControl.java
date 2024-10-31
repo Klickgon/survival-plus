@@ -40,7 +40,7 @@ public class BuilderZombieMoveControl extends MoveControl {
     @Override
     public void tick() {
         if (this.state == State.STRAFE) {
-            float f = (float)this.entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+            float f = (float)this.entity.getAttributeValue(EntityAttributes.MOVEMENT_SPEED);
             float g = (float)this.speed * f;
             float h = this.forwardMovement;
             float i = this.sidewaysMovement;
@@ -72,7 +72,7 @@ public class BuilderZombieMoveControl extends MoveControl {
             }
             float n = (float)(MathHelper.atan2(e, d) * 57.2957763671875) - 90.0f;
             this.entity.setYaw(this.wrapDegrees(this.entity.getYaw(), n, 90.0f));
-            this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)));
+            this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.MOVEMENT_SPEED)));
             BlockPos blockPos = this.entity.getBlockPos();
             BlockState blockState = this.entity.getWorld().getBlockState(blockPos);
             VoxelShape voxelShape = blockState.getCollisionShape(this.entity.getWorld(), blockPos);
@@ -81,11 +81,11 @@ public class BuilderZombieMoveControl extends MoveControl {
                 this.state = State.JUMPING;
             }
         } else if (this.state == State.JUMPING) {
-            this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)));
+            this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.MOVEMENT_SPEED)));
             World world = this.entity.getWorld();
             BuilderZombieEntity bzomb = (BuilderZombieEntity) this.entity;
             IHostileEntityChanger bzomb2 = (IHostileEntityChanger) this.entity;
-            if(this.entity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
+            if(this.entity.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
                 BlockPos bzombpos = bzomb.getBlockPos();
                 if (isDirtJumpRequired(bzombpos.down(), world)) {
                     entity.swingHand(Hand.MAIN_HAND);

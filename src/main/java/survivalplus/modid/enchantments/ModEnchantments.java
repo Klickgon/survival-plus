@@ -10,6 +10,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.enchantment_effects.FlameTwoEnchantmentEffect;
+import survivalplus.modid.enchantment_effects.RapidSwingEnchantmentEffect;
 
 public class ModEnchantments {
 
@@ -19,7 +20,7 @@ public class ModEnchantments {
 
     public static final MapCodec<FlameTwoEnchantmentEffect> FLAME_TWO_ENCHANTMENT_EFFECT = register("flame_two", FlameTwoEnchantmentEffect.CODEC);
 
-    public static final MapCodec<FlameTwoEnchantmentEffect> RAPID_SWING_ENCHANTMENT_EFFECT = register("rapid_swing", FlameTwoEnchantmentEffect.CODEC);
+    public static final MapCodec<RapidSwingEnchantmentEffect> RAPID_SWING_ENCHANTMENT_EFFECT = register("rapid_swing", RapidSwingEnchantmentEffect.CODEC);
 
     private static RegistryKey<Enchantment> of(String name) {
         return RegistryKey.of(RegistryKeys.ENCHANTMENT, Identifier.of(SurvivalPlus.MOD_ID, name));
