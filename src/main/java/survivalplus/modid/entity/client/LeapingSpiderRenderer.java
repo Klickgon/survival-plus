@@ -18,6 +18,7 @@ public class LeapingSpiderRenderer extends SpiderEntityRenderer<LeapingSpiderEnt
 
     public LeapingSpiderRenderer(EntityRendererFactory.Context context) {
         super(context);
+        this.addFeature(new LeapingSpiderEyesFeatureRenderer<>(this));
     }
 
     public LeapingSpiderRenderer(EntityRendererFactory.Context ctx, EntityModelLayer layer) {

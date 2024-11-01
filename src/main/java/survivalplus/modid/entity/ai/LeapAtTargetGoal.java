@@ -5,6 +5,7 @@ package survivalplus.modid.entity.ai;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import survivalplus.modid.entity.custom.LeapingSpiderEntity;
@@ -59,10 +60,11 @@ extends Goal {
     }
 
     protected void attack(LivingEntity target) {
-        if (this.canAttack(target) && !this.mob.isAttacking()) {
+        MinecraftServer server = this.mob.getServer();
+        if (server != null && this.canAttack(target) && !this.mob.isAttacking()) {
             this.mob.isLeaping = true;
             this.mob.swingHand(Hand.MAIN_HAND);
-            boolean bl = this.mob.tryAttack(this.mob.getWorld().getServer().getWorld(this.mob.getWorld().getRegistryKey()), target);
+            boolean bl = this.mob.tryAttack(server.getWorld(this.mob.getWorld().getRegistryKey()), target);
             this.canLeapAttack = !bl;
         }
     }

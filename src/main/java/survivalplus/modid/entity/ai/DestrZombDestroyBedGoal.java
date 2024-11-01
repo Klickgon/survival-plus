@@ -8,6 +8,7 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -67,7 +68,8 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        if (!this.DestroyMob.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
+        MinecraftServer server = this.DestroyMob.getServer();
+        if (server == null || !server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
         World world = this.DestroyMob.getWorld();

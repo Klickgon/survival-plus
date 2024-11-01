@@ -9,6 +9,7 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -133,76 +134,79 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         }
         this.cooldown--;
 
-        if(!this.baseAssault.findPlayerInsteadOfBed) {
-            BlockPos bedPos = baseAssault.getCenter();
-            if(this.mob.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
-                if (mob instanceof ReeperEntity) ((ReeperEntity) mob).hadTarget = true;
-                else if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
-                else mob.getWorld().breakBlock(bedPos, true);
+        MinecraftServer server = this.mob.getServer();
+        if(server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
+            if(!this.baseAssault.findPlayerInsteadOfBed) {
+                BlockPos bedPos = baseAssault.getCenter();
+                if(this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
+                    if (mob instanceof ReeperEntity) ((ReeperEntity) mob).hadTarget = true;
+                    else if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
+                    else mob.getWorld().breakBlock(bedPos, true);
+                }
             }
-        }
-        if(this.mob.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){
-            World world = this.mob.getWorld();
+            if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){
+                World world = this.mob.getWorld();
 
-            BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();
+                BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();
 
-            int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
+                int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher
 
-            Direction direction = Direction.fromRotation(this.mob.getBodyYaw());
+                Direction direction = Direction.fromRotation(this.mob.getBodyYaw());
 
-            switch (direction){
-                case SOUTH -> this.facingBlock = currentPos.up().south();
-                case WEST -> this.facingBlock = currentPos.up().west();
-                case NORTH -> this.facingBlock = currentPos.up().north();
-                case EAST -> this.facingBlock = currentPos.up().east();
-                default -> this.facingBlock = null;
-            }
-
-            if(this.facingBlock != null && checkOnSameXandZ()) {
-                if(DiffY == 0) {
-                    if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
-                        mob.swingHand(Hand.MAIN_HAND);
-                        world.breakBlock(this.facingBlock, true);
-                    } else if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down()).getHardness(world, this.facingBlock.down());
-                        mob.swingHand(Hand.MAIN_HAND);
-                        world.breakBlock(this.facingBlock.down(), true);
-                    }
+                switch (direction){
+                    case SOUTH -> this.facingBlock = currentPos.up().south();
+                    case WEST -> this.facingBlock = currentPos.up().west();
+                    case NORTH -> this.facingBlock = currentPos.up().north();
+                    case EAST -> this.facingBlock = currentPos.up().east();
+                    default -> this.facingBlock = null;
                 }
 
-                if(DiffY < 0) {
-                    if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down()).getHardness(world, this.facingBlock.down());
-                        mob.swingHand(Hand.MAIN_HAND);
-                        world.breakBlock(this.facingBlock.down(), true);
-                    } else if (world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blockTag)) {
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down(2)).getHardness(world, this.facingBlock.down(2));
-                        mob.swingHand(Hand.MAIN_HAND);
-                        world.breakBlock(this.facingBlock.down(2), true);
-                    } else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
-                        mob.swingHand(Hand.MAIN_HAND);
-                        world.breakBlock(this.facingBlock, true);
+                if(this.facingBlock != null && checkOnSameXandZ()) {
+                    if(DiffY == 0) {
+                        if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
+                            mob.swingHand(Hand.MAIN_HAND);
+                            world.breakBlock(this.facingBlock, true);
+                        } else if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down()).getHardness(world, this.facingBlock.down());
+                            mob.swingHand(Hand.MAIN_HAND);
+                            world.breakBlock(this.facingBlock.down(), true);
+                        }
                     }
 
-                }
+                    if(DiffY < 0) {
+                        if (world.getBlockState(this.facingBlock.down()).isIn(blockTag)) {
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down()).getHardness(world, this.facingBlock.down());
+                            mob.swingHand(Hand.MAIN_HAND);
+                            world.breakBlock(this.facingBlock.down(), true);
+                        } else if (world.getBlockState(this.facingBlock.down()).isReplaceable() && world.getBlockState(this.facingBlock.down(2)).isIn(blockTag)) {
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.down(2)).getHardness(world, this.facingBlock.down(2));
+                            mob.swingHand(Hand.MAIN_HAND);
+                            world.breakBlock(this.facingBlock.down(2), true);
+                        } else if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
+                            mob.swingHand(Hand.MAIN_HAND);
+                            world.breakBlock(this.facingBlock, true);
+                        }
 
-                if(DiffY > 0) {
-                    if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
-                        mob.swingHand(Hand.MAIN_HAND);
-                        world.breakBlock(this.facingBlock, true);
                     }
-                    else if (world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)) {
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.up()).getHardness(world, this.facingBlock.up());
-                        mob.swingHand(Hand.MAIN_HAND);
-                        world.breakBlock(this.facingBlock.up(), true);
-                    }
-                    else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
-                        this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.mob.getBlockPos().up(2)).getHardness(world, this.mob.getBlockPos().up(2));
-                        mob.swingHand(Hand.MAIN_HAND);
-                        world.breakBlock(this.mob.getBlockPos().up(2), true);
+
+                    if(DiffY > 0) {
+                        if (world.getBlockState(this.facingBlock).isIn(blockTag)) {
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock).getHardness(world, this.facingBlock);
+                            mob.swingHand(Hand.MAIN_HAND);
+                            world.breakBlock(this.facingBlock, true);
+                        }
+                        else if (world.getBlockState(this.facingBlock).isReplaceable() && world.getBlockState(this.facingBlock.up()).isIn(blockTag)) {
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.facingBlock.up()).getHardness(world, this.facingBlock.up());
+                            mob.swingHand(Hand.MAIN_HAND);
+                            world.breakBlock(this.facingBlock.up(), true);
+                        }
+                        else if (world.getBlockState(this.mob.getBlockPos().up(2)).isIn(blockTag) && world.getBlockState(this.mob.getBlockPos().up()).isIn(BlockTags.REPLACEABLE)) {
+                            this.destroyBlockCooldownCounter = destroyBlockCooldown + (int) world.getBlockState(this.mob.getBlockPos().up(2)).getHardness(world, this.mob.getBlockPos().up(2));
+                            mob.swingHand(Hand.MAIN_HAND);
+                            world.breakBlock(this.mob.getBlockPos().up(2), true);
+                        }
                     }
                 }
             }

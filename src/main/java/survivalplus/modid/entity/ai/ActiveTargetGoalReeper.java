@@ -10,7 +10,7 @@ import net.minecraft.entity.mob.MobEntity;
 import survivalplus.modid.entity.custom.ReeperEntity;
 
 public class ActiveTargetGoalReeper<T extends LivingEntity>
-extends ActiveTargetGoal {
+extends ActiveTargetGoal<T> {
 
     public ActiveTargetGoalReeper(MobEntity mob, Class targetClass, boolean checkVisibility) {
         super(mob, targetClass, checkVisibility);

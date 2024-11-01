@@ -4,6 +4,7 @@ package survivalplus.modid.entity.ai;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
@@ -46,7 +47,8 @@ public class ReeperIgniteGoal extends Goal {
             if (this.reeper.squaredDistanceTo(this.target) > 49.0) {
                 return;
             }
-            if (!this.reeper.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && !this.reeper.getVisibilityCache().canSee(this.target)) {
+            MinecraftServer server = this.reeper.getServer();
+            if (server == null || !server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && !this.reeper.getVisibilityCache().canSee(this.target)) {
                 return;
             }
             Vec3d vec3d = Vec3d.ofBottomCenter(this.reeper.getBlockPos());

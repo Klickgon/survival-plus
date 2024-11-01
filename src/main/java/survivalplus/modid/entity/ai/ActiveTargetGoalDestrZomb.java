@@ -15,6 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
@@ -121,7 +122,8 @@ extends TrackTargetGoal {
 
     @Override
     public void tick() {
-        if(this.mob.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.destroyBlockCooldownCounter <= 0){
+        MinecraftServer server = this.mob.getServer();
+        if(server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.destroyBlockCooldownCounter <= 0){
             if(this.targetEntity != null && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){
                 World world = this.mob.getWorld();
                 BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();

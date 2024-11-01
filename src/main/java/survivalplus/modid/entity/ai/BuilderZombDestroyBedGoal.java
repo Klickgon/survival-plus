@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -36,7 +37,8 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        if (!this.DestroyMob.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
+        MinecraftServer server = this.DestroyMob.getServer();
+        if (server == null || !server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
         this.cooldown = 20 + this.mob.getWorld().random.nextInt(10);

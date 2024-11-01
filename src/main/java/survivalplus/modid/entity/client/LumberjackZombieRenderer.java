@@ -15,7 +15,7 @@ public class LumberjackZombieRenderer extends ZombieEntityRenderer {
 
     @Override
     public Identifier getTexture(ZombieEntityRenderState zombieEntityRenderState) {
-        return Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/diggingzombie.png");
+        return Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/lumberjackzombie.png");
     }
 
     public LumberjackZombieRenderer(EntityRendererFactory.Context ctx, EntityModelLayer layer, EntityModelLayer legsArmorLayer, EntityModelLayer bodyArmorLayer, EntityModelLayer entityModelLayer, EntityModelLayer entityModelLayer2, EntityModelLayer entityModelLayer3) {

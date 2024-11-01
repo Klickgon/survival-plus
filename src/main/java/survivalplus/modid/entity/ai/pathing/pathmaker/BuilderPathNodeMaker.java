@@ -7,6 +7,7 @@ import net.minecraft.entity.ai.pathing.PathContext;
 import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.item.Items;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -38,7 +39,8 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
     @Nullable
     protected PathNode getPathNodeForVertical(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        if (this.entity.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
+        MinecraftServer server = this.entity.getServer();
+        if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             BlockPos pos = new BlockPos(x, y, z);
             World world = this.entity.getWorld();
             if (world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isReplaceable()) {
@@ -51,7 +53,8 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
     @Nullable
     protected PathNode getPathNodeForHorizontal(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        if (this.entity.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
+        MinecraftServer server = this.entity.getServer();
+        if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             BlockPos pos = new BlockPos(x, y, z);
             World world = this.entity.getWorld();
             if (world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isReplaceable() ) {
@@ -64,7 +67,8 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
     @Override
     public int getSuccessors(PathNode[] successors, PathNode node) {
-        if (this.entity.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
+        MinecraftServer server = this.entity.getServer();
+        if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             boolean usedVerticalNodeAsSuccessor = false;
             PathNode pathNode16;
             PathNode pathNode15;

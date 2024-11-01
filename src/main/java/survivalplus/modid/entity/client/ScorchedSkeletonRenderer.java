@@ -17,6 +17,7 @@ extends SkeletonEntityRenderer {
 
     public ScorchedSkeletonRenderer(EntityRendererFactory.Context context) {
         super(context);
+        this.addFeature(new BrunsFeatureRenderer<>(this));
     }
 
     @Override

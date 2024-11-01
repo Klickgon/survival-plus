@@ -26,6 +26,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
@@ -135,7 +136,8 @@ public class MinerZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            if(this.freeingCooldown <= 0 && this.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
+            MinecraftServer server = this.getServer();
+            if(server != null && this.freeingCooldown <= 0 && this.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
                 World world = this.getWorld();
                 BlockPos pos = ((IHostileEntityChanger)this).getElevatedBlockPos();
                 if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){
@@ -174,7 +176,7 @@ public class MinerZombieEntity
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int fullDaysRequired = 37;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
+        return world.getServer() != null && (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     protected void initEquipment() {}

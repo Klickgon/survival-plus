@@ -10,6 +10,7 @@ import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.Items;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
@@ -85,7 +86,8 @@ public class BuilderZombieMoveControl extends MoveControl {
             World world = this.entity.getWorld();
             BuilderZombieEntity bzomb = (BuilderZombieEntity) this.entity;
             IHostileEntityChanger bzomb2 = (IHostileEntityChanger) this.entity;
-            if(this.entity.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
+            MinecraftServer server = this.entity.getServer();
+            if(server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
                 BlockPos bzombpos = bzomb.getBlockPos();
                 if (isDirtJumpRequired(bzombpos.down(), world)) {
                     entity.swingHand(Hand.MAIN_HAND);

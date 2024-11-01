@@ -7,6 +7,7 @@ import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -35,7 +36,8 @@ public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        if (!this.reeper.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
+        MinecraftServer server = this.reeper.getServer();
+        if (server == null || !server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
         this.cooldown = 20 + this.mob.getWorld().random.nextInt(10);

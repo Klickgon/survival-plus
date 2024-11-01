@@ -22,6 +22,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
@@ -41,8 +42,8 @@ import java.util.function.Predicate;
 
 public class BuilderZombieEntity
         extends ZombieEntity {
-    private static final TrackedData<Integer> ZOMBIE_TYPE = DataTracker.registerData(survivalplus.modid.entity.custom.BuilderZombieEntity.class, TrackedDataHandlerRegistry.INTEGER);
-    private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(survivalplus.modid.entity.custom.BuilderZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Integer> ZOMBIE_TYPE = DataTracker.registerData(BuilderZombieEntity.class, TrackedDataHandlerRegistry.INTEGER);
+    private static final TrackedData<Boolean> CONVERTING_IN_WATER = DataTracker.registerData(BuilderZombieEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final Predicate<Difficulty> DOOR_BREAK_DIFFICULTY_CHECKER = difficulty -> difficulty == Difficulty.HARD;
     private final BreakDoorGoal breakDoorsGoal = new BreakDoorGoal(this, DOOR_BREAK_DIFFICULTY_CHECKER);
     protected boolean canBreakDoors;
@@ -132,7 +133,8 @@ public class BuilderZombieEntity
         if (this.isAlive()) {
             LivingEntity target = getTarget();
             IHostileEntityChanger bzomb = (IHostileEntityChanger) this;
-            if (this.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.getMainHandStack().isOf(Items.DIRT) && DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
+            MinecraftServer server = this.getServer();
+            if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.getMainHandStack().isOf(Items.DIRT) && DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
                 World world = this.getWorld();
 
                 if (calcDiffY() >= 0 && this.getNavigation().getCurrentPath() != null) {
@@ -188,7 +190,7 @@ public class BuilderZombieEntity
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int fullDaysRequired = 32;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
+        return world.getServer() != null && (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
     protected void initEquipment() {

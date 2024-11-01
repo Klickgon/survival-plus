@@ -25,6 +25,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -135,7 +136,8 @@ public class LumberjackZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            if(this.freeingCooldown <= 0 && this.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
+            MinecraftServer server = this.getServer();
+            if(server != null && this.freeingCooldown <= 0 && this.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
                 World world = this.getWorld();
                 BlockPos pos = ((IHostileEntityChanger)this).getElevatedBlockPos();
                 if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){
@@ -173,8 +175,7 @@ public class LumberjackZombieEntity
         float f = (float)this.getAttributeValue(EntityAttributes.ATTACK_DAMAGE);
         DamageSource damageSource = this.getDamageSources().mobAttack(this);
         if (world instanceof ServerWorld) {
-            ServerWorld serverWorld = (ServerWorld)world;
-            f = EnchantmentHelper.getDamage(serverWorld, this.getWeaponStack(), target, damageSource, f) * 0.60f;
+            f = EnchantmentHelper.getDamage(world, this.getWeaponStack(), target, damageSource, f) * 0.60f;
         }
         if (bl = target.damage(world, damageSource, f)) {
             World world2;
@@ -203,7 +204,7 @@ public class LumberjackZombieEntity
     public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random){
         int fullDaysRequired = 21;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
-        return (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
+        return world.getServer() != null && (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
 

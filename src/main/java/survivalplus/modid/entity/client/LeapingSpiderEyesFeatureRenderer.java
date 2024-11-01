@@ -16,7 +16,6 @@ import survivalplus.modid.SurvivalPlus;
 @Environment(value=EnvType.CLIENT)
 public class LeapingSpiderEyesFeatureRenderer<T extends EntityRenderState, M extends EntityModel<T>>
 extends EyesFeatureRenderer<T, M> {
-    private static final RenderLayer SKIN = RenderLayer.getEyes(Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/leapingspider_eyes.png"));
 
     public LeapingSpiderEyesFeatureRenderer(FeatureRendererContext<T, M> featureRendererContext) {
         super(featureRendererContext);
@@ -24,7 +23,7 @@ extends EyesFeatureRenderer<T, M> {
 
     @Override
     public RenderLayer getEyesTexture() {
-        return SKIN;
+        return RenderLayer.getEyes(Identifier.of(SurvivalPlus.MOD_ID,"textures/entity/leapingspider_eyes.png"));
     }
 }
 
