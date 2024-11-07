@@ -28,7 +28,7 @@ extends PersistentState {
     private final Map<Integer, BaseAssault> baseAssaults = Maps.newHashMap();
     private int currentTime;
     private int nextAvailableId;
-    public static final int BASE_ASSAULT_TIME_NEEDED = 25;
+    public static final int BASE_ASSAULT_TIME_NEEDED = 250000;
 
     public static Type<BaseAssaultManager> getPersistentStateType(ServerWorld world) {
         return new PersistentState.Type<>(() -> new BaseAssaultManager(world), (nbt, registryLookup) -> BaseAssaultManager.fromNbt(world, nbt), null);

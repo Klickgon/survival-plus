@@ -22,8 +22,8 @@ import java.util.List;
 
 public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
 
-    private final TagKey<Block> BedGroup = BlockTags.BEDS;
-    private final ReeperEntity reeper;
+    protected final static TagKey<Block> bedGroup = BlockTags.BEDS;
+    protected final ReeperEntity reeper;
     
     public ReeperDestroyBedGoal(ReeperEntity reeper, double speed, int maxYDifference){
         super(reeper, speed, 16, maxYDifference);
@@ -103,7 +103,7 @@ public class ReeperDestroyBedGoal extends MoveToTargetPosGoal {
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos).isIn(this.BedGroup);
+            return chunk.getBlockState(pos).isIn(this.bedGroup);
         }
         return false;
     }

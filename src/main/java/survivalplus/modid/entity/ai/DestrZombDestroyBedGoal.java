@@ -32,7 +32,7 @@ import java.util.List;
 public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     protected final HostileEntity destroyMob;
-    protected final TagKey<Block> bedGroup = BlockTags.BEDS;
+    protected static final TagKey<Block> bedGroup = BlockTags.BEDS;
     protected int destroyBlockCooldown;
     protected TagKey<Block> blockTag;
     @Nullable

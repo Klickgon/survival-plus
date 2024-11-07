@@ -23,8 +23,8 @@ import java.util.List;
 
 public class DestroyBedGoal extends MoveToTargetPosGoal {
 
-    private final HostileEntity destroyerMob;
-    private final TagKey<Block> bedGroup = BlockTags.BEDS;
+    protected final HostileEntity destroyerMob;
+    protected static final TagKey<Block> bedGroup = BlockTags.BEDS;
 
 
     public DestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {

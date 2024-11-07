@@ -23,12 +23,12 @@ import java.util.List;
 
 public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
 
-    private final BuilderZombieEntity DestroyMob;
-    private final TagKey<Block> BedGroup = BlockTags.BEDS;
+    protected final BuilderZombieEntity destroyMob;
+    protected static final TagKey<Block> bedGroup = BlockTags.BEDS;
 
     public BuilderZombDestroyBedGoal(BuilderZombieEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 32, maxYDifference);
-        this.DestroyMob = mob;
+        this.destroyMob = mob;
         this.cooldown = 0;
     }
 
@@ -38,7 +38,7 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        MinecraftServer server = this.DestroyMob.getServer();
+        MinecraftServer server = this.destroyMob.getServer();
         if (server == null || !server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
@@ -49,14 +49,14 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void stop() {
         super.stop();
-        this.DestroyMob.targetBedPos = null;
-        this.DestroyMob.fallDistance = 1.0f;
+        this.destroyMob.targetBedPos = null;
+        this.destroyMob.fallDistance = 1.0f;
     }
 
     @Override
     public void start() {
         super.start();
-        this.DestroyMob.targetBedPos = this.targetPos;
+        this.destroyMob.targetBedPos = this.targetPos;
     }
 
     @Override
@@ -67,8 +67,8 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void tick() {
         super.tick();
-        World world = this.DestroyMob.getWorld();
-        BlockPos blockPos = this.DestroyMob.getBlockPos();
+        World world = this.destroyMob.getWorld();
+        BlockPos blockPos = this.destroyMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
         if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 3)) {
             this.mob.swingHand(Hand.MAIN_HAND);
@@ -80,12 +80,12 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     @Nullable
     private BlockPos tweakToProperPos(BlockPos pos, BlockView world) {
-        if (world.getBlockState(pos).isIn(this.BedGroup)) {
+        if (world.getBlockState(pos).isIn(this.bedGroup)) {
             return pos;
         }
         BlockPos[] blockPoss = new BlockPos[]{pos.west(), pos.east(), pos.north(), pos.south(), pos.up()};
         for (BlockPos blockPos : blockPoss) {
-            if (!world.getBlockState(blockPos).isIn(this.BedGroup)) continue;
+            if (!world.getBlockState(blockPos).isIn(this.bedGroup)) continue;
             return blockPos;
         }
         return null;
@@ -95,7 +95,7 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos.down()).isIn(this.BedGroup);
+            return chunk.getBlockState(pos.down()).isIn(this.bedGroup);
         }
         return false;
     }
