@@ -31,8 +31,8 @@ import java.util.List;
 
 public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
-    protected final HostileEntity DestroyMob;
-    protected final TagKey<Block> BedGroup = BlockTags.BEDS;
+    protected final HostileEntity destroyMob;
+    protected final TagKey<Block> bedGroup = BlockTags.BEDS;
     protected int destroyBlockCooldown;
     protected TagKey<Block> blockTag;
     @Nullable
@@ -42,7 +42,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     public DestrZombDestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 32, maxYDifference);
-        this.DestroyMob = mob;
+        this.destroyMob = mob;
         this.cooldown = 0;
         if(mob instanceof MinerZombieEntity){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
@@ -68,12 +68,12 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        MinecraftServer server = this.DestroyMob.getServer();
+        MinecraftServer server = this.destroyMob.getServer();
         if (server == null || !server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
-        World world = this.DestroyMob.getWorld();
-        BlockPos pos = this.DestroyMob.getBlockPos();
+        World world = this.destroyMob.getWorld();
+        BlockPos pos = this.destroyMob.getBlockPos();
         if(world.getBlockState(pos).isIn(blockTag) || world.getBlockState(pos.up()).isIn(blockTag)) return false;
         this.cooldown = 20 + this.mob.getWorld().random.nextInt(10);
         return this.findTargetPos();
@@ -82,18 +82,18 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void stop() {
         super.stop();
-        if(DestroyMob instanceof MinerZombieEntity) ((MinerZombieEntity) this.DestroyMob).targetBedPos = null;
-        else if(DestroyMob instanceof LumberjackZombieEntity) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = null;
-        else if(DestroyMob instanceof DiggingZombieEntity) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = null;
-        this.DestroyMob.fallDistance = 1.0f;
+        if(destroyMob instanceof MinerZombieEntity) ((MinerZombieEntity) this.destroyMob).targetBedPos = null;
+        else if(destroyMob instanceof LumberjackZombieEntity) ((LumberjackZombieEntity) this.destroyMob).targetBedPos = null;
+        else if(destroyMob instanceof DiggingZombieEntity) ((DiggingZombieEntity) this.destroyMob).targetBedPos = null;
+        this.destroyMob.fallDistance = 1.0f;
     }
 
     @Override
     public void start() {
         super.start();
-        if(DestroyMob instanceof MinerZombieEntity) ((MinerZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
-        else if(DestroyMob instanceof LumberjackZombieEntity) ((LumberjackZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
-        else if(DestroyMob instanceof DiggingZombieEntity) ((DiggingZombieEntity) this.DestroyMob).targetBedPos = this.targetPos;
+        if(destroyMob instanceof MinerZombieEntity) ((MinerZombieEntity) this.destroyMob).targetBedPos = this.targetPos;
+        else if(destroyMob instanceof LumberjackZombieEntity) ((LumberjackZombieEntity) this.destroyMob).targetBedPos = this.targetPos;
+        else if(destroyMob instanceof DiggingZombieEntity) ((DiggingZombieEntity) this.destroyMob).targetBedPos = this.targetPos;
     }
 
     @Override
@@ -105,10 +105,11 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void tick() {
         super.tick();
-        World world = this.DestroyMob.getWorld();
-        BlockPos blockPos = this.DestroyMob.getBlockPos();
+        World world = this.destroyMob.getWorld();
+        BlockPos blockPos = this.destroyMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
         if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 3)) {
+            this.destroyMob.swingHand(Hand.MAIN_HAND);
             world.breakBlock(blockPos2, true);
             this.stop();
         }
@@ -202,12 +203,12 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     @Nullable
     private BlockPos tweakToProperPos(BlockPos pos, BlockView world) {
-        if (world.getBlockState(pos).isIn(this.BedGroup)) {
+        if (world.getBlockState(pos).isIn(this.bedGroup)) {
             return pos;
         }
         BlockPos[] blockPoss = new BlockPos[]{pos.west(), pos.east(), pos.north(), pos.south(), pos.up()};
         for (BlockPos blockPos : blockPoss) {
-            if (!world.getBlockState(blockPos).isIn(this.BedGroup)) continue;
+            if (!world.getBlockState(blockPos).isIn(this.bedGroup)) continue;
             return blockPos;
         }
         return null;
@@ -237,7 +238,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos.down()).isIn(this.BedGroup);
+            return chunk.getBlockState(pos.down()).isIn(this.bedGroup);
         }
         return false;
     }

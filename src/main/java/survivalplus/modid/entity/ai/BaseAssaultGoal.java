@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.custom.DiggingZombieEntity;
 import survivalplus.modid.entity.custom.LumberjackZombieEntity;
 import survivalplus.modid.entity.custom.MinerZombieEntity;
-import survivalplus.modid.entity.custom.ReeperEntity;
 import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.world.baseassaults.BaseAssault;
 
@@ -138,10 +137,12 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         if(server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
             if(!this.baseAssault.findPlayerInsteadOfBed) {
                 BlockPos bedPos = baseAssault.getCenter();
-                if(this.mob.getBlockPos().isWithinDistance(bedPos, 1.5)){
-                    if (mob instanceof ReeperEntity) ((ReeperEntity) mob).hadTarget = true;
-                    else if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
-                    else mob.getWorld().breakBlock(bedPos, true);
+                if(this.mob.getBlockPos().isWithinDistance(bedPos, 2)){
+                    if (mob instanceof CreeperEntity) ((CreeperEntity) mob).ignite();
+                    else if (mob.getBlockPos().isWithinDistance(bedPos, 1.5)) {
+                        mob.swingHand(Hand.MAIN_HAND);
+                        mob.getWorld().breakBlock(bedPos, true);
+                    }
                 }
             }
             if(this.blockTag != null && this.destroyBlockCooldownCounter <= 0 && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){

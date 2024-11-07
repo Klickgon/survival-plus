@@ -32,15 +32,20 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
         super(entityType, world);
     }
 
+    @Override
+    public boolean canImmediatelyDespawn(double distanceSquared) {
+        return this.baseAssault == null && distanceSquared > 16384.0;
+    }
+
     @Inject(method = "canSpawnInDark", at = @At("HEAD"), cancellable = true)
     private static void SpawnDayReq(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir){
         if(spawnReason == SpawnReason.NATURAL) {
             // Cuts hostile entity spawnrate in half during the first day on the surface, but mobs can still spawn normally under full opaque blocks during the first day
-            boolean firstNightRestriction = true;
-            if (world.getLevelProperties().getTimeOfDay() <= 24000L)
-                firstNightRestriction = firstNightSpawnRestriction(pos, world.toServerWorld());
+            boolean ignoreFirstNightRestriction = !world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION);
+            if (!ignoreFirstNightRestriction && world.getLevelProperties().getTimeOfDay() <= 24000L)
+                ignoreFirstNightRestriction = firstNightSpawnRestriction(pos, world.toServerWorld());
 
-            cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (firstNightRestriction || !world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION)) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
+            cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (ignoreFirstNightRestriction) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
         }
     }
 
@@ -56,7 +61,6 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
         return world.random.nextBoolean();
     }
 
-    @Override
     public void setBaseAssault(@Nullable BaseAssault ba) {
         this.baseAssault = ba;
     }
@@ -72,4 +76,6 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
     public BlockPos getElevatedBlockPos(){
         return new BlockPos(this.getBlockX(), (int) Math.rint(this.getY() + 0.1), this.getBlockZ());
     }
+
+
 }

@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(MobEntity.class)
 public abstract class MobChanger extends LivingEntity {
+
     protected MobChanger(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
     }
@@ -20,4 +21,5 @@ public abstract class MobChanger extends LivingEntity {
         World world = this.getWorld();
         return !world.getDimension().hasFixedTime() && world.getAmbientDarkness() < 4;
     }
+
 }

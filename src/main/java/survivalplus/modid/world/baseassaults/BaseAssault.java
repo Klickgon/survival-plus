@@ -424,15 +424,15 @@ public class BaseAssault {
 
     @Nullable
     private BlockPos getSpawnLocation(float f) {
-        float i = 2.0f;
+        float i = 2.5f;
         BlockPos.Mutable mutable = new BlockPos.Mutable();
-        for (int j = 0; j < 15; ++j) {
+        for (int j = 0; j < 25; ++j) {
             float fl = (f + (this.world.random.nextFloat() * 0.40f)) * ((float)Math.PI * 2);
             int k = this.center.getX() + MathHelper.floor(MathHelper.cos(fl) * 32.0f * i) + this.world.random.nextInt(10);
             int l = this.center.getZ() + MathHelper.floor(MathHelper.sin(fl) * 32.0f * i) + this.world.random.nextInt(10);
             int m = calculateSpawnY(k, l);
             mutable.set(k, m, l);
-            i -= 0.03f;
+            i -= 0.05f;
             if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnRestriction.getLocation(EntityType.RAVAGER).isSpawnPositionOk(this.world, mutable, EntityType.RAVAGER) && (!this.world.getBlockState(mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir())) continue;
             return mutable;
         }

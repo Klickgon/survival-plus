@@ -7,6 +7,7 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.BlockView;
@@ -22,13 +23,13 @@ import java.util.List;
 
 public class DestroyBedGoal extends MoveToTargetPosGoal {
 
-    private final HostileEntity DestroyMob;
-    private final TagKey<Block> BedGroup = BlockTags.BEDS;
+    private final HostileEntity destroyerMob;
+    private final TagKey<Block> bedGroup = BlockTags.BEDS;
 
 
     public DestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 32, maxYDifference);
-        this.DestroyMob = mob;
+        this.destroyerMob = mob;
         this.cooldown = 0;
     }
 
@@ -38,7 +39,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        MinecraftServer server = this.DestroyMob.getServer();
+        MinecraftServer server = this.destroyerMob.getServer();
         if (server == null || !server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
@@ -49,7 +50,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void stop() {
         super.stop();
-        this.DestroyMob.fallDistance = 1.0f;
+        this.destroyerMob.fallDistance = 1.0f;
     }
 
     @Override
@@ -65,10 +66,11 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     @Override
     public void tick() {
         super.tick();
-        World world = this.DestroyMob.getWorld();
-        BlockPos blockPos = this.DestroyMob.getBlockPos();
+        World world = this.destroyerMob.getWorld();
+        BlockPos blockPos = this.destroyerMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
         if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 2)) {
+            this.destroyerMob.swingHand(Hand.MAIN_HAND);
             world.breakBlock(blockPos2, true);
             this.stop();
         }
@@ -76,12 +78,12 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
 
     @Nullable
     private BlockPos tweakToProperPos(BlockPos pos, BlockView world) {
-        if (world.getBlockState(pos).isIn(this.BedGroup)) {
+        if (world.getBlockState(pos).isIn(this.bedGroup)) {
             return pos;
         }
         BlockPos[] blockPoss = new BlockPos[]{pos.down(), pos.west(), pos.east(), pos.north(), pos.south(), pos.down().down()};
         for (BlockPos blockPos : blockPoss) {
-            if (!world.getBlockState(blockPos).isIn(this.BedGroup)) continue;
+            if (!world.getBlockState(blockPos).isIn(this.bedGroup)) continue;
             return blockPos;
         }
         return null;
@@ -91,7 +93,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos).isIn(this.BedGroup) && chunk.getBlockState(pos.up()).isSolidBlock(chunk, pos.up()) && chunk.getBlockState(pos.up(2)).isSolidBlock(chunk, pos.up(2));
+            return chunk.getBlockState(pos).isIn(this.bedGroup) && chunk.getBlockState(pos.up()).isSolidBlock(chunk, pos.up()) && chunk.getBlockState(pos.up(2)).isSolidBlock(chunk, pos.up(2));
         }
         return false;
     }
