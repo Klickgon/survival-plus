@@ -41,11 +41,10 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
     private static void SpawnDayReq(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir){
         if(spawnReason == SpawnReason.NATURAL) {
             // Cuts hostile entity spawnrate in half during the first day on the surface, but mobs can still spawn normally under full opaque blocks during the first day
-            boolean ignoreFirstNightRestriction = !world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION);
-            if (!ignoreFirstNightRestriction && world.getLevelProperties().getTimeOfDay() <= 24000L)
-                ignoreFirstNightRestriction = firstNightSpawnRestriction(pos, world.toServerWorld());
-
-            cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL && (ignoreFirstNightRestriction) && HostileEntity.isSpawnDark(world, pos, random) && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
+            cir.setReturnValue(world.getDifficulty() != Difficulty.PEACEFUL
+                    && (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || (!(world.getLevelProperties().getTimeOfDay() <= 24000L) || firstNightSpawnRestriction(pos, world.toServerWorld())))
+                    && HostileEntity.isSpawnDark(world, pos, random)
+                    && HostileEntity.canMobSpawn(type, world, spawnReason, pos, random));
         }
     }
 

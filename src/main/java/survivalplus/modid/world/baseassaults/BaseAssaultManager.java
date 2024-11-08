@@ -40,7 +40,6 @@ extends PersistentState {
         this.nextAvailableId = 1;
     }
 
-
     public void tick() {
         ++this.currentTime;
         Iterator<BaseAssault> iterator = this.baseAssaults.values().iterator();
