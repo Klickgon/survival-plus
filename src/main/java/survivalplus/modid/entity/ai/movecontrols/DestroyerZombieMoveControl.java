@@ -75,7 +75,7 @@ extends MoveControl {
             BlockPos facingPos = null;
             BlockState blockState = this.entity.getWorld().getBlockState(blockPos);
 
-            switch (Direction.fromRotation(this.entity.getBodyYaw())){
+            switch (Direction.fromHorizontalDegrees(this.entity.getBodyYaw())){
                 case SOUTH -> facingPos = blockPos.up().south();
                 case WEST -> facingPos = blockPos.up().west();
                 case NORTH -> facingPos = blockPos.up().north();

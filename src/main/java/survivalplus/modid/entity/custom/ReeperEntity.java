@@ -7,7 +7,6 @@ import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -23,7 +22,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -31,7 +29,6 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.entity.ai.ActiveTargetGoalReeper;
 import survivalplus.modid.entity.ai.ReeperDestroyBedGoal;
@@ -46,9 +43,6 @@ public class ReeperEntity
     private static final TrackedData<Integer> FUSE_SPEED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> CHARGED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> IGNITED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private int lastFuseTime;
-    private int currentFuseTime;
-    private int fuseTime = 30;
     private int explosionRadius = 3;
     public BlockPos targetBedPos;
     public boolean hadTarget = false;
@@ -58,6 +52,7 @@ public class ReeperEntity
     public ReeperEntity(EntityType<? extends HostileEntity> entityType, World world) {
         super((EntityType<? extends CreeperEntity>) entityType, world);
         this.navigation.getNodeMaker().setCanOpenDoors(true);
+        this.fuseTime = 40;
     }
 
     @Override
@@ -77,16 +72,6 @@ public class ReeperEntity
 
     public static DefaultAttributeContainer.Builder createReeperAttributes() {
         return HostileEntity.createHostileAttributes().add(EntityAttributes.MOVEMENT_SPEED, 0.20);
-    }
-
-    @Override
-    public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
-        boolean bl = super.handleFallDamage(fallDistance, damageMultiplier, damageSource);
-        this.currentFuseTime += (int)(fallDistance * 1.5f);
-        if (this.currentFuseTime > this.fuseTime - 5) {
-            this.currentFuseTime = this.fuseTime - 5;
-        }
-        return bl;
     }
 
     @Override
@@ -128,8 +113,6 @@ public class ReeperEntity
         if (this.isAlive()) {
             if(!this.hadTarget && this.getTarget() != null) this.hadTarget = true;
             if(this.hadTarget && this.getTarget() == null) this.lostTarget = true;
-            int i;
-            this.lastFuseTime = this.currentFuseTime;
             if (this.isIgnited()) {
                 this.setFuseSpeed(1);
             }
@@ -152,19 +135,6 @@ public class ReeperEntity
                     }
                 }
             }
-
-            if ((i = this.getFuseSpeed()) > 0 && this.currentFuseTime == 0) {
-                this.playSound(SoundEvents.ENTITY_CREEPER_PRIMED, 1.0f, 0.5f);
-                this.emitGameEvent(GameEvent.PRIME_FUSE);
-            }
-            this.currentFuseTime += i;
-            if (this.currentFuseTime < 0) {
-                this.currentFuseTime = 0;
-            }
-            if (this.currentFuseTime >= this.fuseTime) {
-                this.currentFuseTime = this.fuseTime;
-                this.explode();
-            }
         }
         super.tick();
     }
@@ -180,7 +150,6 @@ public class ReeperEntity
         }
         super.setTarget(target);
     }
-
 
     private void igniteWithEntityCheck(){
         Vec3d vec3d = Vec3d.ofBottomCenter(this.getBlockPos());
@@ -200,18 +169,6 @@ public class ReeperEntity
         int fullDaysRequired = 43;
         int currentAmountOfFullDays = (int) (world.getLevelProperties().getTimeOfDay() / 24000L);
         return world.getServer() != null && (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
-    }
-
-
-    private void explode() {
-        if (this.getWorld() instanceof ServerWorld serverWorld) {
-            float f = this.isCharged() ? 2.0F : 1.0F;
-            this.dead = true;
-            serverWorld.createExplosion(this, this.getX(), this.getY(), this.getZ(), (float)this.explosionRadius * f, World.ExplosionSourceType.MOB);
-            this.spawnEffectsCloud();
-            this.onRemoval(serverWorld, Entity.RemovalReason.KILLED);
-            this.discard();
-        }
     }
 
     private void spawnEffectsCloud() {
