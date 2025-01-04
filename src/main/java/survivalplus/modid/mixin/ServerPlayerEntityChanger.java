@@ -97,12 +97,9 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isSpectator()Z"))
     private boolean noRespawnPointPunishment(ServerPlayerEntity instance){
         BlockPos bpos = this.getSpawnPointPosition();
-        boolean bl;
-        if(bpos == null)
-            bl = false;
-        else
-            bl = this.findModRespawnPosition(this.getServer().getWorld(this.getSpawnPointDimension()), bpos, 0.0f, false, true).isPresent() || this.getServer().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN);
-        return !this.isSpectator() && !(this.isCreative() || bl);
+        return !this.isSpectator() &&
+                !(this.isCreative() || ((bpos != null && this.findModRespawnPosition(this.getServer().getWorld(this.getSpawnPointDimension()), bpos, 0.0f, false, true).isPresent())
+                                || this.getServer().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN)));
     }
 
     @Inject(method = "onDeath", at = @At(value = "TAIL"))
