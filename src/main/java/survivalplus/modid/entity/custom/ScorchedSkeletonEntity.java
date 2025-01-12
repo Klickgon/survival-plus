@@ -84,6 +84,7 @@ extends SkeletonEntity {
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         entityData = super.initialize(world, difficulty, spawnReason, entityData);
+        this.updateEnchantments(world.getRandom(), difficulty);
         if (this.getEquippedStack(EquipmentSlot.HEAD).isEmpty()) {
             this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.CHAINMAIL_HELMET));
             this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
