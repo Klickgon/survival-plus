@@ -268,13 +268,7 @@ public class LumberjackZombieEntity
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         entityData = super.initialize(world, difficulty, spawnReason, new ZombieData(false, false));
-        if (entityData == null) {
-            entityData = new ZombieData(false, false);
-        }
-        if (entityData instanceof LumberjackZombieEntity.ZombieData) {
-            this.setCanBreakDoors(true);
-            this.initEquipment();
-        }
+        this.setCanBreakDoors(true);
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_AXE));
         this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
         return entityData;

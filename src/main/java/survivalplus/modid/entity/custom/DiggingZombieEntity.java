@@ -233,9 +233,6 @@ public class DiggingZombieEntity
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         entityData = super.initialize(world, difficulty, spawnReason, new ZombieData(false, false));
-        if (entityData == null) {
-            entityData = new ZombieData(false, false);
-        }
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.WOODEN_SHOVEL));
         this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
         return entityData;

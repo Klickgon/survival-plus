@@ -234,9 +234,6 @@ public class MinerZombieEntity
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         entityData = super.initialize(world, difficulty, spawnReason, new ZombieData(false, false));
-        if (entityData == null) {
-            entityData = new ZombieData(false, false);
-        }
         if (this.getEquippedStack(EquipmentSlot.HEAD).isEmpty()) {
             this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET, 1));
             this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
