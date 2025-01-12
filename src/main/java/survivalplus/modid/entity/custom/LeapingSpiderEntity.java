@@ -20,7 +20,6 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.SpiderEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -92,7 +91,6 @@ extends SpiderEntity {
             super.slowMovement(state, multiplier);
         }
     }
-
 
     @Override
     public boolean canHaveStatusEffect(StatusEffectInstance effect) {
@@ -166,7 +164,7 @@ extends SpiderEntity {
     static class TargetGoal<T extends LivingEntity>
     extends ActiveTargetGoal<T> {
         public TargetGoal(LeapingSpiderEntity spider, Class<T> targetEntityClass) {
-            super((MobEntity)spider, targetEntityClass, true);
+            super(spider, targetEntityClass, true);
         }
     }
 

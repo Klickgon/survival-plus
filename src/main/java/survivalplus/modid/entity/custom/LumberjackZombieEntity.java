@@ -45,8 +45,6 @@ import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.util.ModTags;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 import java.util.function.Predicate;
 
 public class LumberjackZombieEntity
@@ -269,30 +267,16 @@ public class LumberjackZombieEntity
     @Override
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
-        Random random = world.getRandom();
-        entityData = super.initialize(world, difficulty, spawnReason, entityData);
-        float f = difficulty.getClampedLocalDifficulty();
-        this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
+        entityData = super.initialize(world, difficulty, spawnReason, new ZombieData(false, false));
         if (entityData == null) {
-            entityData = new LumberjackZombieEntity.ZombieData(false, false);
+            entityData = new ZombieData(false, false);
         }
         if (entityData instanceof LumberjackZombieEntity.ZombieData) {
-            this.setCanBreakDoors(this.shouldBreakDoors() && random.nextFloat() < f * 0.1f);
+            this.setCanBreakDoors(true);
             this.initEquipment();
-        }
-
-        if (this.getEquippedStack(EquipmentSlot.HEAD).isEmpty()) {
-            LocalDate localDate = LocalDate.now();
-            int i = localDate.get(ChronoField.DAY_OF_MONTH);
-            int j = localDate.get(ChronoField.MONTH_OF_YEAR);
-            if (j == 10 && i == 31 && random.nextFloat() < 0.25f) {
-                this.equipStack(EquipmentSlot.HEAD, new ItemStack(random.nextFloat() < 0.1f ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
-                this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
-            }
         }
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_AXE));
         this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
-        this.applyAttributeModifiers(f);
         return entityData;
     }
 
@@ -315,17 +299,6 @@ public class LumberjackZombieEntity
         @Override
         public double getDesiredDistanceToTarget() {
             return 1.14;
-        }
-    }
-
-    public static class ZombieData
-            implements EntityData {
-        public final boolean baby;
-        public final boolean tryChickenJockey;
-
-        public ZombieData(boolean baby, boolean tryChickenJockey) {
-            this.baby = baby;
-            this.tryChickenJockey = false;
         }
     }
 }

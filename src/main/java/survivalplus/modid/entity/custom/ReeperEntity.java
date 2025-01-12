@@ -46,7 +46,6 @@ public class ReeperEntity
     private static final TrackedData<Integer> FUSE_SPEED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> CHARGED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> IGNITED = DataTracker.registerData(survivalplus.modid.entity.custom.ReeperEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private int lastFuseTime;
     private int currentFuseTime;
     private int fuseTime = 30;
     private int explosionRadius = 3;
@@ -129,7 +128,6 @@ public class ReeperEntity
             if(!this.hadTarget && this.getTarget() != null) this.hadTarget = true;
             if(this.hadTarget && this.getTarget() == null) this.lostTarget = true;
             int i;
-            this.lastFuseTime = this.currentFuseTime;
             if (this.isIgnited()) {
                 this.setFuseSpeed(1);
             }
