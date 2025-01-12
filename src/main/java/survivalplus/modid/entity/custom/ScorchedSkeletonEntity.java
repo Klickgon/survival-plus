@@ -1,6 +1,5 @@
 package survivalplus.modid.entity.custom;
 
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -33,9 +32,6 @@ import survivalplus.modid.enchantments.ModEnchantments;
 import survivalplus.modid.entity.ai.AdvancedBowAttackGoal;
 import survivalplus.modid.entity.ai.DestroyBedGoal;
 import survivalplus.modid.util.ModGamerules;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 
 public class ScorchedSkeletonEntity
 extends SkeletonEntity {
@@ -72,7 +68,6 @@ extends SkeletonEntity {
         this.goalSelector.add(5, new DestroyBedGoal(this, 1.0, 8));
     }
 
-
     public void tick(){
         super.tick();
         if (this.getWorld().isClient) {
@@ -88,22 +83,9 @@ extends SkeletonEntity {
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         entityData = super.initialize(world, difficulty, spawnReason, entityData);
-        Random random = world.getRandom();
-        this.initEquipment(random, difficulty);
-        this.updateEnchantments(random, difficulty);
-        this.updateAttackType();
-        this.isFireImmune();
-        this.setCanPickUpLoot(random.nextFloat() < 0.55f * difficulty.getClampedLocalDifficulty());
+        this.updateEnchantments(world.getRandom(), difficulty);
         if (this.getEquippedStack(EquipmentSlot.HEAD).isEmpty()) {
-            LocalDate localDate = LocalDate.now();
-            int i = localDate.get(ChronoField.DAY_OF_MONTH);
-            int j = localDate.get(ChronoField.MONTH_OF_YEAR);
-            if (j == 10 && i == 31 && random.nextFloat() < 0.25f) {
-                this.equipStack(EquipmentSlot.HEAD, new ItemStack(random.nextFloat() < 0.1f ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
-                this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
-            }
-            else this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.CHAINMAIL_HELMET));
-
+            this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.CHAINMAIL_HELMET));
             this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
         }
         this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;

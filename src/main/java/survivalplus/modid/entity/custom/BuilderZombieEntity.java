@@ -36,8 +36,6 @@ import survivalplus.modid.entity.ai.pathing.BuilderZombieNavigation;
 import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.util.ModGamerules;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 import java.util.function.Predicate;
 
 public class BuilderZombieEntity
@@ -225,37 +223,14 @@ public class BuilderZombieEntity
     @Override
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
-        Random random = world.getRandom();
-        entityData = super.initialize(world, difficulty, spawnReason, entityData);
-        float f = difficulty.getClampedLocalDifficulty();
-        this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
-        if (entityData == null) {
-            entityData = new BuilderZombieEntity.ZombieData(false, false);
-        }
-        if (entityData instanceof BuilderZombieEntity.ZombieData) {
-            this.setCanBreakDoors(random.nextFloat() < f * 0.1f);
-            this.initEquipment();
-        }
-
+        entityData = super.initialize(world, difficulty, spawnReason, new ZombieData(false, false));
         if (this.getEquippedStack(EquipmentSlot.HEAD).isEmpty()) {
-            LocalDate localDate = LocalDate.now();
-            int i = localDate.get(ChronoField.DAY_OF_MONTH);
-            int j = localDate.get(ChronoField.MONTH_OF_YEAR);
-            if (j == 10 && i == 31 && random.nextFloat() < 0.25f) {
-                this.equipStack(EquipmentSlot.HEAD, new ItemStack(random.nextFloat() < 0.1f ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
-                this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
-            }
-            else{
-                this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET, 1));
-                this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
-            }
+            this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET, 1));
+            this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
         }
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Blocks.DIRT, 1));
-        this.applyAttributeModifiers(f);
         return entityData;
     }
-
-
 
     class DestroyEggGoal
             extends StepAndDestroyBlockGoal {
@@ -279,15 +254,5 @@ public class BuilderZombieEntity
         }
     }
 
-    public static class ZombieData
-            implements EntityData {
-        public final boolean baby;
-        public final boolean tryChickenJockey;
-
-        public ZombieData(boolean baby, boolean tryChickenJockey) {
-            this.baby = baby;
-            this.tryChickenJockey = false;
-        }
-    }
 }
 
