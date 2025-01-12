@@ -16,4 +16,5 @@ public class PlayerData extends StateSaverAndLoader{
     public RegistryKey<World> mainSpawnDimension = World.OVERWORLD;
     public float mainSpawnAngle = 0.0f;
     public boolean mainSpawnForced = false;
+    public boolean receivedBAWarningMessage = false;
 }

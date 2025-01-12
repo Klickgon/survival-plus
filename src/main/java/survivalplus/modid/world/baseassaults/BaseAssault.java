@@ -273,6 +273,11 @@ public class BaseAssault {
     }
 
     public void invalidate() {
+        if(this.hostiles != null){
+            for(HostileEntity hostile : this.hostiles)
+                if(hostile != null)
+                    ((IHostileEntityChanger)hostile).setBaseAssault(null);
+        }
         this.active = false;
         this.bar.clearPlayers();
         this.status = Status.STOPPED;
@@ -366,6 +371,7 @@ public class BaseAssault {
             }
         } else if (this.isFinished()) {
             PlayerData.getPlayerState(this.attachedPlayer).baseAssaultTimer = 0;
+            PlayerData.getPlayerState(this.attachedPlayer).receivedBAWarningMessage = false;
             ++this.finishCooldown;
             if (this.finishCooldown >= 600) {
                 this.invalidate();

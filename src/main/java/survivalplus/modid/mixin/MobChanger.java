@@ -18,8 +18,7 @@ public abstract class MobChanger extends LivingEntity {
 
     @Redirect(method = "isAffectedByDaylight", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isDay()Z"))
     private boolean isActualDay(World instance){
-        World world = this.getWorld();
-        return !world.getDimension().hasFixedTime() && world.getAmbientDarkness() < 4;
+        return !instance.getDimension().hasFixedTime() && instance.getAmbientDarkness() < 4;
     }
 
 }

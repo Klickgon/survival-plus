@@ -9,6 +9,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.PersistentState;
@@ -72,7 +73,13 @@ extends PersistentState {
         if (!dimensionType.bedWorks()) {
             return;
         }
-        if(PlayerData.getPlayerState(player).baseAssaultTimer < BASE_ASSAULT_TIME_NEEDED) {
+        PlayerData playerState = PlayerData.getPlayerState(player);
+        if(playerState.baseAssaultTimer < BASE_ASSAULT_TIME_NEEDED) {
+            if(playerState.baseAssaultTimer > (BASE_ASSAULT_TIME_NEEDED - 36000) && !playerState.receivedBAWarningMessage) {
+                //player.playSoundToPlayer();
+                player.sendMessage(Text.translatable("event.survival-plus.warning"), true);
+                playerState.receivedBAWarningMessage = true;
+            }
             return;
         }
         BlockPos playerPos = player.getBlockPos();

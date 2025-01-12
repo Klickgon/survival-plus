@@ -46,6 +46,9 @@ import java.util.function.BooleanSupplier;
 public abstract class ServerWorldChanger extends World implements IServerWorldChanger {
 
     @Unique
+    private static final int SLEEP_TIME = 7000;
+
+    @Unique
     public BaseAssaultManager baseAssaultManager;
 
     @Unique
@@ -65,18 +68,18 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setTimeOfDay(J)V"))
     public long tickSleepSkip(long timeOfDay) {
-        return this.properties.getTimeOfDay() + 7000L; // Changes the sleeping skip from a set time point to 7000 ticks after sleep start
+        return this.properties.getTimeOfDay() + SLEEP_TIME; // Changes the sleeping skip from a set time point to 7000 ticks after sleep start
     }
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;resetWeather()V"))
     public void changeWeatherReset(ServerWorld instance) { // Reduces the rain or thunder time by the time skip of sleeping in ticks
-        int rain = this.worldProperties.getRainTime() - 7000;
+        int rain = this.worldProperties.getRainTime() - SLEEP_TIME;
         if(rain > 0) this.worldProperties.setRainTime(rain);
         else {
             this.worldProperties.setRaining(false);
             this.worldProperties.setRainTime(0);
         }
-        int thunder = this.worldProperties.getThunderTime() - 7000;
+        int thunder = this.worldProperties.getThunderTime() - SLEEP_TIME;
         if(thunder > 0) this.worldProperties.setThunderTime(thunder);
         else {
             this.worldProperties.setThundering(false);
@@ -88,7 +91,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     protected void addTimeFromSleep(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP));// Resets the "time since sleep" stat for every player once everyone wakes up
-            StateSaverAndLoader.getPlayerState(serverPlayer).baseAssaultTimer += 14000;
+            StateSaverAndLoader.getPlayerState(serverPlayer).baseAssaultTimer += SLEEP_TIME * 2;
             // also increases the time since last Base Assault by the time of day skipped through sleeping
         }
     }

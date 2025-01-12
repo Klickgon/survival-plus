@@ -30,5 +30,6 @@
     "stat.survival-plus.baseassaultswon": "Base Assaults Won",
     "stat.survival-plus.timesincesleep": "Time Since Last Full Sleep",
     "stat.survival-plus.timewithoutcustomrespawnpoint": "Time without Custom Respawn Point",
-    "block.survival-plus.set_spawn_temp": "Temporary respawn point set"
+    "block.survival-plus.set_spawn_temp": "Temporary respawn point set",
+    "event.survival-plus.warning" : "You hear a group of mobs plotting an attack in the distance,\\nthey may strike your base soon..."
 }

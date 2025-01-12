@@ -42,7 +42,7 @@ public class StateSaverAndLoader extends PersistentState {
             Identifier.CODEC.encodeStart(NbtOps.INSTANCE, playerData.mainSpawnDimension.getValue()).resultOrPartial(SurvivalPlus.LOGGER::error).ifPresent(encoded -> playerNbt.put("mainSpawnDimension", encoded));
             playerNbt.putFloat("mainSpawnAngle", playerData.mainSpawnAngle);
             playerNbt.putBoolean("mainSpawnForced", playerData.mainSpawnForced);
-
+            playerNbt.putBoolean("receivedBAWarning", playerData.receivedBAWarningMessage);
             playersNbt.put(uuid.toString(), playerNbt);
         });
         nbt.put("players", playersNbt);
@@ -80,6 +80,7 @@ public class StateSaverAndLoader extends PersistentState {
                 int z = compound.getInt("mainSpawnPositionZ");
                 playerData.mainSpawnPosition = new BlockPos(x, y, z);
             }
+            playerData.receivedBAWarningMessage = compound.getBoolean("receivedBAWarning");
 
             playerData.mainSpawnAngle = compound.getFloat("mainSpawnAngle");
             playerData.mainSpawnForced = compound.getBoolean("mainSpawnForced");
