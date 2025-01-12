@@ -43,8 +43,6 @@ import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.util.ModTags;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 import java.util.function.Predicate;
 
 public class MinerZombieEntity
@@ -209,34 +207,13 @@ public class MinerZombieEntity
 
     @Nullable
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
-        Random random = world.getRandom();
-        entityData = super.initialize(world, difficulty, spawnReason, entityData);
-        float f = difficulty.getClampedLocalDifficulty();
-        this.setCanPickUpLoot(random.nextFloat() < 0.55f * f);
-        if (entityData == null) {
-            entityData = new ZombieData(false, false);
-        }
-        if (entityData instanceof ZombieData) {
-            this.setCanBreakDoors(true);
-            this.initEquipment();
-        }
-
+        entityData = super.initialize(world, difficulty, spawnReason, new ZombieData(false, false));
         if (this.getEquippedStack(EquipmentSlot.HEAD).isEmpty()) {
-            LocalDate localDate = LocalDate.now();
-            int i = localDate.get(ChronoField.DAY_OF_MONTH);
-            int j = localDate.get(ChronoField.MONTH_OF_YEAR);
-            if (j == 10 && i == 31 && random.nextFloat() < 0.25f) {
-                this.equipStack(EquipmentSlot.HEAD, new ItemStack(random.nextFloat() < 0.1f ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
-                this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
-            }
-            else{
-                this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET, 1));
-                this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
-            }
+            this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET, 1));
+            this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
         }
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_PICKAXE));
         this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
-        this.applyAttributeModifiers(f);
         return entityData;
     }
 
