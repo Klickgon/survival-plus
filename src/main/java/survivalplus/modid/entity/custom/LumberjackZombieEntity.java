@@ -166,7 +166,6 @@ public class LumberjackZombieEntity
     protected void convertInWater() {
     }
 
-
     @Override
     public boolean tryAttack(ServerWorld world, Entity target) {
         boolean bl;
@@ -205,7 +204,6 @@ public class LumberjackZombieEntity
         return world.getServer() != null && (!world.getServer().getGameRules().getBoolean(ModGamerules.MOB_SPAWN_PROGRESSION) || currentAmountOfFullDays >= fullDaysRequired || spawnReason != SpawnReason.NATURAL) && canSpawnInDark(type, world, spawnReason, pos, random);
     }
 
-
     protected void initEquipment() {}
 
     @Override
@@ -226,8 +224,6 @@ public class LumberjackZombieEntity
         }
     }
 
-
-
     @Override
     public boolean canPickupItem(ItemStack stack) {
         if (stack.isOf(Items.EGG) && this.isBaby() && this.hasVehicle()) {
@@ -241,6 +237,7 @@ public class LumberjackZombieEntity
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         entityData = super.initialize(world, difficulty, spawnReason, new ZombieData(false, false));
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_AXE));
+        this.setCanBreakDoors(true);
         this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
         return entityData;
     }
