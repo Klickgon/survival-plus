@@ -34,7 +34,7 @@ public abstract class HostileEntityChanger extends PathAwareEntity implements IH
 
     @Override
     public boolean canImmediatelyDespawn(double distanceSquared) {
-        return this.baseAssault != null ? distanceSquared > 16384.0 : super.canImmediatelyDespawn(distanceSquared);
+        return this.baseAssault != null && !this.baseAssault.isFinished() ? distanceSquared > 16384.0 : super.canImmediatelyDespawn(distanceSquared);
     }
 
     @Inject(method = "canSpawnInDark", at = @At("HEAD"), cancellable = true)

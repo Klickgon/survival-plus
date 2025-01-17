@@ -93,7 +93,6 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         return Optional.empty();
     }
 
-
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isSpectator()Z"))
     private boolean noRespawnPointPunishment(ServerPlayerEntity instance){
         BlockPos bpos = this.getSpawnPointPosition();
@@ -109,7 +108,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         this.resetStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
     }
 
-    @Inject(method = "trySleep", at = @At(value = "INVOKE", target = "Ljava/util/List;isEmpty()Z", shift = At.Shift.AFTER), cancellable = true)
+    @Inject(method = "trySleep", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;trySleep(Lnet/minecraft/util/math/BlockPos;)Lcom/mojang/datafixers/util/Either;", shift = At.Shift.BEFORE), cancellable = true)
     private void sleepFailureInject(BlockPos pos, CallbackInfoReturnable<Either<SleepFailureReason, Unit>> cir){
         if(!this.isCreative()){
             BaseAssault baseAssault = ((IServerWorldChanger)this.getWorld()).getBaseAssaultAt(this.getBlockPos());

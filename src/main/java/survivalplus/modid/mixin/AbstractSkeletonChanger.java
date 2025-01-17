@@ -18,4 +18,14 @@ public class AbstractSkeletonChanger {
         return 2;
     }
 
+    @ModifyArg(method = "initGoals", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/goal/GoalSelector;add(ILnet/minecraft/entity/ai/goal/Goal;)V", ordinal = 1))
+    private int modifyPriorityAvoidSunlight(int priority){
+        return 1;
+    }
+
+    @ModifyArg(method = "initGoals", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/goal/GoalSelector;add(ILnet/minecraft/entity/ai/goal/Goal;)V", ordinal = 3))
+    private int modifyPriorityEscapeSunlight(int priority){
+        return 2;
+    }
+
 }
