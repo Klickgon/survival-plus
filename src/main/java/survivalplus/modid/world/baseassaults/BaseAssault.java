@@ -13,7 +13,6 @@ import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.AbstractSkeletonEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.WitchEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -300,7 +299,7 @@ public class BaseAssault {
                 for (HostileEntity hostile : this.hostiles) {
                         IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
                         hostile2.setBaseAssault(this);
-                        if (hostile instanceof AbstractSkeletonEntity) hostile2.getGoalSelector().add(4, new BaseAssaultGoal(hostile, 1.0));
+                        if(hostile instanceof WitchEntity) hostile2.getGoalSelector().add(3, new BaseAssaultGoal(hostile, 1.0));
                         else hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
                 }
             }

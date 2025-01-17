@@ -8,14 +8,19 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(AbstractSkeletonEntity.class)
 public class AbstractSkeletonChanger {
 
-    @ModifyArg(method = "updateAttackType", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/goal/GoalSelector;add(ILnet/minecraft/entity/ai/goal/Goal;)V"))
-    private int modifyPriorityAttackType(int priority){
-        return 3;
+    @ModifyArg(method = "initGoals", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/goal/GoalSelector;add(ILnet/minecraft/entity/ai/goal/Goal;)V", ordinal = 4))
+    private int modifyPriorityWanderAround(int priority){
+        return 6;
     }
 
-    @ModifyArg(method = "initGoals", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/goal/GoalSelector;add(ILnet/minecraft/entity/ai/goal/Goal;)V", ordinal = 2))
-    private int modifyPriorityFlee(int priority){
-        return 2;
+    @ModifyArg(method = "initGoals", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/goal/GoalSelector;add(ILnet/minecraft/entity/ai/goal/Goal;)V", ordinal = 5))
+    private int modifyPriorityLookAtEntity(int priority){
+        return 7;
+    }
+
+    @ModifyArg(method = "initGoals", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/goal/GoalSelector;add(ILnet/minecraft/entity/ai/goal/Goal;)V", ordinal = 6))
+    private int modifyPriorityLookAround(int priority){
+        return 7;
     }
 
 }
