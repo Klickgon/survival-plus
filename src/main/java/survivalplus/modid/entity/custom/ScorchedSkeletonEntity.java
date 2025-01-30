@@ -55,17 +55,17 @@ extends SkeletonEntity {
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(1, new AvoidSunlightGoal(this));
-        this.goalSelector.add(2, new EscapeSunlightGoal(this, 1.0));
-        this.goalSelector.add(2, new FleeEntityGoal(this, WolfEntity.class, 6.0F, 1.0, 1.2));
+        this.goalSelector.add(2, new AvoidSunlightGoal(this));
+        this.goalSelector.add(3, new EscapeSunlightGoal(this, 1.0));
+        this.goalSelector.add(4, new FleeEntityGoal(this, WolfEntity.class, 6.0F, 1.0, 1.2));
+        this.goalSelector.add(5, new DestroyBedGoal(this, 1.0, 8));
         this.goalSelector.add(6, new WanderAroundFarGoal(this, 1.0));
         this.goalSelector.add(7, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
         this.goalSelector.add(7, new LookAroundGoal(this));
-        this.targetSelector.add(1, new RevengeGoal(this, new Class[0]));
+        this.targetSelector.add(1, new RevengeGoal(this));
         this.targetSelector.add(2, new ActiveTargetGoal(this, PlayerEntity.class, true));
         this.targetSelector.add(3, new ActiveTargetGoal(this, IronGolemEntity.class, true));
         this.targetSelector.add(3, new ActiveTargetGoal(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
-        this.goalSelector.add(5, new DestroyBedGoal(this, 1.0, 8));
     }
 
 
