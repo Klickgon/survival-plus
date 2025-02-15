@@ -9,13 +9,16 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.PlayerData;
+import survivalplus.modid.sounds.ModSounds;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.ModGamerules;
 
@@ -74,17 +77,24 @@ extends PersistentState {
             return;
         }
         PlayerData playerState = PlayerData.getPlayerState(player);
+        BlockPos playerPos = player.getBlockPos();
         if(playerState.baseAssaultTimer < BASE_ASSAULT_TIME_NEEDED) {
             if(playerState.baseAssaultTimer > (BASE_ASSAULT_TIME_NEEDED - 36000) && !playerState.receivedBAWarningMessage) {
-                //player.playSoundToPlayer();
+                if(!world.isClient){
+                    Random rand = world.random;
+                    int x = 5 + rand.nextInt(6);
+                    x = rand.nextBoolean() ? x : -x;
+                    int z = 5 + rand.nextInt(6);
+                    z = rand.nextBoolean() ? z : -z;
+                    world.playSound(null, playerPos.add(x, 0, z), ModSounds.BASE_ASSAULT_WARNING, SoundCategory.HOSTILE, 1.0f, 1.0f);
+                }
                 player.sendMessage(Text.translatable("event.survival-plus.warning"), true);
                 playerState.receivedBAWarningMessage = true;
             }
             return;
         }
-        BlockPos playerPos = player.getBlockPos();
         BlockPos spawnPos = ((IServerPlayerChanger) player).getMainSpawnPoint();
-        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS)|| !playerPos.isWithinDistance(spawnPos, 64) || this.world.getAmbientDarkness() < 4) {
+        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS) || !playerPos.isWithinDistance(spawnPos, 64) || this.world.getAmbientDarkness() < 4) {
             return;
         }
         if(Math.abs(playerPos.getY() - spawnPos.getY()) > 16){

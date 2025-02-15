@@ -1,0 +1,8 @@
+{
+  "base_assault_warning": {
+    "subtitle" : "sounds.survival-plus.base_assault_warn_sound",
+    "sounds" : [
+      "survival-plus:base_assault_warn"
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 package survivalplus.modid.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.block.*;
@@ -115,6 +116,11 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
             if(baseAssault != null && !(baseAssault.isFinished() || baseAssault.hasStopped()))
                 cir.setReturnValue(Either.left(SleepFailureReason.NOT_SAFE));
         }
+    }
+
+    @ModifyExpressionValue(method = "trySleep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isDay()Z"))
+    private boolean sleepReqCanceler(boolean original){
+        return ((IServerWorldChanger)this.getWorld()).notEnoughTimeSinceRest();
     }
 
     @Inject(method = "getSpawnPointPosition", at = @At(value = "HEAD"), cancellable = true)

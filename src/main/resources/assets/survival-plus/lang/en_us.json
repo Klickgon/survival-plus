@@ -31,5 +31,6 @@
     "stat.survival-plus.timesincesleep": "Time Since Last Full Sleep",
     "stat.survival-plus.timewithoutcustomrespawnpoint": "Time without Custom Respawn Point",
     "block.survival-plus.set_spawn_temp": "Temporary respawn point set",
-    "event.survival-plus.warning" : "You hear a group of mobs plotting an attack in the distance, they may strike your base soon..."
+    "event.survival-plus.warning" : "You hear a group of mobs plotting an attack in the distance, they may strike your base soon...",
+    "sounds.survival-plus.base_assault_warn_sound": "Base Assault Warning Sound"
 }

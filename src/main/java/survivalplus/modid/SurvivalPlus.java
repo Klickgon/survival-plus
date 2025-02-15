@@ -18,6 +18,7 @@ import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.custom.*;
 import survivalplus.modid.item.ModItemGroups;
 import survivalplus.modid.item.ModItems;
+import survivalplus.modid.sounds.ModSounds;
 import survivalplus.modid.util.ModGamerules;
 import survivalplus.modid.util.ModPlayerStats;
 import survivalplus.modid.world.gen.ModEntityGeneration;
@@ -61,6 +62,8 @@ public class SurvivalPlus implements ModInitializer {
 
 		ModGamerules.registerModGamerules();
 		ModPlayerStats.registerModPlayerStats();
+
+		ModSounds.registerSounds();
 
 		LootTableEvents.MODIFY.register((lootTableRegistryKey, builder, lootTableSource, wrapperLookup) -> {
 			if(lootTableSource.isBuiltin()){
