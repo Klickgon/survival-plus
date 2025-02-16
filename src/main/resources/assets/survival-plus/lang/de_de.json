@@ -32,5 +32,6 @@
   "stat.survival-plus.timewithoutcustomrespawnpoint": "Zeit ohne Wiedereinstiegspunkt",
   "block.survival-plus.set_spawn_temp": "Temporärer Wiedereinstiegspunkt gesetzt",
   "event.survival-plus.warning": "Du hörst eine Gruppe von Mobs einen Angriff vorbereiten, sie könnten bald deine Basis angreifen...",
-  "sounds.survival-plus.base_assault_warn_sound": "Basis Angriff Warnungs Geräusch"
+  "sounds.survival-plus.base_assault_warn_sound": "Mobs am vorbereiten eines Angriffs",
+  "sounds.survival-plus.base_assault_start_sound": "Mobs am anfangen eines Angriffs"
 }

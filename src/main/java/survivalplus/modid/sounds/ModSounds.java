@@ -10,6 +10,8 @@ public class ModSounds {
 
     public static final SoundEvent BASE_ASSAULT_WARNING = registerSoundEvent("base_assault_warning");
 
+    public static final SoundEvent BASE_ASSAULT_START = registerSoundEvent("base_assault_start");
+
     private static SoundEvent registerSoundEvent(String name){
         Identifier id = Identifier.of(SurvivalPlus.MOD_ID, name);
         return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));

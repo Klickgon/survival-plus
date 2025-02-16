@@ -86,7 +86,7 @@ extends PersistentState {
                     x = rand.nextBoolean() ? x : -x;
                     int z = 5 + rand.nextInt(6);
                     z = rand.nextBoolean() ? z : -z;
-                    world.playSound(null, playerPos.add(x, 0, z), ModSounds.BASE_ASSAULT_WARNING, SoundCategory.HOSTILE, 1.0f, 1.0f);
+                    world.playSound(null, playerPos.add(x, 1, z), ModSounds.BASE_ASSAULT_WARNING, SoundCategory.HOSTILE, 1.0f, 1.0f);
                 }
                 player.sendMessage(Text.translatable("event.survival-plus.warning"), true);
                 playerState.receivedBAWarningMessage = true;
@@ -102,12 +102,12 @@ extends PersistentState {
         }
         BaseAssault baseAssault = this.getOrCreateBaseAssault(player.getServerWorld(), spawnPos, player);
         if (!baseAssault.hasStarted()) {
+            baseAssault.start(player);
+            baseAssault.setCenter(spawnPos);
             if (!this.baseAssaults.containsKey(baseAssault.getId())) {
                 this.baseAssaults.put(baseAssault.getId(), baseAssault);
             }
         }
-        baseAssault.setCenter(spawnPos);
-        baseAssault.start(player);
         this.markDirty();
     }
 

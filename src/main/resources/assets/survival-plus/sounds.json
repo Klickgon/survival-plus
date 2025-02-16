@@ -4,5 +4,11 @@
     "sounds" : [
       "survival-plus:base_assault_warn"
     ]
+  },
+  "base_assault_start": {
+    "subtitle" : "sounds.survival-plus.base_assault_start_sound",
+    "sounds" : [
+      "survival-plus:base_assault_start"
+    ]
   }
 }

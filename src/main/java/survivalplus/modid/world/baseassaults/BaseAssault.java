@@ -24,6 +24,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stat;
 import net.minecraft.stat.StatHandler;
 import net.minecraft.stat.Stats;
@@ -40,6 +41,7 @@ import survivalplus.modid.PlayerData;
 import survivalplus.modid.SurvivalPlus;
 import survivalplus.modid.entity.ModEntities;
 import survivalplus.modid.entity.ai.BaseAssaultGoal;
+import survivalplus.modid.sounds.ModSounds;
 import survivalplus.modid.util.IHostileEntityChanger;
 import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
@@ -75,6 +77,7 @@ public class BaseAssault {
     private int nextAvailableId;
     private boolean waveSpawned;
     private boolean winStatIncreased;
+    private boolean startSoundPlayed = false;
     public boolean findPlayerInsteadOfBed;
     private static final int REQUIRED_WAVE_LENGTH = 12;
     private static final int MAX_POWER_MOB_COUNT = 5;
@@ -112,6 +115,7 @@ public class BaseAssault {
         this.wave = nbt.getByteArray("Wave");
         this.requiredHostileCount = nbt.getInt("HostileCount");
         this.findPlayerInsteadOfBed = nbt.getBoolean("findPlayer");
+        this.startSoundPlayed = nbt.getBoolean("startSoundPlayed");
         if (nbt.contains("hostileIDs", NbtElement.LIST_TYPE)) {
             NbtList nbtList = nbt.getList("hostileIDs", NbtElement.INT_ARRAY_TYPE);
             for (NbtElement nbtElement : nbtList) {
@@ -136,6 +140,7 @@ public class BaseAssault {
         nbt.putBoolean("WaveSpawned", this.waveSpawned);
         nbt.putBoolean("WinStatIncreased", this.winStatIncreased);
         nbt.putBoolean("findPlayer", this.findPlayerInsteadOfBed);
+        nbt.putBoolean("startSoundPlayed", this.startSoundPlayed);
         nbt.putInt("HostileCount", getHostileCount());
         NbtList nbtList = new NbtList();
         if(this.hostiles != null) {
@@ -270,9 +275,20 @@ public class BaseAssault {
         Stat<Identifier> stat = Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT);
         StatHandler handler = player.getServer().getPlayerManager().getPlayer(player.getUuid()).getStatHandler();
         handler.setStat(player, stat, Math.max(0, handler.getStat(stat) - 72000));
+        if(!world.isClient && !startSoundPlayed){
+            Random rand = world.random;
+            int x = 5 + rand.nextInt(6);
+            x = rand.nextBoolean() ? x : -x;
+            int z = 5 + rand.nextInt(6);
+            z = rand.nextBoolean() ? z : -z;
+            world.playSound(null, center.add(x, 1, z), ModSounds.BASE_ASSAULT_START, SoundCategory.HOSTILE, 1.0f, 1.0f);
+            startSoundPlayed = true;
+        }
     }
 
     public void invalidate() {
+        if(this.attachedPlayer != null)
+            PlayerData.getPlayerState(this.attachedPlayer).receivedBAWarningMessage = false;
         if(this.hostiles != null){
             for(HostileEntity hostile : this.hostiles)
                 if(hostile != null)
@@ -371,7 +387,6 @@ public class BaseAssault {
             }
         } else if (this.isFinished()) {
             PlayerData.getPlayerState(this.attachedPlayer).baseAssaultTimer = 0;
-            PlayerData.getPlayerState(this.attachedPlayer).receivedBAWarningMessage = false;
             ++this.finishCooldown;
             if (this.finishCooldown >= 600) {
                 this.invalidate();
@@ -416,7 +431,7 @@ public class BaseAssault {
     }
 
     protected void dropXp() {
-            ExperienceOrbEntity.spawn(this.world, this.attachedPlayer.getPos().add(0,0.5,0), calcWaveSize(this.wave) * 5);
+        ExperienceOrbEntity.spawn(this.world, this.attachedPlayer.getPos().add(0,0.5,0), calcWaveSize(this.wave) * 5);
     }
 
     private void updateCenter() {
