@@ -277,11 +277,19 @@ public class BaseAssault {
         handler.setStat(player, stat, Math.max(0, handler.getStat(stat) - 72000));
         if(!world.isClient && !startSoundPlayed){
             Random rand = world.random;
-            int x = 5 + rand.nextInt(6);
+            int x = rand.nextInt(6);
+            int z = rand.nextInt(6);
+            switch (rand.nextInt(3)){
+                case 0 -> x += 5;
+                case 1 -> z += 5;
+                default -> {
+                    x += 5;
+                    z += 5;
+                }
+            }
             x = rand.nextBoolean() ? x : -x;
-            int z = 5 + rand.nextInt(6);
             z = rand.nextBoolean() ? z : -z;
-            world.playSound(null, center.add(x, 1, z), ModSounds.BASE_ASSAULT_START, SoundCategory.HOSTILE, 1.0f, 1.0f);
+            world.playSound(null, attachedPlayer.getBlockPos().add(x, 1, z), ModSounds.BASE_ASSAULT_START, SoundCategory.HOSTILE, 1.0f, 1.0f);
             startSoundPlayed = true;
         }
     }

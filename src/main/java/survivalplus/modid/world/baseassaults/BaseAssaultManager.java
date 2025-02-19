@@ -32,7 +32,7 @@ extends PersistentState {
     private final Map<Integer, BaseAssault> baseAssaults = Maps.newHashMap();
     private int currentTime;
     private int nextAvailableId;
-    public static final int BASE_ASSAULT_TIME_NEEDED = 250000;
+    public static final int BASE_ASSAULT_TIME_NEEDED = 250;
 
     public static Type<BaseAssaultManager> getPersistentStateType(ServerWorld world) {
         return new PersistentState.Type<>(() -> new BaseAssaultManager(world), (nbt, registryLookup) -> BaseAssaultManager.fromNbt(world, nbt), null);
@@ -82,9 +82,17 @@ extends PersistentState {
             if(playerState.baseAssaultTimer > (BASE_ASSAULT_TIME_NEEDED - 36000) && !playerState.receivedBAWarningMessage) {
                 if(!world.isClient){
                     Random rand = world.random;
-                    int x = 5 + rand.nextInt(6);
+                    int x = rand.nextInt(6);
+                    int z = rand.nextInt(6);
+                    switch (rand.nextInt(3)){
+                        case 0 -> x += 5;
+                        case 1 -> z += 5;
+                        default -> {
+                            x += 5;
+                            z += 5;
+                        }
+                    }
                     x = rand.nextBoolean() ? x : -x;
-                    int z = 5 + rand.nextInt(6);
                     z = rand.nextBoolean() ? z : -z;
                     world.playSound(null, playerPos.add(x, 1, z), ModSounds.BASE_ASSAULT_WARNING, SoundCategory.HOSTILE, 1.0f, 1.0f);
                 }
