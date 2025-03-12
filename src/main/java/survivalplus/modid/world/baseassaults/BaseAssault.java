@@ -82,7 +82,7 @@ public class BaseAssault {
     public boolean findPlayerInsteadOfBed;
     private static final int REQUIRED_WAVE_LENGTH = 12;
     private static final int MAX_MOB_COUNT = 4;
-    private static final int MAX_WAVE_SIZE = 35;
+    private static final int MAX_WAVE_SIZE = 32;
 
     public BaseAssault(int id, ServerWorld world, BlockPos pos, ServerPlayerEntity attachedPlayer) {
         this.id = id;
