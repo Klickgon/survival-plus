@@ -54,7 +54,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
     @Nullable
     protected PathNode getPathNodeForHorizontal(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
         MinecraftServer server = this.entity.getServer();
-        if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
+        if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getMainHandStack().isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             BlockPos pos = new BlockPos(x, y, z);
             World world = this.entity.getWorld();
             if (world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isReplaceable() ) {
@@ -68,7 +68,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
     @Override
     public int getSuccessors(PathNode[] successors, PathNode node) {
         MinecraftServer server = this.entity.getServer();
-        if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
+        if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getMainHandStack().isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             boolean usedVerticalNodeAsSuccessor = false;
             PathNode pathNode16;
             PathNode pathNode15;

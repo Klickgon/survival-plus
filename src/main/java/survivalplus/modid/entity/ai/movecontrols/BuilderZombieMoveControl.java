@@ -1,7 +1,6 @@
 package survivalplus.modid.entity.ai.movecontrols;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.entity.ai.pathing.Path;
@@ -11,9 +10,6 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.Items;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -87,12 +83,10 @@ public class BuilderZombieMoveControl extends MoveControl {
             BuilderZombieEntity bzomb = (BuilderZombieEntity) this.entity;
             IHostileEntityChanger bzomb2 = (IHostileEntityChanger) this.entity;
             MinecraftServer server = this.entity.getServer();
-            if(server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
+            if(server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getMainHandStack().isOf(Items.DIRT) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
                 BlockPos bzombpos = bzomb.getBlockPos();
                 if (isDirtJumpRequired(bzombpos.down(), world)) {
-                    entity.swingHand(Hand.MAIN_HAND);
-                    world.setBlockState(bzombpos.down(), Blocks.DIRT.getDefaultState());
-                    world.playSound(null, bzombpos.down(), SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
+                    bzomb.placeDirtBlock(bzombpos.down());
                     this.dirtJumpcooldown = 10;
                 }
             }

@@ -7,6 +7,7 @@ import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.ai.pathing.PathNodeNavigator;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import survivalplus.modid.entity.ai.pathing.pathmaker.BuilderPathNodeMaker;
@@ -29,7 +30,7 @@ public class BuilderZombieNavigation extends MobNavigation {
     public void recalculatePath() {
         Path path;
         BlockPos pathPos;
-        if (this.recalcCooldown <= 0 || ((path = this.getCurrentPath()) != null && (pathPos = path.getCurrentNodePos()) != null && (this.world.getBlockState(pathPos).isOf(Blocks.DIRT)))) {
+        if (this.recalcCooldown <= 0 || !this.entity.getMainHandStack().isOf(Items.DIRT) || ((path = this.getCurrentPath()) != null && (pathPos = path.getCurrentNodePos()) != null && (this.world.getBlockState(pathPos).isOf(Blocks.DIRT)))) {
             LivingEntity target = this.entity.getTarget();
             if (target != null) {
                 this.currentPath = null;
@@ -38,7 +39,6 @@ public class BuilderZombieNavigation extends MobNavigation {
             }
         }
         else this.recalcCooldown--;
-
     }
 
 

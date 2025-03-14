@@ -134,14 +134,10 @@ public class BuilderZombieEntity
             MinecraftServer server = this.getServer();
             if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.getMainHandStack().isOf(Items.DIRT) && DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
                 World world = this.getWorld();
-
                 if (calcDiffY() >= 0 && this.getNavigation().getCurrentPath() != null) {
                     BlockPos BlockUnder = this.getBlockPos().down();
                     if (canPlaceDirt(world, BlockUnder, BlockUnder.down())) {
-                        this.swingHand(Hand.MAIN_HAND);
-                        world.setBlockState(BlockUnder, Blocks.DIRT.getDefaultState());
-                        world.playSound(null, BlockUnder, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
-                        DirtPlaceCooldown = 2;
+                        this.placeDirtBlock(BlockUnder);
                     }
                 }
             }
@@ -167,6 +163,15 @@ public class BuilderZombieEntity
             return world.getBlockState(BlockUnder2).isAir();
         }
         return world.getBlockState(BlockUnder).isReplaceable() && !world.getBlockState(BlockUnder).isAir();
+    }
+
+    public void placeDirtBlock(BlockPos bpos){
+        World world = this.getWorld();
+        this.swingHand(Hand.MAIN_HAND);
+        world.setBlockState(bpos, Blocks.DIRT.getDefaultState());
+        world.playSound(null, bpos, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);
+        if(this.getMainHandStack().isOf(Items.DIRT)) this.getMainHandStack().decrement(1);
+        DirtPlaceCooldown = 2;
     }
 
     private void setTicksUntilWaterConversion(int ticksUntilWaterConversion) {
@@ -228,7 +233,8 @@ public class BuilderZombieEntity
             this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET, 1));
             this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
         }
-        this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Blocks.DIRT, 1));
+        this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Blocks.DIRT, world.getRandom().nextBetween(8, 32)));
+        this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
         return entityData;
     }
 
