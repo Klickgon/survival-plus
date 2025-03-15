@@ -76,7 +76,8 @@ public class BaseAssault {
     private boolean winStatIncreased;
     public boolean findPlayerInsteadOfBed;
     private static final int REQUIRED_WAVE_LENGTH = 12;
-    private static final int MAX_POWER_MOB_COUNT = 5;
+    private static final int MAX_MOB_COUNT = 4;
+    private static final int MAX_WAVE_SIZE = 32;
 
     public BaseAssault(int id, ServerWorld world, BlockPos pos, ServerPlayerEntity attachedPlayer) {
         this.id = id;
@@ -189,24 +190,24 @@ public class BaseAssault {
     private void generateNextWave(){
         byte[] wave = getGeneratedWave();
         Random random = this.world.getRandom();
-        if(calcWaveSize(wave) < 45) { // checks if the generated wave has less than 45 mobs in it
-            SurvivalPlus.LOGGER.info("{}'s generated wave size is below 45, incrementing it.", this.attachedPlayer.getName().getString());
+        if(calcWaveSize(wave) < MAX_WAVE_SIZE) { // checks if the generated wave has less than 32 mobs in it
+            SurvivalPlus.LOGGER.info("{}'s generated wave size is below {}, incrementing it.", MAX_WAVE_SIZE, this.attachedPlayer.getName().getString());
             int randomIndex;
             if(random.nextBoolean()) {
                 randomIndex = 4 + random.nextInt(REQUIRED_WAVE_LENGTH - 4); // to increment the count of one of the powerful mobs
-                if(wave[randomIndex] > MAX_POWER_MOB_COUNT) randomIndex = random.nextInt(4);
+                if(wave[randomIndex] > MAX_MOB_COUNT) randomIndex = random.nextInt(4);
             }
             else
                 randomIndex = random.nextInt(4); // to increment the count of one of the standard mobs
             wave[randomIndex]++;
         }
-        else { // if the wave has 45 mobs, one random mob gets replaced with a different one
-            SurvivalPlus.LOGGER.info("{}'s generated wave size is 45, shuffling.", this.attachedPlayer.getName().getString());
+        else { // if the wave has 32 mobs, one random mob gets replaced with a different one
+            SurvivalPlus.LOGGER.info("{}'s generated wave size is {}, shuffling.", MAX_WAVE_SIZE, this.attachedPlayer.getName().getString());
             int randomIndex1 = random.nextInt(REQUIRED_WAVE_LENGTH);;
             wave[randomIndex1]--;
             int randomIndex2;
             do randomIndex2 = random.nextInt(REQUIRED_WAVE_LENGTH);
-            while (randomIndex1 == randomIndex2 || wave[randomIndex2] > MAX_POWER_MOB_COUNT);
+            while (randomIndex1 == randomIndex2 || wave[randomIndex2] > MAX_MOB_COUNT);
             wave[randomIndex2]++;
         }
         SurvivalPlus.LOGGER.info("{}'s new generated Wave: {}", this.attachedPlayer.getName().getString(), Arrays.toString(wave));
@@ -469,7 +470,7 @@ public class BaseAssault {
     }
 
     private void spawnWave(BlockPos pos1, BlockPos pos2, BlockPos pos3, ArrayList<HostileEntity> list) {
-        if(this.wave.length < REQUIRED_WAVE_LENGTH || isOnePowerfulMobCountOverMax(this.wave, MAX_POWER_MOB_COUNT))
+        if(this.wave.length < REQUIRED_WAVE_LENGTH || isOnePowerfulMobCountOverMax(this.wave, MAX_MOB_COUNT)  || calcWaveSize(wave) > MAX_WAVE_SIZE)
             this.wave = this.updateWave(this.wave);
         byte[] wave = this.wave;
         EntityType[] entityTypes = {EntityType.ZOMBIE, EntityType.SPIDER, EntityType.SKELETON, EntityType.CREEPER, ModEntities.DIGGINGZOMBIE, ModEntities.LUMBERJACKZOMBIE,
@@ -486,16 +487,24 @@ public class BaseAssault {
     private byte[] updateWave(byte[] wave){
         byte[] output = BaseAssaultWaves.BASEASSAULT_TWELVE;
         System.arraycopy(wave, 0, output, 0, wave.length); // Copy the outdated array to the new array format
-        int pool = 0;
-        for(int i = 4; i < REQUIRED_WAVE_LENGTH; i++){ // Sets all powerful mob counts to five if over
-            if (output[i] > MAX_POWER_MOB_COUNT){
-                pool += output[i] - MAX_POWER_MOB_COUNT;
-                output[i] = MAX_POWER_MOB_COUNT;
+        {
+            int pool = 0;
+            for(int i = 4; i < REQUIRED_WAVE_LENGTH; i++){ // Sets all powerful mob counts to five if over
+                if (output[i] > MAX_MOB_COUNT){
+                    pool += output[i] - MAX_MOB_COUNT;
+                    output[i] = MAX_MOB_COUNT;
+                }
+            }
+            int index;
+            while(pool > 0){ // redistributes the removed counts to the standard mobs
+                index = this.world.getRandom().nextInt(4);
+                if(output[index] <= MAX_MOB_COUNT) output[index]++;
+                pool--;
             }
         }
-        while(pool > 0){ // redistributes the removed counts to the standard mobs
-            output[this.world.getRandom().nextInt(4)] += 1;
-            pool--;
+        int overhang = calcWaveSize(output) - MAX_WAVE_SIZE;
+        while(overhang-- > 0){
+            output[this.world.getRandom().nextInt(4)]--;
         }
         SurvivalPlus.LOGGER.info("Incompatible wave detected and updated: {} with length {}", Arrays.toString(output), output.length);
         PlayerData.getPlayerState(this.attachedPlayer).generatedWave = output;
