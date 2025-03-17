@@ -136,8 +136,8 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
         return this.baseAssaultManager;
     }
 
-    @Override
-    public boolean isDay() {
+    @Unique
+    public boolean notEnoughTimeSinceRest() {
         return !this.enoughTimeSinceRest;
     }
 }

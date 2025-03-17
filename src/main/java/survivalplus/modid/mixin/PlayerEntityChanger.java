@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import survivalplus.modid.enchantments.ModEnchantments;
+import survivalplus.modid.util.IServerWorldChanger;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityChanger extends LivingEntity {
@@ -32,5 +33,10 @@ public abstract class PlayerEntityChanger extends LivingEntity {
     private boolean disableSweepAttackOnEnchant(boolean original){
         RegistryWrapper.Impl<Enchantment> impl = this.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT);
         return original && !(EnchantmentHelper.getLevel(impl.getOrThrow(ModEnchantments.RAPID_SWING), this.getMainHandStack()) > 0);
+    }
+
+    @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isDay()Z"))
+    private boolean sleepDuringDayFix(boolean original){
+        return ((IServerWorldChanger)this.getWorld()).notEnoughTimeSinceRest();
     }
 }
