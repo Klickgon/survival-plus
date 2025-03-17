@@ -486,6 +486,7 @@ public class BaseAssault {
 
     private byte[] updateWave(byte[] wave){
         byte[] output = BaseAssaultWaves.BASEASSAULT_TWELVE;
+        Random random = this.world.getRandom();
         System.arraycopy(wave, 0, output, 0, wave.length); // Copy the outdated array to the new array format
         {
             int pool = 0;
@@ -497,14 +498,14 @@ public class BaseAssault {
             }
             int index;
             while(pool > 0){ // redistributes the removed counts to the standard mobs
-                index = this.world.getRandom().nextInt(4);
+                index = random.nextInt(4);
                 if(output[index] <= MAX_MOB_COUNT) output[index]++;
                 pool--;
             }
         }
-        int overhang = calcWaveSize(output) - MAX_WAVE_SIZE;
+        int overhang = calcWaveSize(output) - MAX_WAVE_SIZE; // removes standard mobs so the wave size isn't above the max
         while(overhang-- > 0){
-            output[this.world.getRandom().nextInt(4)]--;
+            output[random.nextInt(4)]--;
         }
         SurvivalPlus.LOGGER.info("Incompatible wave detected and updated: {} with length {}", Arrays.toString(output), output.length);
         PlayerData.getPlayerState(this.attachedPlayer).generatedWave = output;
