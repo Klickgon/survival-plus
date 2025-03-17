@@ -107,7 +107,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
         for(ServerPlayerEntity player : list){
             if(player.isCreative() || player.isSpectator()) continue;
             BlockPos spawnpos = ((IServerPlayerChanger)player).getMainSpawnPoint();
-            if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 32) && this.mob.getWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
+            if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 32) && spawnpos.isWithinDistance(player.getBlockPos(), 48) && this.mob.getWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
                 bl = true;
                 if(temptargetpos == null || spawnpos.getSquaredDistance(mobpos) < temptargetpos.getSquaredDistance(mobpos)){
                     temptargetpos = spawnpos;
