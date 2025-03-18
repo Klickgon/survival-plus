@@ -191,7 +191,7 @@ public class BaseAssault {
         byte[] wave = getGeneratedWave();
         Random random = this.world.getRandom();
         if(calcWaveSize(wave) < MAX_WAVE_SIZE) { // checks if the generated wave has less than 32 mobs in it
-            SurvivalPlus.LOGGER.info("{}'s generated wave size is below {}, incrementing it.", MAX_WAVE_SIZE, this.attachedPlayer.getName().getString());
+            SurvivalPlus.LOGGER.info("{}'s generated wave size is below {}, incrementing it.", this.attachedPlayer.getName().getString(), MAX_WAVE_SIZE);
             int randomIndex;
             if(random.nextBoolean()) {
                 randomIndex = 4 + random.nextInt(REQUIRED_WAVE_LENGTH - 4); // to increment the count of one of the powerful mobs
@@ -202,12 +202,12 @@ public class BaseAssault {
             wave[randomIndex]++;
         }
         else { // if the wave has 32 mobs, one random mob gets replaced with a different one
-            SurvivalPlus.LOGGER.info("{}'s generated wave size is {}, shuffling.", MAX_WAVE_SIZE, this.attachedPlayer.getName().getString());
-            int randomIndex1 = random.nextInt(REQUIRED_WAVE_LENGTH);;
-            wave[randomIndex1]--;
+            SurvivalPlus.LOGGER.info("{}'s generated wave size is {}, shuffling.", this.attachedPlayer.getName().getString(), MAX_WAVE_SIZE);
+            int randomIndex1 = random.nextInt(REQUIRED_WAVE_LENGTH);
             int randomIndex2;
+            wave[randomIndex1]--;
             do randomIndex2 = random.nextInt(REQUIRED_WAVE_LENGTH);
-            while (randomIndex1 == randomIndex2 || wave[randomIndex2] > MAX_MOB_COUNT);
+            while (randomIndex1 == randomIndex2 || wave[randomIndex2] >= MAX_MOB_COUNT);
             wave[randomIndex2]++;
         }
         SurvivalPlus.LOGGER.info("{}'s new generated Wave: {}", this.attachedPlayer.getName().getString(), Arrays.toString(wave));
