@@ -22,6 +22,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.StructureTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -464,10 +465,18 @@ public class BaseAssault {
             int m = calculateSpawnY(k, l);
             mutable.set(k, m, l);
             i -= 0.05f;
-            if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnRestriction.getLocation(EntityType.RAVAGER).isSpawnPositionOk(this.world, mutable, EntityType.RAVAGER) && (!this.world.getBlockState(mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir())) continue;
+            if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnRestriction.getLocation(EntityType.RAVAGER).isSpawnPositionOk(this.world, mutable, EntityType.RAVAGER) && (!this.world.getBlockState(mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir()) || this.checkForVillagesNearby(mutable)) continue;
             return mutable;
         }
         return null;
+    }
+
+    private boolean checkForVillagesNearby(BlockPos pos){
+        BlockPos villagePos = world.locateStructure(StructureTags.VILLAGE, pos, 10,false);
+        if(villagePos == null) return false;
+        int x = villagePos.getX() - pos.getX();
+        int z = villagePos.getZ() - pos.getZ();
+        return (x * x + z * z) < 3000 && world.locateStructure(StructureTags.VILLAGE, pos, 0,false) != null;
     }
 
     private int calculateSpawnY(int x, int z){
@@ -529,7 +538,7 @@ public class BaseAssault {
             int index;
             while(pool > 0){ // redistributes the removed counts to the standard mobs
                 index = this.world.getRandom().nextInt(4);
-                if(output[index] <= MAX_MOB_COUNT) output[index]++;
+                if(output[index] < MAX_MOB_COUNT) output[index]++;
                 pool--;
             }
         }
