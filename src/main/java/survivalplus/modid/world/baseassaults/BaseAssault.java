@@ -458,20 +458,20 @@ public class BaseAssault {
     private BlockPos getSpawnLocation(float f) {
         float i = 2.5f;
         BlockPos.Mutable mutable = new BlockPos.Mutable();
-        for (int j = 0; j < 25; ++j) {
+        for (int j = 0; j < 30; ++j) {
             float fl = (f + (this.world.random.nextFloat() * 0.40f)) * ((float)Math.PI * 2);
             int k = this.center.getX() + MathHelper.floor(MathHelper.cos(fl) * 32.0f * i) + this.world.random.nextInt(10);
             int l = this.center.getZ() + MathHelper.floor(MathHelper.sin(fl) * 32.0f * i) + this.world.random.nextInt(10);
             int m = calculateSpawnY(k, l);
             mutable.set(k, m, l);
-            i -= 0.05f;
-            if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnRestriction.getLocation(EntityType.RAVAGER).isSpawnPositionOk(this.world, mutable, EntityType.RAVAGER) && (!this.world.getBlockState(mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir()) || this.checkForVillagesNearby(mutable)) continue;
+            i -= 0.03f;
+            if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnRestriction.getLocation(EntityType.RAVAGER).isSpawnPositionOk(this.world, mutable, EntityType.RAVAGER) && (!this.world.getBlockState(mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir()) || this.isInVillage(mutable)) continue;
             return mutable;
         }
         return null;
     }
 
-    private boolean checkForVillagesNearby(BlockPos pos){
+    private boolean isInVillage(BlockPos pos){
         BlockPos villagePos = world.locateStructure(StructureTags.VILLAGE, pos, 10,false);
         if(villagePos == null) return false;
         int x = villagePos.getX() - pos.getX();

@@ -51,9 +51,6 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     @Unique
     public BaseAssaultManager baseAssaultManager;
 
-    @Unique
-    private boolean enoughTimeSinceRest;
-
     @Shadow public abstract List<ServerPlayerEntity> getPlayers();
 
     @Shadow @NotNull public abstract MinecraftServer getServer();
@@ -104,18 +101,10 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
 
     @Inject(method = "tick", at = @At("TAIL"))
     protected void injectTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        this.enoughTimeSinceRest = true;
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
-            serverPlayer.incrementStat(ModPlayerStats.TIME_SINCE_SLEEP); // increments and then checks if all players can sleep in this world
-            if(serverPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP)) < 4000) {
-                this.enoughTimeSinceRest = false;
-                break;
-            }
-        }
-        for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
+            serverPlayer.incrementStat(ModPlayerStats.TIME_SINCE_SLEEP);
             if (serverPlayer.getSpawnPointPosition() == null || serverPlayer.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock())
                 serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
-
             this.baseAssaultManager.startBaseAssault(serverPlayer);
             BlockPos spawnPoint = ((IServerPlayerChanger) serverPlayer).getMainSpawnPoint();
             if(spawnPoint != null && this.getBlockState(spawnPoint).isIn(BlockTags.BEDS)){
@@ -140,6 +129,11 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     }
 
     public boolean notEnoughTimeSinceRest() {
-        return !this.enoughTimeSinceRest;
+        for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
+            if(serverPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_SINCE_SLEEP)) < 4000) {
+                return true;
+            }
+        }
+        return false;
     }
 }
