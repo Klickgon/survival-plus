@@ -40,7 +40,7 @@ extends SpiderEntity {
 
     private static final TrackedData<Byte> SPIDER_FLAGS = DataTracker.registerData(LeapingSpiderEntity.class, TrackedDataHandlerRegistry.BYTE);
     public boolean isLeaping;
-    public int attackCooldown = 10;
+    public int attackCooldown = 15;
 
     public LeapingSpiderEntity(EntityType<? extends SpiderEntity> entityType, World world) {
         super(entityType, world);
@@ -133,6 +133,7 @@ extends SpiderEntity {
             }
             this.onAttacking(target);
             this.playAttackSound();
+            this.attackCooldown = 15;
         }
         return bl;
     }

@@ -37,7 +37,6 @@ extends MoveControl {
 
     public void tick() {
         if (this.state == State.STRAFE) {
-            float n;
             float f = (float)this.entity.getAttributeValue(EntityAttributes.MOVEMENT_SPEED);
             float g = (float)this.speed * f;
             float h = this.forwardMovement;
@@ -50,7 +49,7 @@ extends MoveControl {
             float k = MathHelper.sin(this.entity.getYaw() * ((float)Math.PI / 180));
             float l = MathHelper.cos(this.entity.getYaw() * ((float)Math.PI / 180));
             float m = (h *= j) * l - (i *= j) * k;
-            if (!this.isPosWalkable(m, n = i * l + h * k)) {
+            if (!this.isPosWalkable(m, i * l + h * k)) {
                 this.forwardMovement = 1.0f;
                 this.sidewaysMovement = 0.0f;
             }

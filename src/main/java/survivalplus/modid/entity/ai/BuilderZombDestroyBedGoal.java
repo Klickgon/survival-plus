@@ -24,7 +24,7 @@ import java.util.List;
 public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     protected final BuilderZombieEntity destroyMob;
-    protected static final TagKey<Block> bedGroup = BlockTags.BEDS;
+    protected static final TagKey<Block> BED_GROUP = BlockTags.BEDS;
 
     public BuilderZombDestroyBedGoal(BuilderZombieEntity mob, double speed, int maxYDifference) {
         super(mob, speed, 32, maxYDifference);
@@ -80,12 +80,12 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     @Nullable
     private BlockPos tweakToProperPos(BlockPos pos, BlockView world) {
-        if (world.getBlockState(pos).isIn(this.bedGroup)) {
+        if (world.getBlockState(pos).isIn(BED_GROUP)) {
             return pos;
         }
         BlockPos[] blockPoss = new BlockPos[]{pos.west(), pos.east(), pos.north(), pos.south(), pos.up()};
         for (BlockPos blockPos : blockPoss) {
-            if (!world.getBlockState(blockPos).isIn(this.bedGroup)) continue;
+            if (!world.getBlockState(blockPos).isIn(BED_GROUP)) continue;
             return blockPos;
         }
         return null;
@@ -95,7 +95,7 @@ public class BuilderZombDestroyBedGoal extends MoveToTargetPosGoal {
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos.down()).isIn(this.bedGroup);
+            return chunk.getBlockState(pos.down()).isIn(BED_GROUP);
         }
         return false;
     }

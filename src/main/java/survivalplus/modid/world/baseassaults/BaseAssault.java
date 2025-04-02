@@ -599,6 +599,11 @@ public class BaseAssault {
         return f;
     }
 
+    public int getCurrentWaveSize(){
+        if(wave == null) return 0;
+        return calcWaveSize(wave);
+    }
+
     public boolean isActive() {
         return this.active;
     }

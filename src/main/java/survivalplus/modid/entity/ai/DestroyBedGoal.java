@@ -24,7 +24,7 @@ import java.util.List;
 public class DestroyBedGoal extends MoveToTargetPosGoal {
 
     protected final HostileEntity destroyerMob;
-    protected static final TagKey<Block> bedGroup = BlockTags.BEDS;
+    protected static final TagKey<Block> BED_GROUP = BlockTags.BEDS;
 
 
     public DestroyBedGoal(HostileEntity mob, double speed, int maxYDifference) {
@@ -78,12 +78,12 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
 
     @Nullable
     private BlockPos tweakToProperPos(BlockPos pos, BlockView world) {
-        if (world.getBlockState(pos).isIn(this.bedGroup)) {
+        if (world.getBlockState(pos).isIn(BED_GROUP)) {
             return pos;
         }
         BlockPos[] blockPoss = new BlockPos[]{pos.down(), pos.west(), pos.east(), pos.north(), pos.south(), pos.down().down()};
         for (BlockPos blockPos : blockPoss) {
-            if (!world.getBlockState(blockPos).isIn(this.bedGroup)) continue;
+            if (!world.getBlockState(blockPos).isIn(BED_GROUP)) continue;
             return blockPos;
         }
         return null;
@@ -93,7 +93,7 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos).isIn(this.bedGroup) && chunk.getBlockState(pos.up()).isSolidBlock(chunk, pos.up()) && chunk.getBlockState(pos.up(2)).isSolidBlock(chunk, pos.up(2));
+            return chunk.getBlockState(pos).isIn(BED_GROUP) && chunk.getBlockState(pos.up()).isSolidBlock(chunk, pos.up()) && chunk.getBlockState(pos.up(2)).isSolidBlock(chunk, pos.up(2));
         }
         return false;
     }

@@ -32,7 +32,7 @@ import java.util.List;
 public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     protected final HostileEntity destroyMob;
-    protected static final TagKey<Block> bedGroup = BlockTags.BEDS;
+    protected static final TagKey<Block> BED_GROUP = BlockTags.BEDS;
     protected int destroyBlockCooldown;
     protected TagKey<Block> blockTag;
     @Nullable
@@ -203,12 +203,12 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
 
     @Nullable
     private BlockPos tweakToProperPos(BlockPos pos, BlockView world) {
-        if (world.getBlockState(pos).isIn(this.bedGroup)) {
+        if (world.getBlockState(pos).isIn(BED_GROUP)) {
             return pos;
         }
         BlockPos[] blockPoss = new BlockPos[]{pos.west(), pos.east(), pos.north(), pos.south(), pos.up()};
         for (BlockPos blockPos : blockPoss) {
-            if (!world.getBlockState(blockPos).isIn(this.bedGroup)) continue;
+            if (!world.getBlockState(blockPos).isIn(BED_GROUP)) continue;
             return blockPos;
         }
         return null;
@@ -238,7 +238,7 @@ public class DestrZombDestroyBedGoal extends MoveToTargetPosGoal {
     protected boolean isTargetPos(WorldView world, BlockPos pos) {
         Chunk chunk = world.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
         if (chunk != null) {
-            return chunk.getBlockState(pos.down()).isIn(this.bedGroup);
+            return chunk.getBlockState(pos.down()).isIn(BED_GROUP);
         }
         return false;
     }

@@ -14,6 +14,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -42,7 +43,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
     public BaseAssaultGoal(HostileEntity mob, double speed) {
         super(mob, speed, 64, 12);
         this.baseAssault = ((IHostileEntityChanger) this.mob).getBaseAssault();
-        this.cooldown = mob.getRandom().nextInt(130);
+        this.cooldown = mob.getRandom().nextInt(this.baseAssault.getCurrentWaveSize() * mob.getRandom().nextInt(11));
         if(mob instanceof MinerZombieEntity){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
             this.destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
@@ -78,8 +79,10 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         }
         if(this.baseAssault == null)
             return false;
+
+        Random random = this.mob.getWorld().random;
         if (this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.attachedPlayer.getBlockPos() != null) {
-            this.cooldown = 30 + this.mob.getWorld().random.nextInt(15);
+            this.cooldown = random.nextBetween(30, 45);
             BlockPos pos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
             if(pos != null){
                 this.targetPos = pos;
@@ -88,7 +91,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
         }
         BlockPos center = this.baseAssault.getCenter();
         if (this.mob.getWorld().getBlockState(center).isIn(BlockTags.BEDS)) {
-            this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
+            this.cooldown = random.nextBetween(50, 65);
             this.targetPos = center;
             return true;
 
@@ -120,14 +123,15 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
             ((IHostileEntityChanger) this.mob).getGoalSelector().remove(this);
             return;
         }
+        Random random = this.mob.getWorld().random;
         if (this.cooldown < 0) {
             if (this.baseAssault.findPlayerInsteadOfBed && this.baseAssault.attachedPlayer.getBlockPos() != null) {
                 this.targetPos = tweakToProperPos(this.baseAssault.attachedPlayer.getBlockPos(), this.mob.getWorld());
-                this.cooldown = 30 + this.mob.getWorld().random.nextInt(15);
+                this.cooldown = random.nextBetween(30, 45);
             } else {
                 if (this.baseAssault.getCenter() != null) {
                     this.targetPos = this.baseAssault.getCenter();
-                    this.cooldown = 50 + this.mob.getWorld().random.nextInt(15);
+                    this.cooldown = random.nextBetween(50, 65);
                 }
             }
         }
