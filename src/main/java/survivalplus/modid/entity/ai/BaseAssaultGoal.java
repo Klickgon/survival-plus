@@ -43,7 +43,7 @@ public class BaseAssaultGoal extends MoveToTargetPosGoal {
     public BaseAssaultGoal(HostileEntity mob, double speed) {
         super(mob, speed, 64, 12);
         this.baseAssault = ((IHostileEntityChanger) this.mob).getBaseAssault();
-        this.cooldown = mob.getRandom().nextInt(this.baseAssault.getCurrentWaveSize() * mob.getRandom().nextInt(11));
+        this.cooldown = mob.getRandom().nextInt(1 + this.baseAssault.getCurrentWaveSize() * mob.getRandom().nextInt(11));
         if(mob instanceof MinerZombieEntity){
             this.blockTag = MinerZombieEntity.BLOCKTAG;
             this.destroyBlockCooldown = MinerZombieEntity.defaultCooldown;
