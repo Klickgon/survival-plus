@@ -96,14 +96,14 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     @Inject(method = "<init>", at = @At("TAIL"))
     public void constructorInject(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, boolean debugWorld, long seed, List spawners, boolean shouldTickTime, RandomSequencesState randomSequencesState, CallbackInfo ci){
         ServerWorld sworld = this.toServerWorld();
-        this.baseAssaultManager = sworld.getPersistentStateManager().getOrCreate(BaseAssaultManager.getPersistentStateType(sworld), BaseAssaultManager.nameFor(sworld.getDimensionEntry()));
+        this.baseAssaultManager = sworld.getPersistentStateManager().getOrCreate(BaseAssaultManager.getPersistentStateType(this.getDimensionEntry()));
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
     protected void injectTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
             serverPlayer.incrementStat(ModPlayerStats.TIME_SINCE_SLEEP);
-            if (serverPlayer.getSpawnPointPosition() == null || serverPlayer.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock())
+            if (serverPlayer.getRespawn() == null || serverPlayer.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock())
                 serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
             this.baseAssaultManager.startBaseAssault(serverPlayer);
             BlockPos spawnPoint = ((IServerPlayerChanger) serverPlayer).getMainSpawnPoint();

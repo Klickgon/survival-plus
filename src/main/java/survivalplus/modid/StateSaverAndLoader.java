@@ -1,22 +1,42 @@
 package survivalplus.modid;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.Uuids;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
+import net.minecraft.world.PersistentStateType;
 import net.minecraft.world.World;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
 
 public class StateSaverAndLoader extends PersistentState {
 
-    @Override
+    public static final Codec<StateSaverAndLoader> CODEC = RecordCodecBuilder.create(
+            instance -> instance.group(
+                            Uuids.SET_CODEC.fieldOf("players").forGetter(stateSaverAndLoader -> stateSaverAndLoader.players.keySet())
+                    )
+                    .apply(instance, StateSaverAndLoader::new)
+    );
+
+    public static final PersistentStateType<StateSaverAndLoader> TYPE = new PersistentStateType<>("stateSaverAndLoader", StateSaverAndLoader::new , CODEC, null);
+
+    public HashMap<UUID, PlayerData> players;
+
+    public StateSaverAndLoader(){
+        players = new HashMap<>();
+    }
+
+    private StateSaverAndLoader(Set<UUID> playerSet){
+        for(UUID player : playerSet){
+            this.players.put(player, new PlayerData());
+        }
+    }
+    /*@Override
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
 
         NbtCompound playersNbt = new NbtCompound();
@@ -25,88 +45,84 @@ public class StateSaverAndLoader extends PersistentState {
 
             playerNbt.putInt("baseAssaultTimer", playerData.baseAssaultTimer);
             playerNbt.putByteArray("generatedWave", playerData.generatedWave);
-            if(playerData.tempSpawnPosition != null){
-                playerNbt.putInt("tempSpawnPositionX", playerData.tempSpawnPosition.getX());
-                playerNbt.putInt("tempSpawnPositionY", playerData.tempSpawnPosition.getY());
-                playerNbt.putInt("tempSpawnPositionZ", playerData.tempSpawnPosition.getZ());
-            }
-            Identifier.CODEC.encodeStart(NbtOps.INSTANCE, playerData.tempSpawnDimension.getValue()).resultOrPartial(SurvivalPlus.LOGGER::error).ifPresent(encoded -> playerNbt.put("tempSpawnDimension", encoded));
-            playerNbt.putFloat("tempSpawnAngle", playerData.tempSpawnAngle);
-            playerNbt.putBoolean("tempSpawnForced", playerData.tempSpawnForced);
+            if(playerData.tempRespawn != null){
+                BlockPos pos = playerData.tempRespawn.pos();
+                playerNbt.putInt("tempSpawnPositionX", pos.getX());
+                playerNbt.putInt("tempSpawnPositionY", pos.getY());
+                playerNbt.putInt("tempSpawnPositionZ", pos.getZ());
 
-            if(playerData.mainSpawnPosition != null){
-                playerNbt.putInt("mainSpawnPositionX", playerData.mainSpawnPosition.getX());
-                playerNbt.putInt("mainSpawnPositionY", playerData.mainSpawnPosition.getY());
-                playerNbt.putInt("mainSpawnPositionZ", playerData.mainSpawnPosition.getZ());
+                Identifier.CODEC.encodeStart(NbtOps.INSTANCE, playerData.tempRespawn.dimension().getValue()).resultOrPartial(SurvivalPlus.LOGGER::error).ifPresent(encoded -> playerNbt.put("tempSpawnDimension", encoded));
+                playerNbt.putFloat("tempSpawnAngle", playerData.tempRespawn.angle());
+                playerNbt.putBoolean("tempSpawnForced", playerData.tempRespawn.forced());
             }
-            Identifier.CODEC.encodeStart(NbtOps.INSTANCE, playerData.mainSpawnDimension.getValue()).resultOrPartial(SurvivalPlus.LOGGER::error).ifPresent(encoded -> playerNbt.put("mainSpawnDimension", encoded));
-            playerNbt.putFloat("mainSpawnAngle", playerData.mainSpawnAngle);
-            playerNbt.putBoolean("mainSpawnForced", playerData.mainSpawnForced);
+
+            if(playerData.mainRespawn != null){
+                BlockPos pos = playerData.mainRespawn.pos();
+                playerNbt.putInt("mainSpawnPositionX", pos.getX());
+                playerNbt.putInt("mainSpawnPositionY", pos.getY());
+                playerNbt.putInt("mainSpawnPositionZ", pos.getZ());
+
+                Identifier.CODEC.encodeStart(NbtOps.INSTANCE, playerData.mainRespawn.dimension().getValue()).resultOrPartial(SurvivalPlus.LOGGER::error).ifPresent(encoded -> playerNbt.put("mainSpawnDimension", encoded));
+                playerNbt.putFloat("mainSpawnAngle", playerData.mainRespawn.angle());
+                playerNbt.putBoolean("mainSpawnForced", playerData.mainRespawn.forced());
+            }
             playerNbt.putBoolean("receivedBAWarning", playerData.receivedBAWarningMessage);
             playersNbt.put(uuid.toString(), playerNbt);
         });
         nbt.put("players", playersNbt);
 
         return nbt;
-    }
+    }*/
 
-    public HashMap<UUID, PlayerData> players = new HashMap<>();
-
-    public static StateSaverAndLoader createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+    /*public static StateSaverAndLoader createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
         StateSaverAndLoader state = new StateSaverAndLoader();
-        NbtCompound playersNbt = tag.getCompound("players");
-        playersNbt.getKeys().forEach(key -> {
-            UUID uuid = UUID.fromString(key);
-            PlayerData playerData = new PlayerData();
-            NbtCompound compound = playersNbt.getCompound(key);
-            playerData.baseAssaultTimer = compound.getInt("baseAssaultTimer");
-            if(compound.contains("generatedWave")) playerData.generatedWave = compound.getByteArray("generatedWave");
+        Optional<NbtCompound> playersNbtOp = tag.getCompound("players");
+        if(playersNbtOp.isPresent()){
+            NbtCompound playersNbt = playersNbtOp.get();
+            playersNbt.getKeys().forEach(key -> {
+                UUID uuid = UUID.fromString(key);
+                PlayerData playerData = new PlayerData();
+                NbtCompound compound = playersNbt.getCompound(key).get();
+                playerData.baseAssaultTimer = compound.getInt("baseAssaultTimer").get();
+                if(compound.contains("generatedWave")) playerData.generatedWave = compound.getByteArray("generatedWave").get();
 
-            if(compound.contains("tempSpawnPositionX") && compound.contains("tempSpawnPositionY") && compound.contains("tempSpawnPositionZ")) {
-                int x = compound.getInt("tempSpawnPositionX");
-                int y = compound.getInt("tempSpawnPositionY");
-                int z = compound.getInt("tempSpawnPositionZ");
-                playerData.tempSpawnPosition = new BlockPos(x, y, z);
-            }
+                BlockPos respawnPos = null;
+                if(compound.contains("tempSpawnPositionX") && compound.contains("tempSpawnPositionY") && compound.contains("tempSpawnPositionZ")) {
+                    int x = compound.getInt("tempSpawnPositionX").get();
+                    int y = compound.getInt("tempSpawnPositionY").get();
+                    int z = compound.getInt("tempSpawnPositionZ").get();
+                    respawnPos = new BlockPos(x, y, z);
+                }
+                RegistryKey<World> dimension = World.CODEC.parse(NbtOps.INSTANCE, compound.get("tempSpawnDimension")).resultOrPartial(SurvivalPlus.LOGGER::error).orElse(World.OVERWORLD);
+                playerData.tempRespawn = new ServerPlayerEntity.Respawn(dimension, respawnPos, compound.getFloat("tempSpawnAngle", 0.0f), compound.getBoolean("tempSpawnForced", false));
 
-            playerData.tempSpawnAngle = compound.getFloat("tempSpawnAngle");
-            playerData.tempSpawnForced = compound.getBoolean("tempSpawnForced");
+                if(compound.contains("mainSpawnPositionX") && compound.contains("mainSpawnPositionY") && compound.contains("mainSpawnPositionZ")) {
+                    int x = compound.getInt("mainSpawnPositionX").get();
+                    int y = compound.getInt("mainSpawnPositionY").get();
+                    int z = compound.getInt("mainSpawnPositionZ").get();
+                    respawnPos = new BlockPos(x, y, z);
+                }
 
-            World.CODEC.parse(NbtOps.INSTANCE, compound.get("tempSpawnDimension")).resultOrPartial(SurvivalPlus.LOGGER::error).orElse(World.OVERWORLD);
+                dimension =  World.CODEC.parse(NbtOps.INSTANCE, compound.get("mainSpawnDimension")).resultOrPartial(SurvivalPlus.LOGGER::error).orElse(World.OVERWORLD);
+                playerData.tempRespawn = new ServerPlayerEntity.Respawn(dimension, respawnPos, compound.getFloat("mainSpawnAngle", 0.0f), compound.getBoolean("mainSpawnForced", false));
 
-            if(compound.contains("mainSpawnPositionX") && compound.contains("mainSpawnPositionY") && compound.contains("mainSpawnPositionZ")) {
-                int x = compound.getInt("mainSpawnPositionX");
-                int y = compound.getInt("mainSpawnPositionY");
-                int z = compound.getInt("mainSpawnPositionZ");
-                playerData.mainSpawnPosition = new BlockPos(x, y, z);
-            }
-            playerData.receivedBAWarningMessage = compound.getBoolean("receivedBAWarning");
-
-            playerData.mainSpawnAngle = compound.getFloat("mainSpawnAngle");
-            playerData.mainSpawnForced = compound.getBoolean("mainSpawnForced");
-
-            World.CODEC.parse(NbtOps.INSTANCE, compound.get("mainSpawnDimension")).resultOrPartial(SurvivalPlus.LOGGER::error).orElse(World.OVERWORLD);
-
-            state.players.put(uuid, playerData);
-        });
+                playerData.receivedBAWarningMessage = compound.getBoolean("receivedBAWarning").get();
+                state.players.put(uuid, playerData);
+            });
+        }
         return state;
-    }
-
-    private static final Type<StateSaverAndLoader> type = new Type<>(
-            StateSaverAndLoader::new,
-            StateSaverAndLoader::createFromNbt,
-            null
-    );
+    }*/
 
     public static StateSaverAndLoader getServerState(MinecraftServer server) {
         PersistentStateManager persistentStateManager = server.getWorld(World.OVERWORLD).getPersistentStateManager();
-        StateSaverAndLoader state = persistentStateManager.getOrCreate(type, SurvivalPlus.MOD_ID);
+        StateSaverAndLoader state = persistentStateManager.getOrCreate(TYPE);
         state.markDirty();
         return state;
     }
 
     public static PlayerData getPlayerState(LivingEntity player) {
-        StateSaverAndLoader serverState = getServerState(player.getWorld().getServer());
-        return serverState.players.computeIfAbsent(player.getUuid(), uuid -> new PlayerData());
+        PersistentStateManager persistentStateManager = player.getServer().getWorld(World.OVERWORLD).getPersistentStateManager();
+        StateSaverAndLoader serverState = getServerState(player.getServer());
+        return serverState.players.computeIfAbsent(player.getUuid(), uuid -> persistentStateManager.getOrCreate(PlayerData.TYPE));
     }
 }

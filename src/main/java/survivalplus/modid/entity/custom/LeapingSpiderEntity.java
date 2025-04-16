@@ -121,7 +121,7 @@ extends SpiderEntity {
         bl = this.attackCooldown <= 0 && (this.isOnGround() || this.isLeaping) && target.damage(sworld, this.getDamageSources().mobAttack(this), f * k + 1);
         if (bl) {
             World world2;
-            float g = this.getKnockbackAgainst(target, damageSource);
+            float g = this.getAttackKnockbackAgainst(target, damageSource);
             if (g > 0.0f && target instanceof LivingEntity) {
                 LivingEntity livingEntity = (LivingEntity)target;
                 livingEntity.takeKnockback(g * 0.5f, MathHelper.sin(this.getYaw() * ((float)Math.PI / 180)), -MathHelper.cos(this.getYaw() * ((float)Math.PI / 180)));

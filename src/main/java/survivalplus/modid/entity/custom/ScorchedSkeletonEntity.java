@@ -18,7 +18,6 @@ import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.math.BlockPos;
@@ -72,7 +71,7 @@ extends SkeletonEntity {
         super.tick();
         if (this.getWorld().isClient) {
             if(smokeParticleCooldown <= 0) {
-                getWorld().addParticle(ParticleTypes.SMOKE, this.getX(), this.getY() + 1.99, this.getZ(), 0, 0, 0);
+                getWorld().addParticleClient(ParticleTypes.SMOKE, this.getX(), this.getY() + 1.99, this.getZ(), 0, 0, 0);
                 smokeParticleCooldown = this.getRandom().nextInt(11) + 10;
             }
             else smokeParticleCooldown--;
@@ -86,9 +85,9 @@ extends SkeletonEntity {
         this.updateEnchantments(world.getRandom(), difficulty);
         if (this.getEquippedStack(EquipmentSlot.HEAD).isEmpty()) {
             this.equipStack(EquipmentSlot.HEAD, new ItemStack(Items.CHAINMAIL_HELMET));
-            this.armorDropChances[EquipmentSlot.HEAD.getEntitySlotId()] = 0.0f;
+            this.setEquipmentDropChance(EquipmentSlot.HEAD, 0.0f);
         }
-        this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
+        this.setEquipmentDropChance(EquipmentSlot.MAINHAND, 0.0f);
         return entityData;
     }
 
@@ -139,14 +138,6 @@ extends SkeletonEntity {
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putInt(STRAY_CONVERSION_TIME_KEY, this.isConverting() ? this.conversionTime : -1);
-    }
-
-    @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        if (nbt.contains(STRAY_CONVERSION_TIME_KEY, NbtElement.NUMBER_TYPE) && nbt.getInt(STRAY_CONVERSION_TIME_KEY) > -1) {
-            this.setConversionTime(nbt.getInt(STRAY_CONVERSION_TIME_KEY));
-        }
     }
 
     @Override

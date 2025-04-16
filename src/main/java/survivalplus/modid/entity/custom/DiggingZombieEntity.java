@@ -23,7 +23,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.MinecraftServer;
@@ -184,15 +183,6 @@ public class DiggingZombieEntity
         nbt.putInt("DrownedConversionTime", this.isConvertingInWater() ? this.ticksUntilWaterConversion : -1);
     }
 
-    @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        this.setCanBreakDoors(nbt.getBoolean("CanBreakDoors"));
-        this.inWaterTime = nbt.getInt("InWaterTime");
-        if (nbt.contains("DrownedConversionTime", NbtElement.NUMBER_TYPE) && nbt.getInt("DrownedConversionTime") > -1) {
-            this.setTicksUntilWaterConversion(nbt.getInt("DrownedConversionTime"));
-        }
-    }
 
 
 
@@ -209,7 +199,7 @@ public class DiggingZombieEntity
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         entityData = super.initialize(world, difficulty, spawnReason, new ZombieData(false, false));
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.WOODEN_SHOVEL));
-        this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
+        this.setEquipmentDropChance(EquipmentSlot.MAINHAND, 0.0f);
         return entityData;
     }
 

@@ -19,7 +19,6 @@ import net.minecraft.entity.passive.GoatEntity;
 import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -83,21 +82,6 @@ public class ReeperEntity
         nbt.putShort("Fuse", (short)this.fuseTime);
         nbt.putByte("ExplosionRadius", (byte)this.explosionRadius);
         nbt.putBoolean("ignited", this.isIgnited());
-    }
-
-    @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        this.dataTracker.set(CHARGED, nbt.getBoolean("powered"));
-        if (nbt.contains("Fuse", NbtElement.NUMBER_TYPE)) {
-            this.fuseTime = nbt.getShort("Fuse");
-        }
-        if (nbt.contains("ExplosionRadius", NbtElement.NUMBER_TYPE)) {
-            this.explosionRadius = nbt.getByte("ExplosionRadius");
-        }
-        if (nbt.getBoolean("ignited")) {
-            this.ignite();
-        }
     }
 
     @Override

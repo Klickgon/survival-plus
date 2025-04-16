@@ -22,7 +22,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.MinecraftServer;
@@ -177,7 +176,7 @@ public class LumberjackZombieEntity
         }
         if (bl = target.damage(world, damageSource, f)) {
             World world2;
-            float g = this.getKnockbackAgainst(target, damageSource);
+            float g = this.getAttackKnockbackAgainst(target, damageSource);
             if (g > 0.0f && target instanceof LivingEntity) {
                 LivingEntity livingEntity = (LivingEntity)target;
                 livingEntity.takeKnockback(g * 0.5f, MathHelper.sin(this.getYaw() * ((float)Math.PI / 180)), -MathHelper.cos(this.getYaw() * ((float)Math.PI / 180)));
@@ -217,18 +216,6 @@ public class LumberjackZombieEntity
     }
 
     @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        this.setCanBreakDoors(nbt.getBoolean("CanBreakDoors"));
-        this.inWaterTime = nbt.getInt("InWaterTime");
-        if (nbt.contains("DrownedConversionTime", NbtElement.NUMBER_TYPE) && nbt.getInt("DrownedConversionTime") > -1) {
-            this.setTicksUntilWaterConversion(nbt.getInt("DrownedConversionTime"));
-        }
-    }
-
-
-
-    @Override
     public boolean canPickupItem(ItemStack stack) {
         if (stack.isOf(Items.EGG) && this.isBaby() && this.hasVehicle()) {
             return false;
@@ -242,7 +229,7 @@ public class LumberjackZombieEntity
         entityData = super.initialize(world, difficulty, spawnReason, new ZombieData(false, false));
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_AXE));
         this.setCanBreakDoors(true);
-        this.handDropChances[EquipmentSlot.MAINHAND.getEntitySlotId()] = 0.0f;
+        this.setEquipmentDropChance(EquipmentSlot.MAINHAND, 0.0f);
         return entityData;
     }
 

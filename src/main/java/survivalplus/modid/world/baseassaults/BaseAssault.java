@@ -4,6 +4,9 @@
 package survivalplus.modid.world.baseassaults;
 
 import com.google.common.collect.Sets;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ExperienceOrbEntity;
@@ -17,10 +20,6 @@ import net.minecraft.entity.mob.AbstractSkeletonEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.WitchEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.StructureTags;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,12 +30,13 @@ import net.minecraft.stat.StatHandler;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.Uuids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.TeleportTarget;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import survivalplus.modid.PlayerData;
 import survivalplus.modid.SurvivalPlus;
@@ -48,6 +48,7 @@ import survivalplus.modid.util.IServerPlayerChanger;
 import survivalplus.modid.util.IServerWorldChanger;
 import survivalplus.modid.util.ModPlayerStats;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -57,14 +58,32 @@ public class BaseAssault {
     private static final Text VICTORY_TITLE = Text.translatable("event.survival-plus.victory.full");
     private static final Text DEFEAT_TITLE = Text.translatable("event.survival-plus.defeat.full");
     private static final String HOSTILES_REMAINING_TRANSLATION_KEY = "event.survival-plus.baseassault.hostiles_remaining";
+    public static final MapCodec<BaseAssault> CODEC = RecordCodecBuilder.mapCodec(
+            instance -> instance.group(
+                            Codec.BOOL.fieldOf("BAStarted").forGetter(baseAssault -> baseAssault.started),
+                            Codec.BOOL.fieldOf("BAActive").forGetter(baseAssault -> baseAssault.active),
+                            Codec.LONG.fieldOf("BATicksActive").forGetter(baseAssault -> baseAssault.ticksActive),
+                            Codec.INT.fieldOf("BAPreAssaultTicks").forGetter(baseAssault -> baseAssault.preBaseAssaultTicks),
+                            Codec.FLOAT.fieldOf("BATotalHealth").forGetter(baseAssault -> baseAssault.totalHealth),
+                            BlockPos.CODEC.fieldOf("Center").forGetter(baseAssault -> baseAssault.center),
+                            BaseAssault.Status.CODEC.fieldOf("Status").forGetter(baseAssault -> baseAssault.status),
+                            Codec.BOOL.fieldOf("WaveSpawned").forGetter(baseAssault -> baseAssault.waveSpawned),
+                            Codec.BOOL.fieldOf("WinStatIncreased").forGetter(baseAssault -> baseAssault.winStatIncreased),
+                            Codec.BYTE_BUFFER.fieldOf("Wave").forGetter(baseAssault -> ByteBuffer.wrap(baseAssault.wave)),
+                            Codec.INT.fieldOf("HostileCount").forGetter(baseAssault -> baseAssault.requiredHostileCount),
+                            Codec.BOOL.fieldOf("startSoundPlayed").forGetter(baseAssault -> baseAssault.startSoundPlayed),
+                            Uuids.SET_CODEC.fieldOf("hostileIDs").forGetter(baseAssault -> new HashSet<>(baseAssault.hostileIDs)),
+                            Uuids.CODEC.fieldOf("playerID").forGetter(baseAssault -> baseAssault.playerID),
+                            Codec.INT.fieldOf("BAId").forGetter(baseAssault -> baseAssault.id)
+                    ).apply(instance, BaseAssault::new)
+    );
 
-    private int requiredHostileCount;
+    private int requiredHostileCount = 0;
     private HostileEntity[] hostiles;
     private LinkedList<UUID> hostileIDs = new LinkedList<>();
     private final boolean isFromNBT;
     private long ticksActive;
     private BlockPos center;
-    private final ServerWorld world;
     public ServerPlayerEntity attachedPlayer;
     public final UUID playerID;
     private boolean started;
@@ -85,10 +104,9 @@ public class BaseAssault {
     private static final int MAX_MOB_COUNT = 4;
     private static final int MAX_WAVE_SIZE = 32;
 
-    public BaseAssault(int id, ServerWorld world, BlockPos pos, ServerPlayerEntity attachedPlayer) {
+    public BaseAssault(int id, BlockPos pos, ServerPlayerEntity attachedPlayer) {
         this.id = id;
         this.isFromNBT = false;
-        this.world = world;
         this.attachedPlayer = attachedPlayer;
         this.playerID = attachedPlayer.getUuid();
         this.active = true;
@@ -101,32 +119,28 @@ public class BaseAssault {
         this.wave = getWave(attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) + 1);
     }
 
-    public BaseAssault(ServerWorld world, NbtCompound nbt) {
+    public BaseAssault(boolean started, boolean active, long ticksActive, int preBaseAssaultTicks,
+                       float totalHealth, BlockPos center, BaseAssault.Status status, boolean waveSpawned,
+                       boolean winStatIncreased, ByteBuffer wave, int requiredHostileCount,
+                       boolean startSoundPlayed, Set<UUID> hostileIDs, UUID playerID, int id) {
         this.isFromNBT = true;
-        this.world = world;
-        this.playerID = nbt.getUuid("playerID");
-        this.id = nbt.getInt("BAId");
-        this.started = nbt.getBoolean("BAStarted");
-        this.active = nbt.getBoolean("BAActive");
-        this.ticksActive = nbt.getLong("BATicksActive");
-        this.preBaseAssaultTicks = nbt.getInt("BAPreAssaultTicks");
-        this.totalHealth = nbt.getFloat("BATotalHealth");
-        this.center = new BlockPos(nbt.getInt("baCX"), nbt.getInt("baCY"), nbt.getInt("baCZ"));
-        this.status = Status.fromName(nbt.getString("baStatus"));
-        this.waveSpawned = nbt.getBoolean("WaveSpawned");
-        this.winStatIncreased = nbt.getBoolean("WinStatIncreased");
-        this.wave = nbt.getByteArray("Wave");
-        this.requiredHostileCount = nbt.getInt("HostileCount");
-        this.findPlayerInsteadOfBed = nbt.getBoolean("findPlayer");
-        this.startSoundPlayed = nbt.getBoolean("startSoundPlayed");
-        if (nbt.contains("hostileIDs", NbtElement.LIST_TYPE)) {
-            NbtList nbtList = nbt.getList("hostileIDs", NbtElement.INT_ARRAY_TYPE);
-            for (NbtElement nbtElement : nbtList) {
-                this.hostileIDs.add(NbtHelper.toUuid(nbtElement));
-            }
-        }
+        this.id = id;
+        this.started = started;
+        this.playerID = playerID;
+        this.active = active;
+        this.ticksActive = ticksActive;
+        this.preBaseAssaultTicks = preBaseAssaultTicks;
+        this.totalHealth = totalHealth;
+        this.center = center;
+        this.status = status;
+        this.waveSpawned = waveSpawned;
+        this.winStatIncreased = winStatIncreased;
+        this.wave = wave.array();
+        this.requiredHostileCount = requiredHostileCount;
+        this.startSoundPlayed = startSoundPlayed;
+        this.hostileIDs = new LinkedList<>(hostileIDs);
     }
-
+    /*
     public NbtCompound writeNbt(NbtCompound nbt) {
         nbt.putInt("BAId", this.id);
         nbt.putBoolean("BAStarted", this.started);
@@ -153,7 +167,7 @@ public class BaseAssault {
         }
         nbt.put("hostileIDs", nbtList);
         return nbt;
-    }
+    }*/
 
 
     public boolean isFinished() {
@@ -195,9 +209,9 @@ public class BaseAssault {
         return PlayerData.getPlayerState(this.attachedPlayer).generatedWave;
     }
 
-    private void generateNextWave(){
+    private void generateNextWave(ServerWorld world){
         byte[] wave = getGeneratedWave();
-        Random random = this.world.getRandom();
+        Random random = world.getRandom();
         if(calcWaveSize(wave) < MAX_WAVE_SIZE) { // checks if the generated wave has less than 35 mobs in it
             SurvivalPlus.LOGGER.info("{}'s generated wave size is below 35, incrementing it.", this.attachedPlayer.getName().getString());
             int randomIndex;
@@ -236,18 +250,14 @@ public class BaseAssault {
         return sum;
     }
 
-    public World getWorld() {
-        return this.world;
-    }
-
     public boolean hasStarted() {
         return this.started;
     }
 
 
-    private Predicate<ServerPlayerEntity> isInBaseAssaultDistance() {
+    private Predicate<ServerPlayerEntity> isInBaseAssaultDistance(ServerWorld world) {
         return player -> {
-            IServerWorldChanger sworld = (IServerWorldChanger) this.world;
+            IServerWorldChanger sworld = (IServerWorldChanger) world;
             BlockPos bpos = player.getBlockPos();
             return player.isAlive() && sworld.getBaseAssaultAt(bpos) == this;
         };
@@ -257,9 +267,9 @@ public class BaseAssault {
         return this.center;
     }
 
-    private void updateBarToPlayers() {
+    private void updateBarToPlayers(ServerWorld world) {
         HashSet<ServerPlayerEntity> set = Sets.newHashSet(this.bar.getPlayers());
-        List<ServerPlayerEntity> list = this.world.getPlayers(this.isInBaseAssaultDistance());
+        List<ServerPlayerEntity> list = world.getPlayers(this.isInBaseAssaultDistance(world));
         for (ServerPlayerEntity serverPlayerEntity : list) {
             if (set.contains(serverPlayerEntity)) continue;
             this.bar.addPlayer(serverPlayerEntity);
@@ -274,7 +284,7 @@ public class BaseAssault {
         this.center = bpos;
     }
 
-    public void start(PlayerEntity player) {
+    public void start(PlayerEntity player, ServerWorld world) {
         Stat<Identifier> stat = Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT);
         StatHandler handler = player.getServer().getPlayerManager().getPlayer(player.getUuid()).getStatHandler();
         handler.setStat(player, stat, Math.max(0, handler.getStat(stat) - 72000));
@@ -310,11 +320,11 @@ public class BaseAssault {
         this.status = Status.STOPPED;
     }
 
-    public void tick() {
+    public void tick(ServerWorld world) {
         if(this.isFromNBT){
             if(this.attachedPlayer == null) {
-                this.attachedPlayer = this.world.getServer().getPlayerManager().getPlayer(this.playerID);
-                if(!this.world.getServer().getPlayerManager().getPlayerList().isEmpty() && this.attachedPlayer == null) invalidate();
+                this.attachedPlayer = world.getServer().getPlayerManager().getPlayer(this.playerID);
+                if(!world.getServer().getPlayerManager().getPlayerList().isEmpty() && this.attachedPlayer == null) invalidate();
                 return;
             }
             if(this.wave == null){
@@ -324,10 +334,10 @@ public class BaseAssault {
             if(this.hostiles == null && this.waveSpawned){
                 ArrayList<HostileEntity> hostileList = new ArrayList<>();
                 for (UUID uuid : this.hostileIDs) {
-                    HostileEntity hostile = (HostileEntity) this.world.getEntity(uuid);
+                    HostileEntity hostile = (HostileEntity) world.getEntity(uuid);
                     if(hostile != null) hostileList.add(hostile);
                 }
-                if(hostileList.size() != this.requiredHostileCount) return;
+                if(hostileList.size() < this.requiredHostileCount) return;
                 this.hostiles = hostileList.toArray(new HostileEntity[hostileList.size()]);
                 for (HostileEntity hostile : this.hostiles) {
                         IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
@@ -342,8 +352,8 @@ public class BaseAssault {
         }
         if (this.status == Status.ONGOING) {
             boolean bl = this.active;
-            this.active = this.world.isChunkLoaded(this.center);
-            if (this.world.getDifficulty() == Difficulty.PEACEFUL) {
+            this.active = world.isChunkLoaded(this.center);
+            if (world.getDifficulty() == Difficulty.PEACEFUL) {
                 this.invalidate();
                 return;
             }
@@ -357,7 +367,7 @@ public class BaseAssault {
             if (!this.attachedPlayer.isAlive() && this.attachedPlayer.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock()) {
                 this.status = Status.LOSS;
             }
-            updateCenter();
+            updateCenter(world);
             if (this.waveSpawned && getCurrentHostilesHealth() <= 0) {
                 this.status = Status.VICTORY;
             }
@@ -373,7 +383,7 @@ public class BaseAssault {
             if (i == 0) {
                 if (this.preBaseAssaultTicks > 0) {
                     if (this.preBaseAssaultTicks == 300 || this.preBaseAssaultTicks % 20 == 0) {
-                        this.updateBarToPlayers();
+                        this.updateBarToPlayers(world);
                     }
                     --this.preBaseAssaultTicks;
                     this.bar.setPercent(MathHelper.clamp((float) (300 - this.preBaseAssaultTicks) / 300.0f, 0.0f, 1.0f));
@@ -385,7 +395,7 @@ public class BaseAssault {
             }
             if (this.ticksActive % 20L == 0L) {
                 if (this.waveSpawned) updateBar();
-                this.updateBarToPlayers();
+                this.updateBarToPlayers(world);
                 if (i > 0) {
                     if (i <= 5) {
                         this.bar.setName(EVENT_TEXT.copy().append(" - ").append(Text.translatable(HOSTILES_REMAINING_TRANSLATION_KEY, i)));
@@ -404,7 +414,7 @@ public class BaseAssault {
                 return;
             }
             if (this.finishCooldown % 20 == 0) {
-                this.updateBarToPlayers();
+                this.updateBarToPlayers(world);
                 this.bar.setVisible(true);
                 if (this.hasWon()) {
                     this.bar.setPercent(0.0f);
@@ -413,8 +423,8 @@ public class BaseAssault {
                         this.attachedPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON));
                         this.winStatIncreased = true;
                         if (this.attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) >= 12){
-                            dropXp();
-                            generateNextWave();
+                            dropXp(world);
+                            generateNextWave(world);
                         }
                     }
                 } else {
@@ -424,14 +434,14 @@ public class BaseAssault {
         }
         int k = 0;
         while (this.preBaseAssaultTicks == 0 && getHostileCount() == 0) {
-            float f = this.world.random.nextFloat();
-            BlockPos pos1 = getSpawnLocation(f);
-            BlockPos pos2 = getSpawnLocation(f);
-            BlockPos pos3 = getSpawnLocation(f);
+            float f = world.random.nextFloat();
+            BlockPos pos1 = getSpawnLocation(f,world);
+            BlockPos pos2 = getSpawnLocation(f, world);
+            BlockPos pos3 = getSpawnLocation(f, world);
             if (pos1 != null && pos2 != null && pos3 != null) {
                 this.started = true;
                 ArrayList<HostileEntity> hostileList = new ArrayList<>();
-                this.spawnWave(pos1, pos2, pos3, hostileList);
+                this.spawnWave(pos1, pos2, pos3, hostileList, world);
             } else {
                 ++k;
             }
@@ -441,11 +451,11 @@ public class BaseAssault {
         }
     }
 
-    protected void dropXp() {
-        ExperienceOrbEntity.spawn(this.world, this.attachedPlayer.getPos().add(0,0.5,0), calcWaveSize(this.wave) * 5);
+    protected void dropXp(ServerWorld world) {
+        ExperienceOrbEntity.spawn(world, this.attachedPlayer.getPos().add(0,0.5,0), calcWaveSize(this.wave) * 5);
     }
 
-    private void updateCenter() {
+    private void updateCenter(ServerWorld world) {
         BlockPos spawnPoint = ((IServerPlayerChanger)this.attachedPlayer).getMainSpawnPoint();
         if(spawnPoint == null || !world.getBlockState(spawnPoint).isIn(BlockTags.BEDS)) this.findPlayerInsteadOfBed = true;
         else {
@@ -455,23 +465,23 @@ public class BaseAssault {
     }
 
     @Nullable
-    private BlockPos getSpawnLocation(float f) {
+    private BlockPos getSpawnLocation(float f, ServerWorld world) {
         float i = 2.5f;
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         for (int j = 0; j < 30; ++j) {
-            float fl = (f + (this.world.random.nextFloat() * 0.40f)) * ((float)Math.PI * 2);
-            int k = this.center.getX() + MathHelper.floor(MathHelper.cos(fl) * 32.0f * i) + this.world.random.nextInt(10);
-            int l = this.center.getZ() + MathHelper.floor(MathHelper.sin(fl) * 32.0f * i) + this.world.random.nextInt(10);
-            int m = calculateSpawnY(k, l);
+            float fl = (f + (world.random.nextFloat() * 0.40f)) * ((float)Math.PI * 2);
+            int k = this.center.getX() + MathHelper.floor(MathHelper.cos(fl) * 32.0f * i) + world.random.nextInt(10);
+            int l = this.center.getZ() + MathHelper.floor(MathHelper.sin(fl) * 32.0f * i) + world.random.nextInt(10);
+            int m = calculateSpawnY(k, l, world);
             mutable.set(k, m, l);
             i -= 0.03f;
-            if (!this.world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !this.world.shouldTickEntity(mutable) || !SpawnRestriction.getLocation(EntityType.RAVAGER).isSpawnPositionOk(this.world, mutable, EntityType.RAVAGER) && (!this.world.getBlockState(mutable.down()).isOf(Blocks.SNOW) || !this.world.getBlockState(mutable).isAir()) || this.isInVillage(mutable)) continue;
+            if (!world.isRegionLoaded(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10) || !world.shouldTickBlockAt(mutable) || !SpawnRestriction.getLocation(EntityType.RAVAGER).isSpawnPositionOk(world, mutable, EntityType.RAVAGER) && (!world.getBlockState(mutable.down()).isOf(Blocks.SNOW) || !world.getBlockState(mutable).isAir()) || this.isInVillage(mutable, world)) continue;
             return mutable;
         }
         return null;
     }
 
-    private boolean isInVillage(BlockPos pos){
+    private boolean isInVillage(BlockPos pos, ServerWorld world){
         BlockPos villagePos = world.locateStructure(StructureTags.VILLAGE, pos, 10,false);
         if(villagePos == null) return false;
         int x = villagePos.getX() - pos.getX();
@@ -479,8 +489,7 @@ public class BaseAssault {
         return (x * x + z * z) < 3000 && world.locateStructure(StructureTags.VILLAGE, pos, 0,false) != null;
     }
 
-    private int calculateSpawnY(int x, int z){
-        World world = this.world;
+    private int calculateSpawnY(int x, int z, ServerWorld world){
         int y = this.center.getY();
         BlockPos pos = new BlockPos.Mutable (x, y + 36, z);
         while(!(world.getBlockState(pos.down()).isOpaqueFullCube() && world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isReplaceable())){
@@ -509,22 +518,24 @@ public class BaseAssault {
         return ++this.nextAvailableId;
     }
 
-    private void spawnWave(BlockPos pos1, BlockPos pos2, BlockPos pos3, ArrayList<HostileEntity> list) {
+    private void spawnWave(BlockPos pos1, BlockPos pos2, BlockPos pos3, ArrayList<HostileEntity> list, ServerWorld world) {
         if(this.wave.length < REQUIRED_WAVE_LENGTH || isOnePowerfulMobCountOverMax(this.wave, MAX_MOB_COUNT) || calcWaveSize(wave) > MAX_WAVE_SIZE)
-            this.wave = this.updateWave(this.wave);
+            this.wave = this.updateWave(this.wave, world);
         byte[] wave = this.wave;
         EntityType[] entityTypes = {EntityType.ZOMBIE, EntityType.SPIDER, EntityType.SKELETON, EntityType.CREEPER, ModEntities.DIGGINGZOMBIE, ModEntities.LUMBERJACKZOMBIE,
                 ModEntities.MINERZOMBIE, ModEntities.BUILDERZOMBIE, ModEntities.LEAPINGSPIDER, ModEntities.REEPER, ModEntities.SCORCHEDSKELETON, EntityType.WITCH};
         for(byte i = 0; i < REQUIRED_WAVE_LENGTH; i++) {
-            spawnTypeOfHostile(wave[i], entityTypes[i], pos1, pos2, pos3, list);
+            for(byte j = 0; j < wave[i]; j++){
+                addHostile((HostileEntity) entityTypes[i].create(world, SpawnReason.EVENT), posDiceRoll(pos1, pos2, pos3, world), list, world);
+            }
         }
         this.hostiles = list.toArray(new HostileEntity[list.size()]);
         this.totalHealth = getCurrentHostilesHealth();
         if(getHostileCount() > 0) this.waveSpawned = true;
-        this.markDirty();
+        this.markDirty(world);
     }
 
-    private byte[] updateWave(byte[] wave){
+    private byte[] updateWave(byte[] wave, ServerWorld world){
         byte[] output = BaseAssaultWaves.BASEASSAULT_TWELVE;
         System.arraycopy(wave, 0, output, 0, wave.length); // Copy the outdated array to the new array format
         {
@@ -537,22 +548,22 @@ public class BaseAssault {
             }
             int index;
             while(pool > 0){ // redistributes the removed counts to the standard mobs
-                index = this.world.getRandom().nextInt(4);
+                index = world.getRandom().nextInt(4);
                 if(output[index] < MAX_MOB_COUNT) output[index]++;
                 pool--;
             }
         }
         int overhang = calcWaveSize(output) - MAX_WAVE_SIZE;
         while(overhang-- > 0){
-            output[this.world.getRandom().nextInt(4)]--;
+            output[world.getRandom().nextInt(4)]--;
         }
         SurvivalPlus.LOGGER.info("Incompatible wave detected and updated: {} with length {}", Arrays.toString(output), output.length);
         PlayerData.getPlayerState(this.attachedPlayer).generatedWave = output;
         return output;
     }
 
-    private BlockPos posDiceRoll(BlockPos pos1, BlockPos pos2, BlockPos pos3){
-        int b = this.world.getRandom().nextInt(3);
+    private BlockPos posDiceRoll(BlockPos pos1, BlockPos pos2, BlockPos pos3, ServerWorld world){
+        int b = world.getRandom().nextInt(3);
         return switch (b) {
                 case 0 -> pos1;
                 case 1 -> pos2;
@@ -562,19 +573,17 @@ public class BaseAssault {
     }
 
     private void spawnTypeOfHostile(byte count, EntityType hostile, BlockPos pos1, BlockPos pos2, BlockPos pos3, ArrayList<HostileEntity> list){
-        for(int i = 0; i < count; i++){
-            addHostile((HostileEntity) hostile.create(this.world, SpawnReason.EVENT), posDiceRoll(pos1, pos2, pos3), list);
-        }
+
     }
 
-    public void addHostile(HostileEntity hostile, @Nullable BlockPos pos, ArrayList<HostileEntity> list) {
+    public void addHostile(HostileEntity hostile, @Nullable BlockPos pos, ArrayList<HostileEntity> list, ServerWorld world) {
             if (pos != null) {
                 IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
                 hostile2.setBaseAssault(this);
                 hostile.setPosition((double)pos.getX() + 0.5, (double)pos.getY() + 1.0, (double)pos.getZ() + 0.5);
-                hostile.initialize(this.world, this.world.getLocalDifficulty(pos), SpawnReason.EVENT, null);
+                hostile.initialize(world, world.getLocalDifficulty(pos), SpawnReason.EVENT, null);
                 hostile.setOnGround(true);
-                this.world.spawnEntityAndPassengers(hostile);
+                world.spawnEntityAndPassengers(hostile);
                 if(hostile instanceof WitchEntity) hostile2.getGoalSelector().add(3, new BaseAssaultGoal(hostile, 1.0));
                 else hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
                 list.add(hostile);
@@ -582,8 +591,8 @@ public class BaseAssault {
             }
         }
 
-    private void markDirty() {
-        IServerWorldChanger sworld = (IServerWorldChanger) this.world;
+    private void markDirty(ServerWorld world) {
+        IServerWorldChanger sworld = (IServerWorldChanger) world;
         sworld.getBaseAssaultManager().markDirty();
     }
 
@@ -608,28 +617,22 @@ public class BaseAssault {
         return this.active;
     }
 
-    enum Status {
-        ONGOING,
-        VICTORY,
-        LOSS,
-        STOPPED;
+    enum Status implements StringIdentifiable {
+        ONGOING("ongoing"),
+        VICTORY("victory"),
+        LOSS("loss"),
+        STOPPED("stopped");
 
-        private static final Status[] VALUES;
+        public static final Codec<BaseAssault.Status> CODEC = StringIdentifiable.createCodec(BaseAssault.Status::values);
+        private final String id;
 
-        static Status fromName(String name) {
-            for (Status status : VALUES) {
-                if (!name.equalsIgnoreCase(status.name())) continue;
-                return status;
-            }
-            return ONGOING;
+        private Status(final String id) {
+            this.id = id;
         }
 
-        public String getName() {
-            return this.name().toLowerCase(Locale.ROOT);
-        }
-
-        static {
-            VALUES = Status.values();
+        @Override
+        public String asString() {
+            return this.id;
         }
     }
 }

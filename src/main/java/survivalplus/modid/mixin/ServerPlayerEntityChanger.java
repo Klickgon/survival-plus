@@ -8,7 +8,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stat;
@@ -44,27 +43,13 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         super(world, pos, yaw, gameProfile);
     }
 
-    @Shadow public abstract boolean isSpectator();
-
-    @Shadow public abstract boolean isCreative();
-
-    @Shadow @Nullable public abstract BlockPos getSpawnPointPosition();
-
     @Shadow public abstract ServerWorld getServerWorld();
 
     @Shadow public abstract void resetStat(Stat<?> stat);
 
     @Shadow public abstract void increaseStat(Stat<?> stat, int amount);
 
-    @Shadow private @Nullable BlockPos spawnPointPosition;
-
-    @Shadow private RegistryKey<World> spawnPointDimension;
-
-    @Shadow private float spawnAngle;
-
-    @Shadow private boolean spawnForced;
-
-    @Shadow public abstract RegistryKey<World> getSpawnPointDimension();
+    @Shadow private @Nullable ServerPlayerEntity.Respawn respawn;
 
     @Unique public boolean shouldNotSpawnAtAnchor = false;
 
@@ -96,9 +81,9 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
 
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isSpectator()Z"))
     private boolean noRespawnPointPunishment(ServerPlayerEntity instance){
-        BlockPos bpos = this.getSpawnPointPosition();
+        BlockPos bpos = this.respawn.pos();
         return !this.isSpectator() &&
-                !(this.isCreative() || ((bpos != null && this.findModRespawnPosition(this.getServer().getWorld(this.getSpawnPointDimension()), bpos, 0.0f, false, true).isPresent())
+                !(this.isCreative() || ((bpos != null && this.findModRespawnPosition(this.getServer().getWorld(this.respawn.dimension()), bpos, 0.0f, false, true).isPresent())
                                 || this.getServer().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN)));
     }
 
@@ -123,88 +108,52 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         return ((IServerWorldChanger)this.getWorld()).notEnoughTimeSinceRest();
     }
 
-    @Inject(method = "getSpawnPointPosition", at = @At(value = "HEAD"), cancellable = true)
-    private void tempSpawnPositionImplementation(CallbackInfoReturnable<BlockPos> cir){
+    @Inject(method = "getRespawn", at = @At(value = "HEAD"), cancellable = true)
+    private void tempSpawnPositionImplementation(CallbackInfoReturnable<ServerPlayerEntity.Respawn> cir){
         ServerWorld world = this.getServerWorld();
-        BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world) )
-            cir.setReturnValue(tempSpawnPos);
+        ServerPlayerEntity.Respawn tempRespawn = PlayerData.getPlayerState(this).tempRespawn;
+        if(tempRespawn != null && isValidRespawnAnchor(tempRespawn, world) )
+            cir.setReturnValue(tempRespawn);
     }
 
-    @Inject(method = "getSpawnPointDimension", at = @At(value = "HEAD"), cancellable = true)
-    private void tempSpawnDimensionImplementation(CallbackInfoReturnable<RegistryKey<World>> cir){
-        ServerWorld world = this.getServerWorld();
-        PlayerData pdata = PlayerData.getPlayerState(this);
-        BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world)) {
-            cir.setReturnValue(pdata.tempSpawnDimension);
-        }
-    }
-
-    @Inject(method = "getSpawnAngle", at = @At(value = "HEAD"), cancellable = true)
-    private void tempSpawnAngleImplementation(CallbackInfoReturnable<Float> cir){
-        ServerWorld world = this.getServerWorld();
-        PlayerData pdata = PlayerData.getPlayerState(this);
-        BlockPos tempSpawnPos = PlayerData.getPlayerState(this).tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world))
-            cir.setReturnValue(pdata.tempSpawnAngle);
-    }
-
-    @Inject(method = "isSpawnForced", at = @At(value = "HEAD"), cancellable = true)
-    private void tempSpawnForcedBooleanImplementation(CallbackInfoReturnable<Boolean> cir){
-        ServerWorld world = this.getServerWorld();
-        PlayerData pdata = PlayerData.getPlayerState(this);
-        BlockPos tempSpawnPos = pdata.tempSpawnPosition;
-        if(tempSpawnPos != null && isValidRespawnAnchor(tempSpawnPos, world))
-            cir.setReturnValue(pdata.tempSpawnForced);
-    }
 
     @Inject(method = "setSpawnPoint", at = @At(value = "HEAD"), cancellable = true)
-    private void tempSpawnImplementation(RegistryKey<World> dimension, @Nullable BlockPos pos, float angle, boolean forced, boolean sendMessage, CallbackInfo ci){
+    private void tempSpawnImplementation(ServerPlayerEntity.Respawn respawn, boolean sendMessage, CallbackInfo ci){
         PlayerData pdata = PlayerData.getPlayerState(this);
-        if (pos != null) {
-            if(isValidRespawnAnchor(pos, this.getWorld())){
+        if (respawn != null) {
+            if(isValidRespawnAnchor(respawn, this.getWorld())){
                 boolean bl;
-                bl = pos.equals(pdata.tempSpawnPosition) && dimension.equals(pdata.tempSpawnDimension);
+                bl = respawn.equals(pdata.tempRespawn);
                 if (sendMessage && !bl) {
                     this.sendMessage(Text.translatable("block.survival-plus.set_spawn_temp"), true);
                 }
-                pdata.tempSpawnPosition = pos;
-                pdata.tempSpawnDimension = dimension;
-                pdata.tempSpawnAngle = angle;
-                pdata.tempSpawnForced = forced;
+                pdata.tempRespawn = respawn;
                 ci.cancel();
             }
         }
     }
 
     @Inject(method = "setSpawnPoint", at = @At(value = "TAIL"))
-    private void mainSpawnImplementation(RegistryKey<World> dimension, @Nullable BlockPos pos, float angle, boolean forced, boolean sendMessage, CallbackInfo ci){
+    private void mainSpawnImplementation(ServerPlayerEntity.Respawn respawn, boolean sendMessage, CallbackInfo ci){
         PlayerData pData = PlayerData.getPlayerState(this);
-        pData.mainSpawnPosition = this.spawnPointPosition;
-        pData.mainSpawnDimension = this.spawnPointDimension;
-        pData.mainSpawnAngle = this.spawnAngle;
-        pData.mainSpawnForced = this.spawnForced;
+        pData.mainRespawn = this.respawn;
     }
 
     @Inject(method = "teleportTo", at = @At(value = "TAIL"))
     private void endPortalToOverworldFix(TeleportTarget teleportTarget, CallbackInfoReturnable<Entity> cir){
         PlayerData pData = PlayerData.getPlayerState(this);
-        pData.mainSpawnPosition = this.spawnPointPosition;
-        pData.mainSpawnDimension = this.spawnPointDimension;
-        pData.mainSpawnAngle = this.spawnAngle;
-        pData.mainSpawnForced = this.spawnForced;
+        pData.mainRespawn = this.respawn;
     }
 
     @Unique
-    public boolean isValidRespawnAnchor(BlockPos pos, World world){
-        BlockState state = world.getBlockState(pos);
-        return state.isOf(Blocks.RESPAWN_ANCHOR) && state.get(CHARGES) > 0 && RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, pos).isPresent();
+    public boolean isValidRespawnAnchor(ServerPlayerEntity.Respawn respawn, World world){
+        BlockState state = world.getBlockState(respawn.pos());
+        return state.isOf(Blocks.RESPAWN_ANCHOR) && state.get(CHARGES) > 0 && RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, respawn.pos()).isPresent();
     }
 
     @Unique
-    public BlockPos getMainSpawnPoint(){
-        return this.spawnPointPosition;
+    public ServerPlayerEntity.Respawn getMainSpawn(){
+        return this.respawn;
     }
 
     @Unique
