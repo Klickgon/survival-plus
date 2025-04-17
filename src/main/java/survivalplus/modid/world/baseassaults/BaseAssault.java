@@ -65,7 +65,7 @@ public class BaseAssault {
                             Codec.LONG.fieldOf("BATicksActive").forGetter(baseAssault -> baseAssault.ticksActive),
                             Codec.INT.fieldOf("BAPreAssaultTicks").forGetter(baseAssault -> baseAssault.preBaseAssaultTicks),
                             Codec.FLOAT.fieldOf("BATotalHealth").forGetter(baseAssault -> baseAssault.totalHealth),
-                            BlockPos.CODEC.fieldOf("Center").forGetter(baseAssault -> baseAssault.center),
+                            BlockPos.CODEC.optionalFieldOf("Center").forGetter(baseAssault -> Optional.ofNullable(baseAssault.center)),
                             BaseAssault.Status.CODEC.fieldOf("Status").forGetter(baseAssault -> baseAssault.status),
                             Codec.BOOL.fieldOf("WaveSpawned").forGetter(baseAssault -> baseAssault.waveSpawned),
                             Codec.BOOL.fieldOf("WinStatIncreased").forGetter(baseAssault -> baseAssault.winStatIncreased),
@@ -120,7 +120,7 @@ public class BaseAssault {
     }
 
     public BaseAssault(boolean started, boolean active, long ticksActive, int preBaseAssaultTicks,
-                       float totalHealth, BlockPos center, BaseAssault.Status status, boolean waveSpawned,
+                       float totalHealth, Optional<BlockPos> center, BaseAssault.Status status, boolean waveSpawned,
                        boolean winStatIncreased, ByteBuffer wave, int requiredHostileCount,
                        boolean startSoundPlayed, Set<UUID> hostileIDs, UUID playerID, int id) {
         this.isFromNBT = true;
@@ -131,7 +131,7 @@ public class BaseAssault {
         this.ticksActive = ticksActive;
         this.preBaseAssaultTicks = preBaseAssaultTicks;
         this.totalHealth = totalHealth;
-        this.center = center;
+        this.center = center.orElseThrow();
         this.status = status;
         this.waveSpawned = waveSpawned;
         this.winStatIncreased = winStatIncreased;
@@ -140,35 +140,6 @@ public class BaseAssault {
         this.startSoundPlayed = startSoundPlayed;
         this.hostileIDs = new LinkedList<>(hostileIDs);
     }
-    /*
-    public NbtCompound writeNbt(NbtCompound nbt) {
-        nbt.putInt("BAId", this.id);
-        nbt.putBoolean("BAStarted", this.started);
-        nbt.putBoolean("BAActive", this.active);
-        nbt.putLong("BATicksActive", this.ticksActive);
-        nbt.putInt("PreAssaultTicks", this.preBaseAssaultTicks);
-        nbt.putFloat("BATotalHealth", this.totalHealth);
-        nbt.putString("BAStatus", this.status.getName());
-        nbt.putInt("baCX", this.center.getX());
-        nbt.putInt("baCY", this.center.getY());
-        nbt.putInt("baCZ", this.center.getZ());
-        nbt.putByteArray("Wave", this.wave);
-        nbt.putUuid("playerID", this.playerID);
-        nbt.putBoolean("WaveSpawned", this.waveSpawned);
-        nbt.putBoolean("WinStatIncreased", this.winStatIncreased);
-        nbt.putBoolean("findPlayer", this.findPlayerInsteadOfBed);
-        nbt.putBoolean("startSoundPlayed", this.startSoundPlayed);
-        nbt.putInt("HostileCount", getHostileCount());
-        NbtList nbtList = new NbtList();
-        if(this.hostiles != null) {
-            for (HostileEntity hostile : this.hostiles) {
-                if (hostile != null) nbtList.add(NbtHelper.fromUuid(hostile.getUuid()));
-            }
-        }
-        nbt.put("hostileIDs", nbtList);
-        return nbt;
-    }*/
-
 
     public boolean isFinished() {
         return this.hasWon() || this.hasLost();
@@ -364,7 +335,7 @@ public class BaseAssault {
                 return;
             }
             ++this.ticksActive;
-            if (!this.attachedPlayer.isAlive() && this.attachedPlayer.getRespawnTarget(true, TeleportTarget.NO_OP).missingRespawnBlock()) {
+            if (!this.attachedPlayer.isAlive() && this.attachedPlayer.getRespawnTarget(false, TeleportTarget.NO_OP).missingRespawnBlock()) {
                 this.status = Status.LOSS;
             }
             updateCenter(world);

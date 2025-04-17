@@ -28,7 +28,6 @@ import java.util.List;
 public class BaseAssaultManager
 extends PersistentState {
     private static final String BASEASSAULT = "base assault";
-    private ServerWorld world = null;
     private final Int2ObjectMap<BaseAssault> baseAssaults = new Int2ObjectOpenHashMap<>();
     private int currentTime;
     private int nextAvailableId;
@@ -43,7 +42,7 @@ extends PersistentState {
                             BaseAssaultManager.BAWithId.CODEC
                                     .listOf()
                                     .optionalFieldOf("base_assaults", List.of())
-                                    .forGetter(baManager -> baManager.baseAssaults.int2ObjectEntrySet().stream().map(survivalplus.modid.world.baseassaults.BaseAssaultManager.BAWithId::fromMapEntry).toList()),
+                                    .forGetter(baManager -> baManager.baseAssaults.int2ObjectEntrySet().stream().map(BaseAssaultManager.BAWithId::fromMapEntry).toList()),
                             Codec.INT.fieldOf("next_id").forGetter(baManager -> baManager.nextAvailableId),
                             Codec.INT.fieldOf("tick").forGetter(baManager -> baManager.currentTime)
                     )
@@ -51,12 +50,6 @@ extends PersistentState {
     );
 
     public static final PersistentStateType<BaseAssaultManager> STATE_TYPE = new PersistentStateType<>("base_assaults", BaseAssaultManager::new , CODEC, null);
-
-    public BaseAssaultManager(ServerWorld world) {
-        this.world = world;
-        this.markDirty();
-        this.nextAvailableId = 1;
-    }
 
     private BaseAssaultManager(List<BaseAssaultManager.BAWithId> raids, int nextAvailableId, int currentTime) {
         for (BaseAssaultManager.BAWithId baWithId : raids) {
@@ -71,12 +64,12 @@ extends PersistentState {
         this.markDirty();
     }
 
-    public void tick() {
+    public void tick(ServerWorld world) {
         ++this.currentTime;
         Iterator<BaseAssault> iterator = this.baseAssaults.values().iterator();
         while (iterator.hasNext()) {
             BaseAssault baseAssault = iterator.next();
-            if (this.world.getGameRules().getBoolean(ModGamerules.DISABLE_BASEASSAULTS)) {
+            if (world.getGameRules().getBoolean(ModGamerules.DISABLE_BASEASSAULTS)) {
                 baseAssault.invalidate();
             }
             if (baseAssault.hasStopped()) {
@@ -93,10 +86,11 @@ extends PersistentState {
     }
     
     public void startBaseAssault(ServerPlayerEntity player) {
+        ServerWorld world = player.getServerWorld();
         if (player.isSpectator() || player.isCreative()) {
             return;
         }
-        if (this.world.getGameRules().getBoolean(ModGamerules.DISABLE_BASEASSAULTS) || world.getDifficulty() == Difficulty.PEACEFUL) {
+        if (world.getGameRules().getBoolean(ModGamerules.DISABLE_BASEASSAULTS) || world.getDifficulty() == Difficulty.PEACEFUL) {
             return;
         }
         DimensionType dimensionType = player.getWorld().getDimension();
@@ -129,7 +123,7 @@ extends PersistentState {
             return;
         }
         BlockPos spawnPos = ((IServerPlayerChanger) player).getMainSpawnPoint();
-        if(spawnPos == null || !this.world.getBlockState(spawnPos).isIn(BlockTags.BEDS) || !playerPos.isWithinDistance(spawnPos, 64) || this.world.getAmbientDarkness() < 4) {
+        if(spawnPos == null || !world.getBlockState(spawnPos).isIn(BlockTags.BEDS) || !playerPos.isWithinDistance(spawnPos, 64) || world.getAmbientDarkness() < 4) {
             return;
         }
         if(Math.abs(playerPos.getY() - spawnPos.getY()) > 16){

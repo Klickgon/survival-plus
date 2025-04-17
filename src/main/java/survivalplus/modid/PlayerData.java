@@ -1,35 +1,29 @@
 package survivalplus.modid;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.PersistentStateType;
+import net.minecraft.util.Uuids;
 import survivalplus.modid.world.baseassaults.BaseAssaultWaves;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public class PlayerData extends StateSaverAndLoader{
 
-    public static final PersistentStateType<PlayerData> TYPE = new PersistentStateType<>(
-            "playerdataSP",
-            PlayerData::new,
-            PlayerData.CODEC,
-            DataFixTypes.PLAYER
-    );
-
-    public static final Codec<PlayerData> CODEC = RecordCodecBuilder.create(
+    public static final MapCodec<PlayerData> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
                             Codec.INT.fieldOf("baseAssaultTimer").forGetter(playerData -> playerData.baseAssaultTimer),
                             Codec.BYTE_BUFFER.fieldOf("generatedWave").forGetter(playerData -> ByteBuffer.wrap(playerData.generatedWave)),
-                            ServerPlayerEntity.Respawn.CODEC.fieldOf("tempRespawn").forGetter(playerData -> playerData.tempRespawn),
-                            ServerPlayerEntity.Respawn.CODEC.fieldOf("mainRespawn").forGetter(playerData -> playerData.mainRespawn),
+                            ServerPlayerEntity.Respawn.CODEC.optionalFieldOf("tempRespawn").forGetter(playerData -> Optional.ofNullable(playerData.tempRespawn)),
+                            ServerPlayerEntity.Respawn.CODEC.optionalFieldOf("mainRespawn").forGetter(playerData -> Optional.ofNullable(playerData.mainRespawn)),
                             Codec.BOOL.fieldOf("receivedBAWarning").forGetter(playerData -> playerData.receivedBAWarningMessage)
-                    )
-                    .apply(instance, PlayerData::new)
-    );
+                    ).apply(instance, PlayerData::new));
 
-    PlayerData(){
+    public PlayerData(UUID uuid) {
         this.baseAssaultTimer = 0;
         this.generatedWave = BaseAssaultWaves.BASEASSAULT_TWELVE;
         this.tempRespawn = null;
@@ -37,11 +31,11 @@ public class PlayerData extends StateSaverAndLoader{
         this.receivedBAWarningMessage = false;
     }
 
-    PlayerData(int baseAssaultTimer, ByteBuffer generatedWave, ServerPlayerEntity.Respawn tempRespawn, ServerPlayerEntity.Respawn mainRespawn, boolean receivedBAWarningMessage){
+    public PlayerData(int baseAssaultTimer, ByteBuffer generatedWave, Optional<ServerPlayerEntity.Respawn> tempRespawn, Optional<ServerPlayerEntity.Respawn> mainRespawn, boolean receivedBAWarningMessage){
         this.baseAssaultTimer = baseAssaultTimer;
         this.generatedWave = generatedWave.array();
-        this.tempRespawn = tempRespawn;
-        this.mainRespawn = mainRespawn;
+        this.tempRespawn = tempRespawn.orElse(null);
+        this.mainRespawn = mainRespawn.orElse(null);
         this.receivedBAWarningMessage = receivedBAWarningMessage;
     }
 
@@ -50,4 +44,17 @@ public class PlayerData extends StateSaverAndLoader{
     public ServerPlayerEntity.Respawn tempRespawn;
     public ServerPlayerEntity.Respawn mainRespawn;
     public boolean receivedBAWarningMessage;
+
+
+
+    record UUIDWithPlayerData(UUID uuid, PlayerData playerData) {
+        public static final Codec<UUIDWithPlayerData> CODEC = RecordCodecBuilder.create(
+                instance -> instance.group(Uuids.CODEC.fieldOf("uuid").forGetter(UUIDWithPlayerData::uuid), PlayerData.CODEC.forGetter(UUIDWithPlayerData::playerData))
+                        .apply(instance, UUIDWithPlayerData::new)
+        );
+
+        public static UUIDWithPlayerData fromMapEntry(Map.Entry<UUID, PlayerData> entry) {
+            return new UUIDWithPlayerData(entry.getKey(), entry.getValue());
+        }
+    }
 }

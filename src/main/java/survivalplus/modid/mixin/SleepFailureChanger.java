@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(PlayerEntity.SleepFailureReason.class)
 public abstract class SleepFailureChanger {
 
-
     @Final
     @Shadow
     public static PlayerEntity.SleepFailureReason NOT_POSSIBLE_NOW;
