@@ -1,16 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "minecraft:item/template_spawn_egg",
-    "tints": [
-      {
-        "type": "minecraft:constant",
-        "value": 13816530
-      },
-      {
-        "type": "minecraft:constant",
-        "value": 12006981
-      }
-    ]
+    "model": "survival-plus:item/reeper_spawn_egg"
   }
 }

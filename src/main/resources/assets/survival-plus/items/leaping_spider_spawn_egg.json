@@ -1,16 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "minecraft:item/template_spawn_egg",
-    "tints": [
-      {
-        "type": "minecraft:constant",
-        "value": 16765710
-      },
-      {
-        "type": "minecraft:constant",
-        "value": 1516819
-      }
-    ]
+    "model": "survival-plus:item/leaping_spider_spawn_egg"
   }
 }

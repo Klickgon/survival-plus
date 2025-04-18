@@ -1,16 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "minecraft:item/template_spawn_egg",
-    "tints": [
-      {
-        "type": "minecraft:constant",
-        "value": 7346200
-      },
-      {
-        "type": "minecraft:constant",
-        "value": 4090157
-      }
-    ]
+    "model": "survival-plus:item/lumberjack_zombie_spawn_egg"
   }
 }
