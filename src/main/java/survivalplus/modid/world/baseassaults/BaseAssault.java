@@ -16,7 +16,6 @@ import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.AbstractSkeletonEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.WitchEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -70,7 +69,7 @@ public class BaseAssault {
                             Codec.BOOL.fieldOf("WaveSpawned").forGetter(baseAssault -> baseAssault.waveSpawned),
                             Codec.BOOL.fieldOf("WinStatIncreased").forGetter(baseAssault -> baseAssault.winStatIncreased),
                             Codec.BYTE_BUFFER.fieldOf("Wave").forGetter(baseAssault -> ByteBuffer.wrap(baseAssault.wave)),
-                            Codec.INT.fieldOf("HostileCount").forGetter(baseAssault -> baseAssault.requiredHostileCount),
+                            Codec.INT.fieldOf("HostileCount").forGetter(baseAssault -> baseAssault.getHostileCount()),
                             Codec.BOOL.fieldOf("startSoundPlayed").forGetter(baseAssault -> baseAssault.startSoundPlayed),
                             Uuids.SET_CODEC.fieldOf("hostileIDs").forGetter(baseAssault -> new HashSet<>(baseAssault.hostileIDs)),
                             Uuids.CODEC.fieldOf("playerID").forGetter(baseAssault -> baseAssault.playerID),
@@ -310,11 +309,13 @@ public class BaseAssault {
                 }
                 if(hostileList.size() < this.requiredHostileCount) return;
                 this.hostiles = hostileList.toArray(new HostileEntity[hostileList.size()]);
+                this.hostileIDs = new LinkedList<>();
                 for (HostileEntity hostile : this.hostiles) {
                         IHostileEntityChanger hostile2 = (IHostileEntityChanger) hostile;
                         hostile2.setBaseAssault(this);
-                        if (hostile instanceof AbstractSkeletonEntity) hostile2.getGoalSelector().add(4, new BaseAssaultGoal(hostile, 1.0));
+                        if(hostile instanceof WitchEntity) hostile2.getGoalSelector().add(3, new BaseAssaultGoal(hostile, 1.0));
                         else hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
+                        this.hostileIDs.add(hostile.getUuid());
                 }
             }
         }
@@ -558,6 +559,7 @@ public class BaseAssault {
                 if(hostile instanceof WitchEntity) hostile2.getGoalSelector().add(3, new BaseAssaultGoal(hostile, 1.0));
                 else hostile2.getGoalSelector().add(5, new BaseAssaultGoal(hostile, 1.0));
                 list.add(hostile);
+                this.hostileIDs.add(hostile.getUuid());
                 this.totalHealth += hostile.getHealth();
             }
         }
