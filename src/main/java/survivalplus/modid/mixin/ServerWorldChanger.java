@@ -102,14 +102,16 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     @Inject(method = "tick", at = @At("TAIL"))
     protected void injectTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         for (ServerPlayerEntity serverPlayer : this.getPlayers()) {
+            PlayerData playerData = PlayerData.getPlayerState(serverPlayer);
             serverPlayer.incrementStat(ModPlayerStats.TIME_SINCE_SLEEP);
-            if (serverPlayer.getRespawn() == null || serverPlayer.getRespawnTarget(false, TeleportTarget.NO_OP).missingRespawnBlock())
+            if (serverPlayer.getRespawn() == null || serverPlayer.getRespawnTarget(false, TeleportTarget.NO_OP).missingRespawnBlock()) {
                 serverPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT));
+                playerData.phantomTimer++;
+            } else playerData.phantomTimer = Math.max(0, playerData.phantomTimer - 2);
             this.baseAssaultManager.startBaseAssault(serverPlayer);
             BlockPos spawnPoint = ((IServerPlayerChanger) serverPlayer).getMainSpawnPoint();
             if(spawnPoint != null && this.getBlockState(spawnPoint).isIn(BlockTags.BEDS)){
                 double distance = serverPlayer.getPos().squaredDistanceTo(spawnPoint.toCenterPos());
-                PlayerData playerData = PlayerData.getPlayerState(serverPlayer);
                 if(distance < 9216)
                     playerData.baseAssaultTimer += 2;
                 else if(distance < 65536 && playerData.baseAssaultTimer < BaseAssaultManager.BASE_ASSAULT_TIME_NEEDED - 3000)

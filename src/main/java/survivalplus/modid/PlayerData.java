@@ -20,8 +20,16 @@ public class PlayerData extends StateSaverAndLoader{
                             Codec.BYTE_BUFFER.fieldOf("generatedWave").forGetter(playerData -> ByteBuffer.wrap(playerData.generatedWave)),
                             ServerPlayerEntity.Respawn.CODEC.optionalFieldOf("tempRespawn").forGetter(playerData -> Optional.ofNullable(playerData.tempRespawn)),
                             ServerPlayerEntity.Respawn.CODEC.optionalFieldOf("mainRespawn").forGetter(playerData -> Optional.ofNullable(playerData.mainRespawn)),
-                            Codec.BOOL.fieldOf("receivedBAWarning").forGetter(playerData -> playerData.receivedBAWarningMessage)
+                            Codec.BOOL.fieldOf("receivedBAWarning").forGetter(playerData -> playerData.receivedBAWarningMessage),
+                            Codec.INT.fieldOf("phantomTimer").forGetter(playerData -> playerData.phantomTimer)
                     ).apply(instance, PlayerData::new));
+
+    public int baseAssaultTimer;
+    public byte[] generatedWave;
+    public ServerPlayerEntity.Respawn tempRespawn;
+    public ServerPlayerEntity.Respawn mainRespawn;
+    public boolean receivedBAWarningMessage;
+    public int phantomTimer;
 
     public PlayerData(UUID uuid) {
         this.baseAssaultTimer = 0;
@@ -29,23 +37,17 @@ public class PlayerData extends StateSaverAndLoader{
         this.tempRespawn = null;
         this.mainRespawn = null;
         this.receivedBAWarningMessage = false;
+        this.phantomTimer = 0;
     }
 
-    public PlayerData(int baseAssaultTimer, ByteBuffer generatedWave, Optional<ServerPlayerEntity.Respawn> tempRespawn, Optional<ServerPlayerEntity.Respawn> mainRespawn, boolean receivedBAWarningMessage){
+    public PlayerData(int baseAssaultTimer, ByteBuffer generatedWave, Optional<ServerPlayerEntity.Respawn> tempRespawn, Optional<ServerPlayerEntity.Respawn> mainRespawn, boolean receivedBAWarningMessage, int phantomTimer){
         this.baseAssaultTimer = baseAssaultTimer;
         this.generatedWave = generatedWave.array();
         this.tempRespawn = tempRespawn.orElse(null);
         this.mainRespawn = mainRespawn.orElse(null);
         this.receivedBAWarningMessage = receivedBAWarningMessage;
+        this.phantomTimer = phantomTimer;
     }
-
-    public int baseAssaultTimer;
-    public byte[] generatedWave;
-    public ServerPlayerEntity.Respawn tempRespawn;
-    public ServerPlayerEntity.Respawn mainRespawn;
-    public boolean receivedBAWarningMessage;
-
-
 
     record UUIDWithPlayerData(UUID uuid, PlayerData playerData) {
         public static final Codec<UUIDWithPlayerData> CODEC = RecordCodecBuilder.create(

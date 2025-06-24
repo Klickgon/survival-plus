@@ -394,8 +394,8 @@ public class BaseAssault {
                     if (!this.winStatIncreased) {
                         this.attachedPlayer.incrementStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON));
                         this.winStatIncreased = true;
+                        dropXp(world);
                         if (this.attachedPlayer.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(ModPlayerStats.BASEASSAULTS_WON)) >= 12){
-                            dropXp(world);
                             generateNextWave(world);
                         }
                     }
@@ -424,7 +424,7 @@ public class BaseAssault {
     }
 
     protected void dropXp(ServerWorld world) {
-        ExperienceOrbEntity.spawn(world, this.attachedPlayer.getPos().add(0,0.5,0), calcWaveSize(this.wave) * 5);
+        ExperienceOrbEntity.spawn(world, this.attachedPlayer.getPos().add(0,0.5,0), calcWaveSize(this.wave) * 10);
     }
 
     private void updateCenter(ServerWorld world) {
