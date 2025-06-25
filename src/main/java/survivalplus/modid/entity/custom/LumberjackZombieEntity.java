@@ -21,7 +21,6 @@ import net.minecraft.entity.passive.TurtleEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.MinecraftServer;
@@ -206,14 +205,6 @@ public class LumberjackZombieEntity
 
 
     protected void initEquipment() {}
-
-    @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
-        nbt.putBoolean("CanBreakDoors", this.canBreakDoors());
-        nbt.putInt("InWaterTime", this.isTouchingWater() ? this.inWaterTime : -1);
-        nbt.putInt("DrownedConversionTime", this.isConvertingInWater() ? this.ticksUntilWaterConversion : -1);
-    }
 
     @Override
     public boolean canPickupItem(ItemStack stack) {

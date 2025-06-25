@@ -19,7 +19,6 @@ import net.minecraft.entity.passive.TurtleEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
@@ -196,24 +195,6 @@ public class BuilderZombieEntity
     }
 
     protected void initEquipment() {
-    }
-
-    @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
-        nbt.putBoolean("CanBreakDoors", this.canBreakDoors());
-        nbt.putInt("InWaterTime", this.isTouchingWater() ? this.inWaterTime : -1);
-        nbt.putInt("DrownedConversionTime", this.isConvertingInWater() ? this.ticksUntilWaterConversion : -1);
-    }
-
-    @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        this.setCanBreakDoors(nbt.getBoolean("CanBreakDoors").get());
-        this.inWaterTime = nbt.getInt("InWaterTime").get();
-        if (nbt.contains("DrownedConversionTime") && nbt.getInt("DrownedConversionTime").get() > -1) {
-            this.setTicksUntilWaterConversion(nbt.getInt("DrownedConversionTime").get());
-        }
     }
 
     @Override

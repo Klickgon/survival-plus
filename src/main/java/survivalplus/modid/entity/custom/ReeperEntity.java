@@ -18,7 +18,6 @@ import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.GoatEntity;
 import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -71,17 +70,6 @@ public class ReeperEntity
 
     public static DefaultAttributeContainer.Builder createReeperAttributes() {
         return HostileEntity.createHostileAttributes().add(EntityAttributes.MOVEMENT_SPEED, 0.20);
-    }
-
-    @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
-        if (this.dataTracker.get(CHARGED).booleanValue()) {
-            nbt.putBoolean("powered", true);
-        }
-        nbt.putShort("Fuse", (short)this.fuseTime);
-        nbt.putByte("ExplosionRadius", (byte)this.explosionRadius);
-        nbt.putBoolean("ignited", this.isIgnited());
     }
 
     @Override

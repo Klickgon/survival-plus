@@ -86,7 +86,7 @@ extends PersistentState {
     }
     
     public void startBaseAssault(ServerPlayerEntity player) {
-        ServerWorld world = player.getServerWorld();
+        ServerWorld world = player.getWorld();
         if (player.isSpectator() || player.isCreative()) {
             return;
         }
@@ -129,7 +129,7 @@ extends PersistentState {
         if(Math.abs(playerPos.getY() - spawnPos.getY()) > 16){
             return;
         }
-        BaseAssault baseAssault = this.getOrCreateBaseAssault(player.getServerWorld(), spawnPos, player);
+        BaseAssault baseAssault = this.getOrCreateBaseAssault(world, spawnPos, player);
         if (!baseAssault.hasStarted()) {
             baseAssault.start(player, world);
             baseAssault.setCenter(spawnPos);

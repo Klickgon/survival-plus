@@ -39,11 +39,11 @@ import static net.minecraft.block.RespawnAnchorBlock.CHARGES;
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityChanger extends PlayerEntity implements IServerPlayerChanger {
 
-    public ServerPlayerEntityChanger(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
-        super(world, pos, yaw, gameProfile);
+    public ServerPlayerEntityChanger(World world, GameProfile profile) {
+        super(world, profile);
     }
 
-    @Shadow public abstract ServerWorld getServerWorld();
+    @Shadow public abstract ServerWorld getWorld();
 
     @Shadow public abstract void resetStat(Stat<?> stat);
 
@@ -86,7 +86,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isSpectator()Z"))
     private boolean noRespawnPointPunishment(ServerPlayerEntity instance){
         return !this.isSpectator() &&
-                !(this.isCreative() || ((this.getRespawn() != null && findModRespawnPosition(instance.getServerWorld(), this.getRespawn(), false).isPresent())
+                !(this.isCreative() || ((this.getRespawn() != null && findModRespawnPosition(instance.getWorld(), this.getRespawn(), false).isPresent())
                                 || this.getServer().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN)));
     }
 
@@ -106,14 +106,14 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         }
     }
 
-    @ModifyExpressionValue(method = "trySleep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isDay()Z"))
+    @ModifyExpressionValue(method = "trySleep", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;isDay()Z"))
     private boolean sleepReqCanceler(boolean original){
         return ((IServerWorldChanger)this.getWorld()).notEnoughTimeSinceRest();
     }
 
     @Inject(method = "getRespawn", at = @At(value = "HEAD"), cancellable = true)
     private void tempSpawnPositionImplementation(CallbackInfoReturnable<ServerPlayerEntity.Respawn> cir){
-        ServerWorld world = this.getServerWorld();
+        ServerWorld world = this.getWorld();
         ServerPlayerEntity.Respawn tempRespawn = PlayerData.getPlayerState(this).tempRespawn;
         if(tempRespawn != null && isValidRespawnAnchor(tempRespawn, world) )
             cir.setReturnValue(tempRespawn);
