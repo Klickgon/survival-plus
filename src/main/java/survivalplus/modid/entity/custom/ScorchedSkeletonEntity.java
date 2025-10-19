@@ -68,9 +68,9 @@ extends SkeletonEntity {
 
     public void tick(){
         super.tick();
-        if (this.getWorld().isClient) {
+        if (this.getEntityWorld().isClient()) {
             if(smokeParticleCooldown <= 0) {
-                getWorld().addParticleClient(ParticleTypes.SMOKE, this.getX(), this.getY() + 1.99, this.getZ(), 0, 0, 0);
+                getEntityWorld().addParticleClient(ParticleTypes.SMOKE, this.getX(), this.getY() + 1.99, this.getZ(), 0, 0, 0);
                 smokeParticleCooldown = this.getRandom().nextInt(11) + 10;
             }
             else smokeParticleCooldown--;
@@ -101,7 +101,7 @@ extends SkeletonEntity {
         this.enchantMainHandItem(random, f);
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
             if (equipmentSlot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR) continue;
-            this.enchantEquipment((ServerWorldAccess)this.getWorld(), random, equipmentSlot, localDifficulty);
+            this.enchantEquipment((ServerWorldAccess)this.getEntityWorld(), random, equipmentSlot, localDifficulty);
         }
     }
 
@@ -134,14 +134,14 @@ extends SkeletonEntity {
 
     @Override
     public void updateAttackType() {
-        if (this.getWorld() == null || this.getWorld().isClient) {
+        if (this.getEntityWorld() == null || this.getEntityWorld().isClient()) {
             return;
         }
         this.goalSelector.remove(this.bowAttackGoal);
         ItemStack itemStack = this.getStackInHand(ProjectileUtil.getHandPossiblyHolding(this, Items.BOW));
         if (itemStack.isOf(Items.BOW)) {
             int i = 20;
-            if (this.getWorld().getDifficulty() != Difficulty.HARD) {
+            if (this.getEntityWorld().getDifficulty() != Difficulty.HARD) {
                 i = 40;
             }
             this.bowAttackGoal.setAttackInterval(i);

@@ -37,7 +37,7 @@ public abstract class PlayerEntityChanger extends LivingEntity {
 
     @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isDay()Z"))
     private boolean sleepDuringDayFix(boolean original){
-        return ((IServerWorldChanger)this.getWorld()).notEnoughTimeSinceRest();
+        return ((IServerWorldChanger)this.getEntityWorld()).notEnoughTimeSinceRest();
     }
 
 }

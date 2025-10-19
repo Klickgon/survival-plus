@@ -74,9 +74,9 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     @Nullable
     protected PathNode getPathNodeVertical(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        MinecraftServer server = this.entity.getServer();
+        MinecraftServer server = this.entity.getEntityWorld().getServer();
         if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isIn(reqItem) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
-            World world = this.entity.getWorld();
+            World world = this.entity.getEntityWorld();
             BlockPos pos = new BlockPos(x, y, z);
             if (world.getBlockState(pos).isIn(this.blockTag) || this.getDefaultNodeType(this.entity, pos).getDefaultPenalty() >= 0.0f){
                 if(world.getBlockState(pos.up()).isIn(this.blockTag) || this.getDefaultNodeType(this.entity, pos.up()).getDefaultPenalty() >= 0.0f) {
@@ -90,9 +90,9 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     @Nullable
     protected PathNode getPathNodeForHorizontal(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        MinecraftServer server = this.entity.getServer();
+        MinecraftServer server = this.entity.getEntityWorld().getServer();
         if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isIn(reqItem) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
-            World world = this.entity.getWorld();
+            World world = this.entity.getEntityWorld();
             BlockPos pos = new BlockPos(x, y, z);
             if(!world.getBlockState(pos.down()).isReplaceable() && !world.getBlockState(pos.down()).isIn(ModTags.Blocks.NOT_PASSABLE)){
                 if (world.getBlockState(pos).isIn(this.blockTag)){
@@ -114,7 +114,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
 
     @Override
     public int getSuccessors(PathNode[] successors, PathNode node) {
-        MinecraftServer server = this.entity.getServer();
+        MinecraftServer server = this.entity.getEntityWorld().getServer();
         if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isIn(reqItem) && (this.entity.getTarget() instanceof PlayerEntity || hasTargetBedPos(this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             PathNode pathNode16;
             PathNode pathNode15;
@@ -141,7 +141,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
                 j = MathHelper.floor(Math.max(1.0f, this.entity.getStepHeight()));
             }
             d = this.getFeetY(new BlockPos(node.x, node.y, node.z));
-            World world = this.entity.getWorld();
+            World world = this.entity.getEntityWorld();
             if (this.isValidAdjacentSuccessor(pathNode10 = this.getPathNodeVertical(node.x - 1, node.y + 1, node.z, j, d, Direction.WEST, pathNodeType1), node, world, node.x - 1, node.y + 1, node.z) && isPassable(world, node.x, node.y + 2, node.z)) {
                 successors[i++] = pathNode10;
             }
@@ -210,7 +210,7 @@ public class DestrZombPathNodeMaker extends LandPathNodeMaker {
         }
         BlockPos xDiagPos = new BlockPos(xDiagNode.x, xDiagNode.y, xDiagNode.z);
         BlockPos zDiagPos = new BlockPos(zDiagNode.x, zDiagNode.y, zDiagNode.z);
-        World world = this.entity.getWorld();
+        World world = this.entity.getEntityWorld();
         if(world.getBlockState(xDiagPos).isIn(blockTag) || world.getBlockState(xDiagPos.up()).isIn(blockTag)) return false;
         if(world.getBlockState(zDiagPos).isIn(blockTag) || world.getBlockState(zDiagPos.up()).isIn(blockTag)) return false;
         boolean bl = xDiagNode.type == PathNodeType.FENCE && zNode.type == PathNodeType.FENCE && (double)this.entity.getWidth() < 0.5;

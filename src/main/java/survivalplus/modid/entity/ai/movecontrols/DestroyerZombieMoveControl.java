@@ -72,7 +72,7 @@ extends MoveControl {
             this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.MOVEMENT_SPEED)));
             BlockPos blockPos = this.entity.getBlockPos();
             BlockPos facingPos = null;
-            BlockState blockState = this.entity.getWorld().getBlockState(blockPos);
+            BlockState blockState = this.entity.getEntityWorld().getBlockState(blockPos);
 
             switch (Direction.fromHorizontalDegrees(this.entity.getBodyYaw())){
                 case SOUTH -> facingPos = blockPos.up().south();
@@ -80,8 +80,8 @@ extends MoveControl {
                 case NORTH -> facingPos = blockPos.up().north();
                 case EAST -> facingPos = blockPos.up().east();
             }
-            World world = this.entity.getWorld();
-            VoxelShape voxelShape = blockState.getCollisionShape(this.entity.getWorld(), blockPos);
+            World world = this.entity.getEntityWorld();
+            VoxelShape voxelShape = blockState.getCollisionShape(this.entity.getEntityWorld(), blockPos);
             if ((facingPos == null || (!world.getBlockState(facingPos.up()).isIn(blockTag) && !world.getBlockState(facingPos).isIn(blockTag))) && (o > (double)this.entity.getStepHeight() && d * d + e * e < (double)Math.max(1.0f, this.entity.getWidth()) || !voxelShape.isEmpty() && this.entity.getY() < voxelShape.getMax(Direction.Axis.Y) + (double)blockPos.getY() && !blockState.isIn(BlockTags.DOORS) && !blockState.isIn(BlockTags.FENCES))) {
                 this.entity.getJumpControl().setActive();
                 this.state = State.JUMPING;

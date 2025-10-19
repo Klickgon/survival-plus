@@ -39,11 +39,11 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
             --this.cooldown;
             return false;
         }
-        MinecraftServer server = this.destroyerMob.getServer();
+        MinecraftServer server = this.destroyerMob.getEntityWorld().getServer();
         if (server == null || !server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
             return false;
         }
-        this.cooldown = 20 + this.mob.getWorld().random.nextInt(10);
+        this.cooldown = 20 + this.mob.getEntityWorld().random.nextInt(10);
         return this.findTargetPos();
     }
 
@@ -60,13 +60,13 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
 
     @Override
     public boolean shouldContinue() {
-        return this.tryingTime <= 1200 && !this.isTargetPos(this.mob.getWorld(), this.targetPos);
+        return this.tryingTime <= 1200 && !this.isTargetPos(this.mob.getEntityWorld(), this.targetPos);
     }
 
     @Override
     public void tick() {
         super.tick();
-        World world = this.destroyerMob.getWorld();
+        World world = this.destroyerMob.getEntityWorld();
         BlockPos blockPos = this.destroyerMob.getBlockPos();
         BlockPos blockPos2 = this.tweakToProperPos(blockPos, world);
         if (blockPos2 != null && blockPos2.isWithinDistance(blockPos, 2)) {
@@ -100,14 +100,14 @@ public class DestroyBedGoal extends MoveToTargetPosGoal {
 
     @Override
     protected boolean findTargetPos() {
-        List<ServerPlayerEntity> list = this.mob.getServer().getPlayerManager().getPlayerList();
+        List<ServerPlayerEntity> list = this.mob.getEntityWorld().getServer().getPlayerManager().getPlayerList();
         BlockPos temptargetpos = null;
         BlockPos mobpos = this.mob.getBlockPos();
         boolean bl = false;
         for(ServerPlayerEntity player : list){
             if(player.isCreative() || player.isSpectator()) continue;
             BlockPos spawnpos = ((IServerPlayerChanger)player).getMainSpawnPoint();
-            if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 32) && spawnpos.isWithinDistance(player.getBlockPos(), 48) && this.mob.getWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
+            if(spawnpos != null && spawnpos.isWithinDistance(mobpos, 32) && spawnpos.isWithinDistance(player.getBlockPos(), 48) && this.mob.getEntityWorld().getBlockState(spawnpos).isIn(BlockTags.BEDS)){
                 bl = true;
                 if(temptargetpos == null || spawnpos.getSquaredDistance(mobpos) < temptargetpos.getSquaredDistance(mobpos)){
                     temptargetpos = spawnpos;

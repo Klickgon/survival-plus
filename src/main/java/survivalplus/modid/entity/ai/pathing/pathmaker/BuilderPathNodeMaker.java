@@ -39,10 +39,10 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
     @Nullable
     protected PathNode getPathNodeForVertical(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        MinecraftServer server = this.entity.getServer();
+        MinecraftServer server = this.entity.getEntityWorld().getServer();
         if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getStackInHand(Hand.MAIN_HAND).isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             BlockPos pos = new BlockPos(x, y, z);
-            World world = this.entity.getWorld();
+            World world = this.entity.getEntityWorld();
             if (world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isReplaceable()) {
                 if (world.getBlockState(pos.down()).isAir())
                     return this.getNodeWith(x, y, z, PathNodeType.BREACH, PathNodeType.BREACH.getDefaultPenalty());
@@ -53,10 +53,10 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
     @Nullable
     protected PathNode getPathNodeForHorizontal(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType) {
-        MinecraftServer server = this.entity.getServer();
+        MinecraftServer server = this.entity.getEntityWorld().getServer();
         if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getMainHandStack().isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             BlockPos pos = new BlockPos(x, y, z);
-            World world = this.entity.getWorld();
+            World world = this.entity.getEntityWorld();
             if (world.getBlockState(pos).isReplaceable() && world.getBlockState(pos.up()).isReplaceable() ) {
                 if (world.getBlockState(pos.down()).isAir())
                     return this.getNodeWith(x, y, z, PathNodeType.BREACH, PathNodeType.BREACH.getDefaultPenalty());
@@ -67,7 +67,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
     @Override
     public int getSuccessors(PathNode[] successors, PathNode node) {
-        MinecraftServer server = this.entity.getServer();
+        MinecraftServer server = this.entity.getEntityWorld().getServer();
         if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getMainHandStack().isOf(Items.DIRT) && (this.entity.getTarget() != null || hasTargetBedPos((BuilderZombieEntity) this.entity) || ((IHostileEntityChanger)this.entity).getBaseAssault() != null)) {
             boolean usedVerticalNodeAsSuccessor = false;
             PathNode pathNode16;
@@ -169,7 +169,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
         }
         BlockPos xDiagPos = new BlockPos(xDiagNode.x, xDiagNode.y, xDiagNode.z);
         BlockPos zDiagPos = new BlockPos(zDiagNode.x, zDiagNode.y, zDiagNode.z);
-        World world = this.entity.getWorld();
+        World world = this.entity.getEntityWorld();
         if(world.getBlockState(xDiagPos.down()).isReplaceable() || world.getBlockState(zDiagPos.down()).isReplaceable()) return false;
         boolean bl = xDiagNode.type == PathNodeType.FENCE && zNode.type == PathNodeType.FENCE && (double)this.entity.getWidth() < 0.5;
         return zDiagNode.penalty >= 0.0f && (xDiagNode.y < xNode.y || xDiagNode.penalty >= 0.0f || bl) && (zNode.y < xNode.y || zNode.penalty >= 0.0f || bl);
@@ -177,7 +177,7 @@ public class BuilderPathNodeMaker extends LandPathNodeMaker {
 
 
     protected boolean canChooseUpwardNode(int x, int y, int z){
-        World world = this.entity.getWorld();
+        World world = this.entity.getEntityWorld();
         BlockPos pos = new BlockPos(x, y, z);
         if(!world.getBlockState(pos.down()).isAir()) return true;
         return this.verticalPathNodeCounter <= 0;

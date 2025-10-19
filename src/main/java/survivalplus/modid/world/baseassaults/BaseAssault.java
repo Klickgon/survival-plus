@@ -256,9 +256,9 @@ public class BaseAssault {
 
     public void start(PlayerEntity player, ServerWorld world) {
         Stat<Identifier> stat = Stats.CUSTOM.getOrCreateStat(ModPlayerStats.TIME_WITHOUT_CUSTOM_RESPAWNPOINT);
-        StatHandler handler = player.getServer().getPlayerManager().getPlayer(player.getUuid()).getStatHandler();
+        StatHandler handler = player.getEntityWorld().getServer().getPlayerManager().getPlayer(player.getUuid()).getStatHandler();
         handler.setStat(player, stat, Math.max(0, handler.getStat(stat) - 72000));
-        if(!world.isClient && !startSoundPlayed){
+        if(!world.isClient() && !startSoundPlayed){
             Random rand = world.random;
             int x = rand.nextInt(6);
             int z = rand.nextInt(6);
@@ -424,7 +424,7 @@ public class BaseAssault {
     }
 
     protected void dropXp(ServerWorld world) {
-        ExperienceOrbEntity.spawn(world, this.attachedPlayer.getPos().add(0,0.5,0), calcWaveSize(this.wave) * 10);
+        ExperienceOrbEntity.spawn(world, this.attachedPlayer.getEntityPos().add(0,0.5,0), calcWaveSize(this.wave) * 10);
     }
 
     private void updateCenter(ServerWorld world) {

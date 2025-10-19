@@ -86,14 +86,14 @@ extends PersistentState {
     }
     
     public void startBaseAssault(ServerPlayerEntity player) {
-        ServerWorld world = player.getWorld();
+        ServerWorld world = player.getEntityWorld();
         if (player.isSpectator() || player.isCreative()) {
             return;
         }
         if (world.getGameRules().getBoolean(ModGamerules.DISABLE_BASEASSAULTS) || world.getDifficulty() == Difficulty.PEACEFUL) {
             return;
         }
-        DimensionType dimensionType = player.getWorld().getDimension();
+        DimensionType dimensionType = player.getEntityWorld().getDimension();
         if (!dimensionType.bedWorks()) {
             return;
         }
@@ -101,7 +101,7 @@ extends PersistentState {
         BlockPos playerPos = player.getBlockPos();
         if(playerState.baseAssaultTimer < BASE_ASSAULT_TIME_NEEDED) {
             if(playerState.baseAssaultTimer > (BASE_ASSAULT_TIME_NEEDED - 36000) && !playerState.receivedBAWarningMessage) {
-                if(!world.isClient){
+                if(!world.isClient()){
                     Random rand = world.random;
                     int x = rand.nextInt(6);
                     int z = rand.nextInt(6);

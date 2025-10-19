@@ -47,7 +47,7 @@ public class DestroyerZombAttackGoal extends ZombieAttackGoal {
             return;
         }
         if(this.lookCounter-- <= 0 && this.lookCounterCooldown-- <= 0 && this.random.nextInt(70) < 3) this.lookCounter = (byte) random.nextBetween(10, 30);
-        if((this.lookCounter > 0 || this.mob.getPos().squaredDistanceTo(livingEntity.getPos()) < 16) && !breakableBlockWithinPath()){
+        if((this.lookCounter > 0 || this.mob.getEntityPos().squaredDistanceTo(livingEntity.getEntityPos()) < 16) && !breakableBlockWithinPath()){
             this.mob.getLookControl().lookAt(livingEntity, 30.0f, 30.0f);
             this.lookCounterCooldown = (byte) (20 + random.nextInt(30));
         }
@@ -78,7 +78,7 @@ public class DestroyerZombAttackGoal extends ZombieAttackGoal {
         Path path = this.zombie.getNavigation().getCurrentPath();
         if(path == null || path.getCurrentNodeIndex() >= path.getLength()) return false;
         BlockPos pathBlockPos = path.getCurrentNodePos();
-        World world = this.zombie.getWorld();
+        World world = this.zombie.getEntityWorld();
         return world.getBlockState(pathBlockPos).isIn(blockTag) || world.getBlockState(pathBlockPos.up()).isIn(blockTag);
     }
 }

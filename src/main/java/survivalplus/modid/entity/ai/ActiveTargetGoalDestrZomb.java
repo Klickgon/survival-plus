@@ -81,7 +81,7 @@ extends TrackTargetGoal {
         if (this.reciprocalChance > 0 && this.mob.getRandom().nextInt(this.reciprocalChance) != 0) {
             return false;
         }
-        World world = this.mob.getWorld();
+        World world = this.mob.getEntityWorld();
         BlockPos pos = this.mob.getBlockPos();
         if(world.getBlockState(pos).isIn(blockTag) || world.getBlockState(pos.up()).isIn(blockTag)) return false;
         this.findClosestTarget();
@@ -97,7 +97,7 @@ extends TrackTargetGoal {
         ServerWorld serverWorld = getServerWorld(this.mob);
         if (this.targetClass != PlayerEntity.class && this.targetClass != ServerPlayerEntity.class) {
             this.targetEntity = serverWorld.getClosestEntity(
-                    this.mob.getWorld().getEntitiesByClass(this.targetClass, this.getSearchBox(this.getFollowRange()), livingEntity -> true),
+                    this.mob.getEntityWorld().getEntitiesByClass(this.targetClass, this.getSearchBox(this.getFollowRange()), livingEntity -> true),
                     this.getAndUpdateTargetPredicate(),
                     this.mob,
                     this.mob.getX(),
@@ -122,10 +122,10 @@ extends TrackTargetGoal {
 
     @Override
     public void tick() {
-        MinecraftServer server = this.mob.getServer();
+        MinecraftServer server = this.mob.getEntityWorld().getServer();
         if(server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.destroyBlockCooldownCounter <= 0){
             if(this.targetEntity != null && this.mob.getNavigation().getCurrentPath() != null && this.mob.getStackInHand(Hand.MAIN_HAND).isIn(reqItem)){
-                World world = this.mob.getWorld();
+                World world = this.mob.getEntityWorld();
                 BlockPos currentPos = ((IHostileEntityChanger)this.mob).getElevatedBlockPos();
 
                 int DiffY = calcDiffY(); // Positive: Target is higher, Negative: Zombie is Higher

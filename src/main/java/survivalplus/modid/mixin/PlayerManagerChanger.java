@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,12 +31,12 @@ public class PlayerManagerChanger {
 
     @Redirect(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;getRespawnTarget(ZLnet/minecraft/world/TeleportTarget$PostDimensionTransition;)Lnet/minecraft/world/TeleportTarget;"))
     private TeleportTarget endPortalToOverworldFixDimension(ServerPlayerEntity instance, boolean alive, TeleportTarget.PostDimensionTransition postDimensionTransition){
-        return ((IServerPlayerChanger)instance).getShouldNotSpawnAtAnchor() ? new TeleportTarget(instance.getWorld(), instance, TeleportTarget.NO_OP) : instance.getRespawnTarget(alive, TeleportTarget.NO_OP);
+        return ((IServerPlayerChanger)instance).getShouldNotSpawnAtAnchor() ? new TeleportTarget(instance.getEntityWorld(), Vec3d.ZERO, Vec3d.ZERO, 0.0f, 0.0f, TeleportTarget.NO_OP) : instance.getRespawnTarget(alive, TeleportTarget.NO_OP);
     }
 
     @ModifyExpressionValue(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z"))
     private boolean differentDimensionSpawnSoundFix(boolean original, ServerPlayerEntity serverPlayerEntity, @Local ServerPlayerEntity.Respawn respawn){
-        return original && serverPlayerEntity.getWorld().getRegistryKey() == respawn.dimension();
+        return original && serverPlayerEntity.getEntityWorld().getRegistryKey() == respawn.respawnData().getDimension();
     }
 
     @Inject(method = "respawnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;setMainArm(Lnet/minecraft/util/Arm;)V"))

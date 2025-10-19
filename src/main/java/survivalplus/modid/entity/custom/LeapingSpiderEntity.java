@@ -71,7 +71,7 @@ extends SpiderEntity {
     public void tick() {
         super.tick();
         this.attackCooldown--;
-        if (!this.getWorld().isClient) {
+        if (!this.getEntityWorld().isClient()) {
             this.setClimbingWall(this.horizontalCollision);
         }
     }
@@ -127,7 +127,7 @@ extends SpiderEntity {
                 livingEntity.takeKnockback(g * 0.5f, MathHelper.sin(this.getYaw() * ((float)Math.PI / 180)), -MathHelper.cos(this.getYaw() * ((float)Math.PI / 180)));
                 this.setVelocity(this.getVelocity().multiply(0.6, 1.0, 0.6));
             }
-            if ((world2 = this.getWorld()) instanceof ServerWorld) {
+            if ((world2 = this.getEntityWorld()) instanceof ServerWorld) {
                 ServerWorld serverWorld2 = (ServerWorld)world2;
                 EnchantmentHelper.onTargetDamaged(serverWorld2, target, damageSource);
             }

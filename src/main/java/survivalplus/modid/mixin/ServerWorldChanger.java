@@ -5,7 +5,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stats;
@@ -94,7 +93,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    public void constructorInject(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, boolean debugWorld, long seed, List spawners, boolean shouldTickTime, RandomSequencesState randomSequencesState, CallbackInfo ci){
+    public void constructorInject(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey worldKey, DimensionOptions dimensionOptions, boolean debugWorld, long seed, List spawners, boolean shouldTickTime, RandomSequencesState randomSequenceState, CallbackInfo ci){
         ServerWorld sworld = this.toServerWorld();
         this.baseAssaultManager = sworld.getPersistentStateManager().getOrCreate(BaseAssaultManager.getPersistentStateType(this.getDimensionEntry()));
     }
@@ -111,7 +110,7 @@ public abstract class ServerWorldChanger extends World implements IServerWorldCh
             this.baseAssaultManager.startBaseAssault(serverPlayer);
             BlockPos spawnPoint = ((IServerPlayerChanger) serverPlayer).getMainSpawnPoint();
             if(spawnPoint != null && this.getBlockState(spawnPoint).isIn(BlockTags.BEDS)){
-                double distance = serverPlayer.getPos().squaredDistanceTo(spawnPoint.toCenterPos());
+                double distance = serverPlayer.getEntityPos().squaredDistanceTo(spawnPoint.toCenterPos());
                 if(distance < 9216)
                     playerData.baseAssaultTimer += 2;
                 else if(distance < 65536 && playerData.baseAssaultTimer < BaseAssaultManager.BASE_ASSAULT_TIME_NEEDED - 3000)

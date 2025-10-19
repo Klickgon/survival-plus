@@ -97,7 +97,7 @@ public class ReeperEntity
                     this.lostTarget = false;
                 }
             }
-            MinecraftServer server = this.getServer();
+            MinecraftServer server = this.getEntityWorld().getServer();
             if(server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
                 Path path = this.getNavigation().getCurrentPath();
                 if(path != null && path.getLength() > path.getCurrentNodeIndex()){
@@ -125,7 +125,7 @@ public class ReeperEntity
 
     private void igniteWithEntityCheck(){
         Vec3d vec3d = Vec3d.ofBottomCenter(this.getBlockPos());
-        List<HostileEntity> list = this.getWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d.getX() - 3.0, vec3d.getY() - 3.0, vec3d.getZ() - 3.0, vec3d.getX() + 3.0, vec3d.getY() + 3.0, vec3d.getZ() + 3.0), hostileEntity -> true);
+        List<HostileEntity> list = this.getEntityWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d.getX() - 3.0, vec3d.getY() - 3.0, vec3d.getZ() - 3.0, vec3d.getX() + 3.0, vec3d.getY() + 3.0, vec3d.getZ() + 3.0), hostileEntity -> true);
         if (list.size() < 4) {
             this.setFuseSpeed(1);
         }
@@ -146,7 +146,7 @@ public class ReeperEntity
     private void spawnEffectsCloud() {
         Collection<StatusEffectInstance> collection = this.getStatusEffects();
         if (!collection.isEmpty()) {
-            AreaEffectCloudEntity areaEffectCloudEntity = new AreaEffectCloudEntity(this.getWorld(), this.getX(), this.getY(), this.getZ());
+            AreaEffectCloudEntity areaEffectCloudEntity = new AreaEffectCloudEntity(this.getEntityWorld(), this.getX(), this.getY(), this.getZ());
             areaEffectCloudEntity.setRadius(2.5f);
             areaEffectCloudEntity.setRadiusOnUse(-0.5f);
             areaEffectCloudEntity.setWaitTime(10);
@@ -155,7 +155,7 @@ public class ReeperEntity
             for (StatusEffectInstance statusEffectInstance : collection) {
                 areaEffectCloudEntity.addEffect(new StatusEffectInstance(statusEffectInstance));
             }
-            this.getWorld().spawnEntity(areaEffectCloudEntity);
+            this.getEntityWorld().spawnEntity(areaEffectCloudEntity);
         }
     }
 

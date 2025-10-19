@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stat;
@@ -18,7 +19,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldProperties;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -43,8 +46,6 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
         super(world, profile);
     }
 
-    @Shadow public abstract ServerWorld getWorld();
-
     @Shadow public abstract void resetStat(Stat<?> stat);
 
     @Shadow public abstract void increaseStat(Stat<?> stat, int amount);
@@ -53,12 +54,21 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
 
     @Shadow public abstract @Nullable ServerPlayerEntity.Respawn getRespawn();
 
+    @Shadow
+    @Final
+    private MinecraftServer server;
+
+    @Shadow
+    public abstract ServerWorld getEntityWorld();
+
     @Unique public boolean shouldNotSpawnAtAnchor = false;
 
     @Unique
     private static Optional<ModRespawnPos> findModRespawnPosition(ServerWorld world, ServerPlayerEntity.Respawn respawn, boolean bl) {
-        BlockPos blockPos = respawn.pos();
-        float f = respawn.angle();
+        WorldProperties.SpawnPoint spawnPoint = respawn.respawnData();
+        BlockPos blockPos = spawnPoint.getPos();
+        float f = spawnPoint.yaw();
+        float g = spawnPoint.pitch();
         boolean bl2 = respawn.forced();
         BlockState blockState = world.getBlockState(blockPos);
         Block block = blockState.getBlock();
@@ -67,10 +77,10 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
             if (!bl2 && bl && optional.isPresent()) {
                 world.setBlockState(blockPos, blockState.with(RespawnAnchorBlock.CHARGES, (Integer)blockState.get(RespawnAnchorBlock.CHARGES) - 1), Block.NOTIFY_ALL);
             }
-            return optional.map(respawnPos -> ModRespawnPos.fromCurrentPos(respawnPos, blockPos));
+            return optional.map(respawnPos -> ModRespawnPos.fromCurrentPos(respawnPos, blockPos, 0.0F));
         } else if (block instanceof BedBlock && BedBlock.isBedWorking(world)) {
             return BedBlock.findWakeUpPosition(EntityType.PLAYER, world, blockPos, blockState.get(BedBlock.FACING), f)
-                    .map(respawnPos -> ModRespawnPos.fromCurrentPos(respawnPos, blockPos));
+                    .map(respawnPos -> ModRespawnPos.fromCurrentPos(respawnPos, blockPos, 0.0F));
         } else if (!bl2) {
             return Optional.empty();
         } else {
@@ -78,7 +88,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
             BlockState blockState2 = world.getBlockState(blockPos.up());
             boolean bl4 = blockState2.getBlock().canMobSpawnInside(blockState2);
             return bl3 && bl4
-                    ? Optional.of(new ModRespawnPos(new Vec3d(blockPos.getX() + 0.5, blockPos.getY() + 0.1, blockPos.getZ() + 0.5), f))
+                    ? Optional.of(new ModRespawnPos(new Vec3d(blockPos.getX() + 0.5, blockPos.getY() + 0.1, blockPos.getZ() + 0.5), f, g))
                     : Optional.empty();
         }
     }
@@ -86,8 +96,8 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isSpectator()Z"))
     private boolean noRespawnPointPunishment(ServerPlayerEntity instance){
         return !this.isSpectator() &&
-                !(this.isCreative() || ((this.getRespawn() != null && findModRespawnPosition(instance.getWorld(), this.getRespawn(), false).isPresent())
-                                || this.getServer().getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN)));
+                !(this.isCreative() || ((this.getRespawn() != null && findModRespawnPosition(instance.getEntityWorld(), this.getRespawn(), false).isPresent())
+                                || this.server.getGameRules().getBoolean(ModGamerules.INVENTORY_DROP_W_NO_SPAWN)));
     }
 
     @Inject(method = "onDeath", at = @At(value = "TAIL"))
@@ -100,7 +110,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     @Inject(method = "trySleep", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;trySleep(Lnet/minecraft/util/math/BlockPos;)Lcom/mojang/datafixers/util/Either;", shift = At.Shift.BEFORE), cancellable = true)
     private void sleepFailureInject(BlockPos pos, CallbackInfoReturnable<Either<SleepFailureReason, Unit>> cir){
         if(!this.isCreative()){
-            BaseAssault baseAssault = ((IServerWorldChanger)this.getWorld()).getBaseAssaultAt(this.getBlockPos());
+            BaseAssault baseAssault = ((IServerWorldChanger)this.getEntityWorld()).getBaseAssaultAt(this.getBlockPos());
             if(baseAssault != null && !(baseAssault.isFinished() || baseAssault.hasStopped()))
                 cir.setReturnValue(Either.left(SleepFailureReason.NOT_SAFE));
         }
@@ -108,12 +118,12 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
 
     @ModifyExpressionValue(method = "trySleep", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;isDay()Z"))
     private boolean sleepReqCanceler(boolean original){
-        return ((IServerWorldChanger)this.getWorld()).notEnoughTimeSinceRest();
+        return ((IServerWorldChanger)this.getEntityWorld()).notEnoughTimeSinceRest();
     }
 
     @Inject(method = "getRespawn", at = @At(value = "HEAD"), cancellable = true)
     private void tempSpawnPositionImplementation(CallbackInfoReturnable<ServerPlayerEntity.Respawn> cir){
-        ServerWorld world = this.getWorld();
+        ServerWorld world = this.getEntityWorld();
         ServerPlayerEntity.Respawn tempRespawn = PlayerData.getPlayerState(this).tempRespawn;
         if(tempRespawn != null && isValidRespawnAnchor(tempRespawn, world) )
             cir.setReturnValue(tempRespawn);
@@ -124,7 +134,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
     private void tempSpawnImplementation(ServerPlayerEntity.Respawn respawn, boolean sendMessage, CallbackInfo ci){
         PlayerData pdata = PlayerData.getPlayerState(this);
         if (respawn != null) {
-            if(isValidRespawnAnchor(respawn, this.getWorld())){
+            if(isValidRespawnAnchor(respawn, this.getEntityWorld())){
                 boolean bl;
                 bl = respawn.equals(pdata.tempRespawn);
                 if (sendMessage && !bl) {
@@ -150,8 +160,9 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
 
     @Unique
     public boolean isValidRespawnAnchor(ServerPlayerEntity.Respawn respawn, World world){
-        BlockState state = world.getBlockState(respawn.pos());
-        return state.isOf(Blocks.RESPAWN_ANCHOR) && state.get(CHARGES) > 0 && RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, respawn.pos()).isPresent();
+        WorldProperties.SpawnPoint spawnPoint = respawn.respawnData();
+        BlockState state = world.getBlockState(spawnPoint.getPos());
+        return state.isOf(Blocks.RESPAWN_ANCHOR) && state.get(CHARGES) > 0 && RespawnAnchorBlock.findRespawnPosition(EntityType.PLAYER, world, spawnPoint.getPos()).isPresent();
     }
 
     @Unique
@@ -161,7 +172,7 @@ public abstract class ServerPlayerEntityChanger extends PlayerEntity implements 
 
     @Unique
     public BlockPos getMainSpawnPoint(){
-        return this.respawn == null ? null : this.respawn.pos();
+        return this.respawn == null ? null : this.respawn.respawnData().getPos();
     }
 
     @Unique

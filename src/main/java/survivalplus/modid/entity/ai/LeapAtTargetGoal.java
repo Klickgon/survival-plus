@@ -60,11 +60,11 @@ extends Goal {
     }
 
     protected void attack(LivingEntity target) {
-        MinecraftServer server = this.mob.getServer();
+        MinecraftServer server = this.mob.getEntityWorld().getServer();
         if (server != null && this.canAttack(target) && !this.mob.isAttacking()) {
             this.mob.isLeaping = true;
             this.mob.swingHand(Hand.MAIN_HAND);
-            boolean bl = this.mob.tryAttack(server.getWorld(this.mob.getWorld().getRegistryKey()), target);
+            boolean bl = this.mob.tryAttack(server.getWorld(this.mob.getEntityWorld().getRegistryKey()), target);
             this.canLeapAttack = !bl;
         }
     }

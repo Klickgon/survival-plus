@@ -59,7 +59,7 @@ public class MinerZombieEntity
 
     public MinerZombieEntity(EntityType<? extends ZombieEntity> entityType, World world) {
         super(entityType, world);
-        this.navigation = new DestroyZombieNavigation(this, this.getWorld());
+        this.navigation = new DestroyZombieNavigation(this, this.getEntityWorld());
         this.moveControl = new DestroyerZombieMoveControl(this);
     }
 
@@ -109,7 +109,7 @@ public class MinerZombieEntity
 
     @Override
     public void tick() {
-        if (!this.getWorld().isClient && this.isAlive() && !this.isAiDisabled()) {
+        if (!this.getEntityWorld().isClient() && this.isAlive() && !this.isAiDisabled()) {
             if (this.isConvertingInWater()) {
                 --this.ticksUntilWaterConversion;
                 if (this.ticksUntilWaterConversion < 0) {
@@ -132,9 +132,9 @@ public class MinerZombieEntity
     @Override
     public void tickMovement() {
         if (this.isAlive()) {
-            MinecraftServer server = this.getServer();
-            if(server != null && this.freeingCooldown <= 0 && this.getServer().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
-                World world = this.getWorld();
+            MinecraftServer server = this.getEntityWorld().getServer();
+            if(server != null && this.freeingCooldown <= 0 && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)){
+                World world = this.getEntityWorld();
                 BlockPos pos = ((IHostileEntityChanger)this).getElevatedBlockPos();
                 if(world.getBlockState(pos.up()).isIn(BLOCKTAG)){
                     this.swingHand(Hand.MAIN_HAND);

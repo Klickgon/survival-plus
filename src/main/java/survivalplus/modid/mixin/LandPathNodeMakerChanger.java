@@ -19,7 +19,7 @@ public abstract class LandPathNodeMakerChanger extends PathNodeMaker {
 
     @Inject(method = "getPathNode", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/pathing/LandPathNodeMaker;getNodeWith(IIILnet/minecraft/entity/ai/pathing/PathNodeType;F)Lnet/minecraft/entity/ai/pathing/PathNode;"), cancellable = true)
     public void unpassableBlockFix(int x, int y, int z, int maxYStep, double prevFeetY, Direction direction, PathNodeType nodeType, CallbackInfoReturnable<PathNode> cir, @Local(ordinal = 1) PathNodeType pathNodeType){
-        if(((IPathNodeMakerChanger)this).getEntity().getWorld().getBlockState(new BlockPos(x,y,z)).isIn(ModTags.Blocks.NOT_PASSABLE) && pathNodeType != PathNodeType.DOOR_OPEN) cir.setReturnValue(null);
+        if(((IPathNodeMakerChanger)this).getEntity().getEntityWorld().getBlockState(new BlockPos(x,y,z)).isIn(ModTags.Blocks.NOT_PASSABLE) && pathNodeType != PathNodeType.DOOR_OPEN) cir.setReturnValue(null);
     }
 
 }

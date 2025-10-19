@@ -47,12 +47,12 @@ public class ReeperIgniteGoal extends Goal {
             if (this.reeper.squaredDistanceTo(this.target) > 49.0) {
                 return;
             }
-            MinecraftServer server = this.reeper.getServer();
+            MinecraftServer server = this.reeper.getEntityWorld().getServer();
             if (server == null || !server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && !this.reeper.getVisibilityCache().canSee(this.target)) {
                 return;
             }
             Vec3d vec3d = Vec3d.ofBottomCenter(this.reeper.getBlockPos());
-            List<HostileEntity> list = this.reeper.getWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d.getX() - 3.0, vec3d.getY() - 3.0, vec3d.getZ() - 3.0, vec3d.getX() + 3.0, vec3d.getY() + 3.0, vec3d.getZ() + 3.0), hostileEntity -> true);
+            List<HostileEntity> list = this.reeper.getEntityWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d.getX() - 3.0, vec3d.getY() - 3.0, vec3d.getZ() - 3.0, vec3d.getX() + 3.0, vec3d.getY() + 3.0, vec3d.getZ() + 3.0), hostileEntity -> true);
             if (list.size() < 3) {
                 this.reeper.ignite();
             }

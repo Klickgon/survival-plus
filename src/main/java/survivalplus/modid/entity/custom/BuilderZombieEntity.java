@@ -53,7 +53,7 @@ public class BuilderZombieEntity
 
     public BuilderZombieEntity(EntityType<? extends net.minecraft.entity.mob.ZombieEntity> entityType, World world) {
         super(entityType, world);
-        this.navigation = new BuilderZombieNavigation(this, this.getWorld());
+        this.navigation = new BuilderZombieNavigation(this, this.getEntityWorld());
         this.moveControl = new BuilderZombieMoveControl(this);
     }
 
@@ -104,7 +104,7 @@ public class BuilderZombieEntity
     @Override
     public void tick() {
         this.hasTargetBed = this.targetBedPos != null;
-        if (!this.getWorld().isClient && this.isAlive() && !this.isAiDisabled()) {
+        if (!this.getEntityWorld().isClient() && this.isAlive() && !this.isAiDisabled()) {
             if (this.isConvertingInWater()) {
                 --this.ticksUntilWaterConversion;
                 if (this.ticksUntilWaterConversion < 0) {
@@ -129,9 +129,9 @@ public class BuilderZombieEntity
         if (this.isAlive()) {
             LivingEntity target = getTarget();
             IHostileEntityChanger bzomb = (IHostileEntityChanger) this;
-            MinecraftServer server = this.getServer();
+            MinecraftServer server = this.getEntityWorld().getServer();
             if (server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.getMainHandStack().isOf(Items.DIRT) && DirtPlaceCooldown <= 0 && (target != null || this.hasTargetBed || bzomb.getBaseAssault() != null)) {
-                World world = this.getWorld();
+                World world = this.getEntityWorld();
                 if (calcDiffY() >= 0 && this.getNavigation().getCurrentPath() != null) {
                     BlockPos BlockUnder = this.getBlockPos().down();
                     if (canPlaceDirt(world, BlockUnder, BlockUnder.down())) {
@@ -164,7 +164,7 @@ public class BuilderZombieEntity
     }
 
     public void placeDirtBlock(BlockPos bpos){
-        World world = this.getWorld();
+        World world = this.getEntityWorld();
         this.swingHand(Hand.MAIN_HAND);
         world.setBlockState(bpos, Blocks.DIRT.getDefaultState());
         world.playSound(null, bpos, SoundEvents.BLOCK_GRAVEL_PLACE, SoundCategory.BLOCKS, 0.7f, 0.9f + world.random.nextFloat() * 0.2f);

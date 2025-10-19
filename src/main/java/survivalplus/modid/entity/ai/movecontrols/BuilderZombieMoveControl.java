@@ -71,18 +71,18 @@ public class BuilderZombieMoveControl extends MoveControl {
             this.entity.setYaw(this.wrapDegrees(this.entity.getYaw(), n, 90.0f));
             this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.MOVEMENT_SPEED)));
             BlockPos blockPos = this.entity.getBlockPos();
-            BlockState blockState = this.entity.getWorld().getBlockState(blockPos);
-            VoxelShape voxelShape = blockState.getCollisionShape(this.entity.getWorld(), blockPos);
+            BlockState blockState = this.entity.getEntityWorld().getBlockState(blockPos);
+            VoxelShape voxelShape = blockState.getCollisionShape(this.entity.getEntityWorld(), blockPos);
             if (jumpRequirement(o, d, e, voxelShape, blockPos, blockState)) {
                 this.entity.getJumpControl().setActive();
                 this.state = State.JUMPING;
             }
         } else if (this.state == State.JUMPING) {
             this.entity.setMovementSpeed((float)(this.speed * this.entity.getAttributeValue(EntityAttributes.MOVEMENT_SPEED)));
-            World world = this.entity.getWorld();
+            World world = this.entity.getEntityWorld();
             BuilderZombieEntity bzomb = (BuilderZombieEntity) this.entity;
             IHostileEntityChanger bzomb2 = (IHostileEntityChanger) this.entity;
-            MinecraftServer server = this.entity.getServer();
+            MinecraftServer server = this.entity.getEntityWorld().getServer();
             if(server != null && server.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING) && this.entity.getMainHandStack().isOf(Items.DIRT) && this.dirtJumpcooldown <= 0 && (bzomb.getTarget() != null || bzomb.hasTargetBed || bzomb2.getBaseAssault() != null)) {
                 BlockPos bzombpos = bzomb.getBlockPos();
                 if (isDirtJumpRequired(bzombpos.down(), world)) {

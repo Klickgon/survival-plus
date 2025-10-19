@@ -142,7 +142,7 @@ public class AdvancedBowAttackGoal<T extends AbstractSkeletonEntity>
         if(target == null) return false;
         Vec3d vec3d1 = this.actor.getEyePos();
         Vec3d vec3d2 = target.getEyePos();
-        List<HostileEntity> list = this.actor.getWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d1, vec3d2), hostileEntity -> true);
+        List<HostileEntity> list = this.actor.getEntityWorld().getEntitiesByClass(HostileEntity.class, new Box(vec3d1, vec3d2), hostileEntity -> true);
         int i = 0;
         for(HostileEntity h : list){
             if(h.getBoundingBox() == this.actor.getBoundingBox() || h.getClass() == target.getClass()) continue;
